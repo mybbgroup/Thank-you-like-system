@@ -372,7 +372,7 @@ function thankyoulike_activate()
 		find_replace_templatesets("postbit", "#".preg_quote("</div>\r\n</div>\r\n</div>")."#i", "</div>\n</div>\n<div style=\"{\$post['tyl_display']}\" id=\"tyl_{\$post['pid']}\">\n	{\$post['thankyoulike_data']}\n</div>\n</div>");
 	}
 	find_replace_templatesets("postbit_classic", "#".preg_quote('{$post[\'button_edit\']}')."#i", '{$post[\'button_tyl\']}{$post[\'button_edit\']}');
-	find_replace_templatesets("postbit_author_user", "#".preg_quote('	{$lang->postbit_posts} {$post[\'postnum\']}<br />')."#i", '	{$lang->postbit_posts} {$post[\'postnum\']}<br />
+	find_replace_templatesets("postbit_author_user", "#".preg_quote('	{$lang->postbit_threads} {$post[\'threadnum\']}<br />')."#i", '	{$lang->postbit_threads} {$post[\'threadnum\']}<br />
 	%%TYL_NUMTHANKEDLIKED%%<br />');
 	// AAArrrgghhhh!! CRLF/LF crap!
 	if(!find_replace_templatesets("member_profile", "#(".preg_quote('<td class="trow1">{$memprofile[\'postnum\']} ({$lang->ppd_percent_total})<br /><span class="smalltext">(<a href="search.php?action=finduserthreads&amp;uid={$uid}">{$lang->find_threads}</a> &mdash; <a href="search.php?action=finduser&amp;uid={$uid}">{$lang->find_posts}</a>)</span></td>')."[\n ]*".preg_quote('</tr>').")#i", "\\1\n{\$tyl_memprofile}"))
