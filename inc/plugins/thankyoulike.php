@@ -598,8 +598,8 @@ function thankyoulike_postbit($post)
 		// Setup the stat in postbit
 		if ($mybb->settings[$prefix.'thankslike'] == "like")
 		{
-			$lang->tyl_given = $lang->tyl_likes_given;
 			$lang->tyl_rcvd = $lang->tyl_likes_rcvd;
+			$lang->tyl_given = $lang->tyl_likes_given;
 			$post['tyl_unumrtyls'] = $lang->sprintf($lang->tyl_likes_rcvd_bit, my_number_format($post['tyl_unumrcvtyls']), my_number_format($post['tyl_unumptyls']));
 			$post['tyl_unumtyls'] = my_number_format($post['tyl_unumtyls']);
 			
@@ -607,8 +607,8 @@ function thankyoulike_postbit($post)
 		}
 		else if ($mybb->settings[$prefix.'thankslike'] == "thanks")
 		{
-			$lang->tyl_given = $lang->tyl_thanks_given;
 			$lang->tyl_rcvd = $lang->tyl_thanks_rcvd;
+			$lang->tyl_given = $lang->tyl_thanks_given;
 			$post['tyl_unumrtyls'] = $lang->sprintf($lang->tyl_thanks_rcvd_bit, my_number_format($post['tyl_unumrcvtyls']), my_number_format($post['tyl_unumptyls']));
 			$post['tyl_unumtyls'] = my_number_format($post['tyl_unumtyls']);
 			
