@@ -585,7 +585,7 @@ function thankyoulike_postbit($post)
 	
 	if ($mybb->settings[$prefix.'enabled'] == "1")
 	{		
-		// Check first if this post is in an exclued forum, if it is end right here.
+		// Check first if this post is in an excluded forum, if it is end right here.
 		$forums = explode(",", $mybb->settings[$prefix.'exclude']);
 		$excluded = false;
 		foreach($forums as $forum)
