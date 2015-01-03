@@ -319,7 +319,7 @@ function thankyoulike_activate()
 		'thankyoulike_classic'					=> "	<div class=\"post_buttons {\$unapproved_shade}\">
 		{\$tyl_expcol} 
 		<span id=\"tyl_title_{\$post['pid']}\" style=\"{\$tyl_title_display}\">{\$lang->tyl_title}</span><span id=\"tyl_title_collapsed_{\$post['pid']}\" style=\"{\$tyl_title_display_collapsed}\">{\$lang->tyl_title_collapsed}</span><br />
-		<span id=\"tyl_data_{\$post['pid']}\" style=\"{\$tyl_data_display}\">{\$post['thankyoulike']}</span>
+		<span id=\"tyl_data_{\$post['pid']}\" style=\"{\$tyl_data_display}\">&nbsp;&nbsp;• {\$post['thankyoulike']}</span>
 	</div>",
 		'thankyoulike_expcollapse'		=> "<a href=\"#\" onclick=\"thankyoulike.tgl({\$post['pid']});return false;\" title=\"{\$tyl_showhide}\" id=\"tyl_a_expcol_{\$post['pid']}\"><img src=\"{\$theme['imgdir']}/{\$tyl_expcolimg}\" style=\"vertical-align: bottom;\" alt=\"{\$tyl_showhide}\" id=\"tyl_i_expcol_{\$post['pid']}\" /></a> ",
 		'thankyoulike_button_add'		=> "<div style=\"display:inline-block\" id=\"tyl_btn_{\$post['pid']}\" class=\"postbit_buttons\"><a href=\"thankyoulike.php?action=add&amp;pid={\$post['pid']}&amp;my_post_key={\$mybb->post_code}\" onclick=\"return thankyoulike.add({\$post['pid']}, {\$post['tid']});\" title=\"{\$lang->add_tyl}\" id=\"tyl_a{\$post['pid']}\"><span style=\"background-image: url(images/thankyoulike/thx_add.png)\" id=\"tyl_i{\$post['pid']}\">{\$lang->add_tyl}</span></a></div>",
@@ -372,7 +372,7 @@ function thankyoulike_activate()
 		find_replace_templatesets("postbit", "#".preg_quote("</div>\r\n</div>\r\n</div>")."#i", "</div>\n</div>\n<div style=\"{\$post['tyl_display']}\" id=\"tyl_{\$post['pid']}\">\n	{\$post['thankyoulike_data']}\n</div>\n</div>");
 	}
 	find_replace_templatesets("postbit_classic", "#".preg_quote('{$post[\'button_edit\']}')."#i", '{$post[\'button_tyl\']}{$post[\'button_edit\']}');
-	find_replace_templatesets("postbit_author_user", "#".preg_quote('	{$lang->postbit_posts} {$post[\'postnum\']}<br />')."#i", '	{$lang->postbit_posts} {$post[\'postnum\']}<br />
+	find_replace_templatesets("postbit_author_user", "#".preg_quote('	{$lang->postbit_threads} {$post[\'threadnum\']}<br />')."#i", '	{$lang->postbit_threads} {$post[\'threadnum\']}<br />
 	%%TYL_NUMTHANKEDLIKED%%<br />');
 	// AAArrrgghhhh!! CRLF/LF crap!
 	if(!find_replace_templatesets("member_profile", "#(".preg_quote('<td class="trow1">{$memprofile[\'postnum\']} ({$lang->ppd_percent_total})<br /><span class="smalltext">(<a href="search.php?action=finduserthreads&amp;uid={$uid}">{$lang->find_threads}</a> &mdash; <a href="search.php?action=finduser&amp;uid={$uid}">{$lang->find_posts}</a>)</span></td>')."[\n ]*".preg_quote('</tr>').")#i", "\\1\n{\$tyl_memprofile}"))
