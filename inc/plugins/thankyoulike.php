@@ -49,7 +49,7 @@ function thankyoulike_info()
 	
     $info = array(
         "name"				=> "Thank You/Like System",
-        "description"		=> "Adds option for users to Thank the user for the post or 'Like' the post.<br /> Edit by: <a href=\"http://my-bb.ir\" target=\"_blank\">AliReza_Tofighi</a>",
+        "description"		=> "Adds option for users to Thank the user for the post or 'Like' the post.<br /> Edit by: <a href=\"http://my-bb.ir\" target=\"_blank\">AliReza_Tofighi</a>", enchanted by: <a href=\"https://github.com/Cu8eR/thankyou-like-plugin\" target=\"_blank\">Eldenroot and SvePu</a>
         "website"			=> "http://www.geekplugins.com/mybb/thankyoulikesystem",
         "author"			=> "- G33K -",
         "authorsite"		=> "http://community.mybboard.net/user-19236.html",
