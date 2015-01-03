@@ -1,7 +1,9 @@
 Thank you/like plugin
 ====================
 
-This plugin was created by -G33K- /http://community.mybb.com/user-19236.html/ and modified for MyBB 1.8.x by ATofighi /http://community.mybb.com/user-69212.html/. 
+MyBB forum topic: http://community.mybb.com/thread-59652.html
+
+This plugin was created by -G33K- /http://community.mybb.com/user-19236.html / and modified for MyBB 1.8.x by ATofighi /http://community.mybb.com/user-69212.html /. 
 
 This is one of the best plugin for MyBB. It needs some love, so we (@Eldenroot and @SvePu) decided to fix known bugs and make it better. 
 
