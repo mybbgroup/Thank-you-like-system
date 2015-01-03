@@ -325,16 +325,16 @@ function thankyoulike_activate()
 		'thankyoulike_button_add'		=> "<div style=\"display:inline-block\" id=\"tyl_btn_{\$post['pid']}\" class=\"postbit_buttons\"><a href=\"thankyoulike.php?action=add&amp;pid={\$post['pid']}&amp;my_post_key={\$mybb->post_code}\" onclick=\"return thankyoulike.add({\$post['pid']}, {\$post['tid']});\" title=\"{\$lang->add_tyl}\" id=\"tyl_a{\$post['pid']}\"><span style=\"background-image: url(images/thankyoulike/thx_add.png)\" id=\"tyl_i{\$post['pid']}\">{\$lang->add_tyl}</span></a></div>",
 		'thankyoulike_button_del'		=> "<div style=\"display:inline-block\" id=\"tyl_btn_{\$post['pid']}\" class=\"postbit_buttons\"><a href=\"thankyoulike.php?action=del&amp;pid={\$post['pid']}&amp;my_post_key={\$mybb->post_code}\" onclick=\"return thankyoulike.del({\$post['pid']}, {\$post['tid']});\" title=\"{\$lang->del_tyl}\" id=\"tyl_a{\$post['pid']}\"><span style=\"background-image: url(images/thankyoulike/thx_del.png)\" id=\"tyl_i{\$post['pid']}\">{\$lang->del_tyl}</span></a></div>",
 		'thankyoulike_users'			=> "<span class=\"smalltext\">{\$comma}</span><a href=\"{\$profile_link}\" class=\"smalltext\" title=\"{\$dt}\">{\$username}</a>",
-		'thankyoulike_postbit'			=> "{\$lang->tyl_given}: {\$post['tyl_unumtyls']}
+		'thankyoulike_postbit'			=> "{\$lang->tyl_rcvd}: {\$post['tyl_unumrtyls']}
 <br />
-{\$lang->tyl_rcvd}: {\$post['tyl_unumrtyls']}",
+{\$lang->tyl_given}: {\$post['tyl_unumtyls']}",
 		'thankyoulike_memprofile'		=> "<tr>
-<td class=\"trow1\"><strong>{\$lang->tyl_total_tyls_given}</strong></td>
-<td class=\"trow1\">{\$memprofile['tyl_unumtyls']} ({\$tylpd_percent_total})<br /><span class=\"smalltext\">(<a href=\"tylsearch.php?action=usertylthreads&amp;uid={\$uid}\">{\$lang->tyl_find_threads}</a> &mdash; <a href=\"tylsearch.php?action=usertylposts&amp;uid={\$uid}\">{\$lang->tyl_find_posts}</a>)</span></td>
-</tr>
-<tr>
 <td class=\"trow1\"><strong>{\$lang->tyl_total_tyls_rcvd}</strong></td>
 <td class=\"trow1\">{\$memprofile['tyl_unumrcvtyls']} ({\$tylrcvpd_percent_total})<br /><span class=\"smalltext\">(<a href=\"tylsearch.php?action=usertylforthreads&amp;uid={\$uid}\">{\$lang->tyl_find_threads_for}</a> &mdash; <a href=\"tylsearch.php?action=usertylforposts&amp;uid={\$uid}\">{\$lang->tyl_find_posts_for}</a>)</span></td>
+</tr>
+<tr>
+<td class=\"trow1\"><strong>{\$lang->tyl_total_tyls_given}</strong></td>
+<td class=\"trow1\">{\$memprofile['tyl_unumtyls']} ({\$tylpd_percent_total})<br /><span class=\"smalltext\">(<a href=\"tylsearch.php?action=usertylthreads&amp;uid={\$uid}\">{\$lang->tyl_find_threads}</a> &mdash; <a href=\"tylsearch.php?action=usertylposts&amp;uid={\$uid}\">{\$lang->tyl_find_posts}</a>)</span></td>
 </tr>"
 					);
 	
