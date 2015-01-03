@@ -319,7 +319,7 @@ function thankyoulike_activate()
 		'thankyoulike_classic'					=> "	<div class=\"post_buttons {\$unapproved_shade}\">
 		{\$tyl_expcol} 
 		<span id=\"tyl_title_{\$post['pid']}\" style=\"{\$tyl_title_display}\">{\$lang->tyl_title}</span><span id=\"tyl_title_collapsed_{\$post['pid']}\" style=\"{\$tyl_title_display_collapsed}\">{\$lang->tyl_title_collapsed}</span><br />
-		<span id=\"tyl_data_{\$post['pid']}\" style=\"{\$tyl_data_display}\">{\$post['thankyoulike']}</span>
+		<span id=\"tyl_data_{\$post['pid']}\" style=\"{\$tyl_data_display}\">&nbsp;&nbsp;• {\$post['thankyoulike']}</span>
 	</div>",
 		'thankyoulike_expcollapse'		=> "<a href=\"#\" onclick=\"thankyoulike.tgl({\$post['pid']});return false;\" title=\"{\$tyl_showhide}\" id=\"tyl_a_expcol_{\$post['pid']}\"><img src=\"{\$theme['imgdir']}/{\$tyl_expcolimg}\" style=\"vertical-align: bottom;\" alt=\"{\$tyl_showhide}\" id=\"tyl_i_expcol_{\$post['pid']}\" /></a> ",
 		'thankyoulike_button_add'		=> "<div style=\"display:inline-block\" id=\"tyl_btn_{\$post['pid']}\" class=\"postbit_buttons\"><a href=\"thankyoulike.php?action=add&amp;pid={\$post['pid']}&amp;my_post_key={\$mybb->post_code}\" onclick=\"return thankyoulike.add({\$post['pid']}, {\$post['tid']});\" title=\"{\$lang->add_tyl}\" id=\"tyl_a{\$post['pid']}\"><span style=\"background-image: url(images/thankyoulike/thx_add.png)\" id=\"tyl_i{\$post['pid']}\">{\$lang->add_tyl}</span></a></div>",
