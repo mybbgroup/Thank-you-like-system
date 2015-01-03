@@ -324,7 +324,7 @@ function thankyoulike_activate()
 		'thankyoulike_expcollapse'		=> "<a href="#" onclick="thankyoulike.tgl({$post['pid']});return false;" title="{$tyl_showhide}" id="tyl_a_expcol_{$post['pid']}"><img src="{$theme['imgdir']}/{$tyl_expcolimg}" style="vertical-align: bottom;" alt="{$tyl_showhide}" id="tyl_i_expcol_{$post['pid']}" /></a> ",
 		'thankyoulike_button_add'		=> "<div style=\"display:inline-block\" id=\"tyl_btn_{\$post['pid']}\" class=\"postbit_buttons\"><a href=\"thankyoulike.php?action=add&amp;pid={\$post['pid']}&amp;my_post_key={\$mybb->post_code}\" onclick=\"return thankyoulike.add({\$post['pid']}, {\$post['tid']});\" title=\"{\$lang->add_tyl}\" id=\"tyl_a{\$post['pid']}\"><span style=\"background-image: url(images/thankyoulike/thx_add.png)\" id=\"tyl_i{\$post['pid']}\">{\$lang->add_tyl}</span></a></div>",
 		'thankyoulike_button_del'		=> "<div style=\"display:inline-block\" id=\"tyl_btn_{\$post['pid']}\" class=\"postbit_buttons\"><a href=\"thankyoulike.php?action=del&amp;pid={\$post['pid']}&amp;my_post_key={\$mybb->post_code}\" onclick=\"return thankyoulike.del({\$post['pid']}, {\$post['tid']});\" title=\"{\$lang->del_tyl}\" id=\"tyl_a{\$post['pid']}\"><span style=\"background-image: url(images/thankyoulike/thx_del.png)\" id=\"tyl_i{\$post['pid']}\">{\$lang->del_tyl}</span></a></div>",
-		'thankyoulike_users'			=> "<span class=\"smalltext\">{\$comma}</span><a href=\"{\$profile_link}\" class=\"smalltext\">{\$username}</a><span class=\"smalltext\">{\$dt}</span>",
+		'thankyoulike_users'			=> "<span class="smalltext">{$comma}</span><a href="{$profile_link}" class="smalltext" title="{$dt}">{$username}</a>",
 		'thankyoulike_postbit'			=> "{\$lang->tyl_given}: {\$post['tyl_unumtyls']}
 <br />
 {\$lang->tyl_rcvd}: {\$post['tyl_unumrtyls']}",
@@ -680,7 +680,7 @@ function thankyoulike_postbit($post)
 				$profile_link = get_profile_link($tyl['uid']);
 				// Format username...or not
 				$username = $mybb->settings[$prefix.'unameformat'] == "1" ? format_name($tyl['username'], $tyl['usergroup'], $tyl['displaygroup']) : $tyl['username'];
-				$dt = $mybb->settings[$prefix.'showdt'] == "1" ? " (".my_date($mybb->settings[$prefix.'dtformat'], $tyl['dateline']).")" : "";
+				$dt = $mybb->settings[$prefix.'showdt'] == "1" ? " ".my_date($mybb->settings[$prefix.'dtformat'], $tyl['dateline'])."" : "";
 				eval("\$thankyoulike_users = \"".$templates->get("thankyoulike_users", 1, 0)."\";");
 				$tyls .= trim($thankyoulike_users);
 				$comma = ', ';	
