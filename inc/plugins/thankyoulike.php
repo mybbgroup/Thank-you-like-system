@@ -830,8 +830,8 @@ function thankyoulike_postbit_udetails($post)
 	{		
 		if ($mybb->settings[$prefix.'thankslike'] == "like")
 		{
-			$lang->tyl_given = $lang->tyl_likes_given;
 			$lang->tyl_rcvd = $lang->tyl_likes_rcvd;
+			$lang->tyl_given = $lang->tyl_likes_given;
 			$post['tyl_unumrtyls'] = $lang->sprintf($lang->tyl_likes_rcvd_bit, my_number_format($post['tyl_unumrcvtyls']), my_number_format($post['tyl_unumptyls']));
 			$post['tyl_unumtyls'] = my_number_format($post['tyl_unumtyls']);
 				
@@ -839,8 +839,8 @@ function thankyoulike_postbit_udetails($post)
 		}
 		else if ($mybb->settings[$prefix.'thankslike'] == "thanks")
 		{
-			$lang->tyl_given = $lang->tyl_thanks_given;
 			$lang->tyl_rcvd = $lang->tyl_thanks_rcvd;
+			$lang->tyl_given = $lang->tyl_thanks_given;
 			$post['tyl_unumrtyls'] = $lang->sprintf($lang->tyl_thanks_rcvd_bit, my_number_format($post['tyl_unumrcvtyls']), my_number_format($post['tyl_unumptyls']));
 			$post['tyl_unumtyls'] = my_number_format($post['tyl_unumtyls']);
 			
@@ -870,8 +870,8 @@ function thankyoulike_memprofile()
 	{
 		if ($mybb->settings[$prefix.'thankslike'] == "like")
 		{
-			$lang->tyl_total_tyls_given = $lang->tyl_total_likes_given;
 			$lang->tyl_total_tyls_rcvd = $lang->tyl_total_likes_rcvd;
+			$lang->tyl_total_tyls_given = $lang->tyl_total_likes_given;
 			$lang->tyl_find_threads = $lang->tyl_find_l_threads;
 			$lang->tyl_find_posts = $lang->tyl_find_l_posts;
 			$lang->tyl_find_threads_for = $lang->tyl_find_l_threads_for;
@@ -880,8 +880,8 @@ function thankyoulike_memprofile()
 		}
 		else if ($mybb->settings[$prefix.'thankslike'] == "thanks")
 		{
-			$lang->tyl_total_tyls_given = $lang->tyl_total_thanks_given;
 			$lang->tyl_total_tyls_rcvd = $lang->tyl_total_thanks_rcvd;
+			$lang->tyl_total_tyls_given = $lang->tyl_total_thanks_given;
 			$lang->tyl_find_threads = $lang->tyl_find_ty_threads;
 			$lang->tyl_find_posts = $lang->tyl_find_ty_posts;
 			$lang->tyl_find_threads_for = $lang->tyl_find_ty_threads_for;
