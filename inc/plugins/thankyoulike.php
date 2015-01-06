@@ -255,7 +255,12 @@ dtdesc=Date/Time Added Descending',
 				'optionscode'		=> 'radio
 open=List Shown
 closed=List Hidden (Collapsed)',
-				'value'				=> 'open')
+				'value'				=> 'open'),
+		'hideforgroups' 			=> array(
+				'title'				=> 'Hide ThankYou/Like Button',
+				'description'		=> 'Select Usergroups who cant see TYL button.',
+				'optionscode'		=> 'groupselect',
+				'value'				=> '')
 	);
 	
 	$x = 1;
@@ -311,12 +316,12 @@ function thankyoulike_activate()
 
 	// Now add
 	$tyl_templates = array(
-		'thankyoulike'					=> "			<div class=\"post_buttons {\$unapproved_shade}\">
+		'thankyoulike'					=> "			<div class=\"post_controls {\$unapproved_shade}\">
 				{\$tyl_expcol} 
 				<span id=\"tyl_title_{\$post['pid']}\" style=\"{\$tyl_title_display}\">{\$lang->tyl_title}</span><span id=\"tyl_title_collapsed_{\$post['pid']}\" style=\"{\$tyl_title_display_collapsed}\">{\$lang->tyl_title_collapsed}</span><br />
 				<span id=\"tyl_data_{\$post['pid']}\" style=\"{\$tyl_data_display}\">{\$post['thankyoulike']}</span>
 			</div>",
-		'thankyoulike_classic'					=> "	<div class=\"post_buttons {\$unapproved_shade}\">
+		'thankyoulike_classic'					=> "	<div class=\"post_controls {\$unapproved_shade}\">
 		{\$tyl_expcol} 
 		<span id=\"tyl_title_{\$post['pid']}\" style=\"{\$tyl_title_display}\">{\$lang->tyl_title}</span><span id=\"tyl_title_collapsed_{\$post['pid']}\" style=\"{\$tyl_title_display_collapsed}\">{\$lang->tyl_title_collapsed}</span><br />
 		<span id=\"tyl_data_{\$post['pid']}\" style=\"{\$tyl_data_display}\">&nbsp;&nbsp;• {\$post['thankyoulike']}</span>
@@ -333,8 +338,8 @@ function thankyoulike_activate()
 <td class=\"trow1\">{\$memprofile['tyl_unumrcvtyls']} ({\$tylrcvpd_percent_total})<br /><span class=\"smalltext\">(<a href=\"tylsearch.php?action=usertylforthreads&amp;uid={\$uid}\">{\$lang->tyl_find_threads_for}</a> &mdash; <a href=\"tylsearch.php?action=usertylforposts&amp;uid={\$uid}\">{\$lang->tyl_find_posts_for}</a>)</span></td>
 </tr>
 <tr>
-<td class=\"trow1\"><strong>{\$lang->tyl_total_tyls_given}</strong></td>
-<td class=\"trow1\">{\$memprofile['tyl_unumtyls']} ({\$tylpd_percent_total})<br /><span class=\"smalltext\">(<a href=\"tylsearch.php?action=usertylthreads&amp;uid={\$uid}\">{\$lang->tyl_find_threads}</a> &mdash; <a href=\"tylsearch.php?action=usertylposts&amp;uid={\$uid}\">{\$lang->tyl_find_posts}</a>)</span></td>
+<td class=\"trow2\"><strong>{\$lang->tyl_total_tyls_given}</strong></td>
+<td class=\"trow2\">{\$memprofile['tyl_unumtyls']} ({\$tylpd_percent_total})<br /><span class=\"smalltext\">(<a href=\"tylsearch.php?action=usertylthreads&amp;uid={\$uid}\">{\$lang->tyl_find_threads}</a> &mdash; <a href=\"tylsearch.php?action=usertylposts&amp;uid={\$uid}\">{\$lang->tyl_find_posts}</a>)</span></td>
 </tr>"
 					);
 	
@@ -350,7 +355,7 @@ function thankyoulike_activate()
 		$db->insert_query('templates', $insert_templates);
 	}
 	
-	find_replace_templatesets("showthread", "#".preg_quote('</head>')."#i", '<script type="text/javascript" src="{$mybb->settings[\'bburl\']}/jscripts/thankyoulike.js?ver=160"></script>
+	find_replace_templatesets("showthread", "#".preg_quote('</head>')."#i", '<script type="text/javascript" src="{$mybb->settings[\'bburl\']}/jscripts/thankyoulike.js"></script>
 <script type="text/javascript">
 <!--
 	var tylEnabled = "{$mybb->settings[\'g33k_thankyoulike_enabled\']}";
@@ -360,25 +365,16 @@ function thankyoulike_activate()
 </script>
 </head>');
 
+	find_replace_templatesets("postbit_classic","#".preg_quote('<div class="post_controls">')."#i","<div style=\"{\$post['tyl_display']}\" id=\"tyl_{\$post['pid']}\">{\$post['thankyoulike_data']}</div>\n<div class=\"post_controls\">");
+	find_replace_templatesets("postbit","#".preg_quote('	</div>')."\n".preg_quote('</div>')."\n".preg_quote('</div>')."#i","	</div>\n</div>\n<div style=\"{\$post['tyl_display']}\" id=\"tyl_{\$post['pid']}\">{\$post['thankyoulike_data']}</div>\n</div>");
 	find_replace_templatesets("postbit", "#".preg_quote('{$post[\'button_edit\']}')."#i", '{$post[\'button_tyl\']}{$post[\'button_edit\']}');
-	// CRLF/LF
-	if(!find_replace_templatesets("postbit_classic", "#([\n ]*".preg_quote('</div>')."[\n ]*".preg_quote('</div>').")#i", "\n</div>\n<div style=\"{\$post['tyl_display']}\" id=\"tyl_{\$post['pid']}\">\n	{\$post['thankyoulike_data']}\\1"))
-	{
-		find_replace_templatesets("postbit_classic", "#([\r\n ]*".preg_quote('</div>')."[\r\n ]*".preg_quote('</div>').")#i", "\n</div>\n<div style=\"{\$post['tyl_display']}\" id=\"tyl_{\$post['pid']}\">\n	{\$post['thankyoulike_data']}\\1");
-	}
-	// CRLF/LF
-	if(!find_replace_templatesets("postbit", "#".preg_quote("</div>\n</div>\n</div>")."#i", "\n</div>\n</div>\n<div style=\"{\$post['tyl_display']}\" id=\"tyl_{\$post['pid']}\">\n	{\$post['thankyoulike_data']}\n</div>\n</div>"))
-	{
-		find_replace_templatesets("postbit", "#".preg_quote("</div>\r\n</div>\r\n</div>")."#i", "</div>\n</div>\n<div style=\"{\$post['tyl_display']}\" id=\"tyl_{\$post['pid']}\">\n	{\$post['thankyoulike_data']}\n</div>\n</div>");
-	}
 	find_replace_templatesets("postbit_classic", "#".preg_quote('{$post[\'button_edit\']}')."#i", '{$post[\'button_tyl\']}{$post[\'button_edit\']}');
 	find_replace_templatesets("postbit_author_user", "#".preg_quote('	{$lang->postbit_threads} {$post[\'threadnum\']}<br />')."#i", '	{$lang->postbit_threads} {$post[\'threadnum\']}<br />
 	%%TYL_NUMTHANKEDLIKED%%<br />');
-	// AAArrrgghhhh!! CRLF/LF crap!
-	if(!find_replace_templatesets("member_profile", "#(".preg_quote('<td class="trow1">{$memprofile[\'postnum\']} ({$lang->ppd_percent_total})<br /><span class="smalltext">(<a href="search.php?action=finduserthreads&amp;uid={$uid}">{$lang->find_threads}</a> &mdash; <a href="search.php?action=finduser&amp;uid={$uid}">{$lang->find_posts}</a>)</span></td>')."[\n ]*".preg_quote('</tr>').")#i", "\\1\n{\$tyl_memprofile}"))
+	if(!find_replace_templatesets("member_profile", '#{\$reputation}(\r?)\n#', "{\$tyl_memprofile}\n{\$reputation}\n"))
 	{
-		find_replace_templatesets("member_profile", "#(".preg_quote('<td class="trow1">{$memprofile[\'postnum\']} ({$lang->ppd_percent_total})<br /><span class="smalltext">(<a href="search.php?action=finduserthreads&amp;uid={$uid}">{$lang->find_threads}</a> &mdash; <a href="search.php?action=finduser&amp;uid={$uid}">{$lang->find_posts}</a>)</span></td>')."[\r\n ]*".preg_quote('</tr>').")#i", "\\1\n{\$tyl_memprofile}");
-	}
+		find_replace_templatesets("member_profile", '#{\$reputation}(\r?)\n#', "{\$tyl_memprofile}\n{\$reputation}\n");
+	} 
 
 	rebuild_settings();
 
@@ -405,7 +401,7 @@ function thankyoulike_deactivate()
 	
 	require_once MYBB_ROOT."/inc/adminfunctions_templates.php";
 	
-	find_replace_templatesets("showthread", "#".preg_quote('<script type="text/javascript" src="{$mybb->settings[\'bburl\']}/jscripts/thankyoulike.js?ver=160"></script>
+	find_replace_templatesets("showthread", "#".preg_quote('<script type="text/javascript" src="{$mybb->settings[\'bburl\']}/jscripts/thankyoulike.js"></script>
 <script type="text/javascript">
 <!--
 	var tylEnabled = "{$mybb->settings[\'g33k_thankyoulike_enabled\']}";
@@ -414,71 +410,13 @@ function thankyoulike_deactivate()
 -->
 </script>
 ')."#i", '', 0);
-	find_replace_templatesets("postbit", "#".preg_quote('	<div style="{$post[\'tyl_display\']}" id="tyl_{$post[\'pid\']}">
-			{$post[\'thankyoulike_data\']}
-		</div>
-	')."#i", '', 0);
+	find_replace_templatesets("postbit", "#".preg_quote('<div style="{$post[\'tyl_display\']}" id="tyl_{$post[\'pid\']}">{$post[\'thankyoulike_data\']}</div>')."(\r?)\n#", '', 0);
+	find_replace_templatesets("postbit_classic", "#".preg_quote('<div style="{$post[\'tyl_display\']}" id="tyl_{$post[\'pid\']}">{$post[\'thankyoulike_data\']}</div>')."(\r?)\n#", '', 0);
 	find_replace_templatesets("postbit", "#".preg_quote('{$post[\'button_tyl\']}')."#i", '', 0);
-	find_replace_templatesets("postbit_classic", "#".preg_quote('
-</div>
-<div style="{$post[\'tyl_display\']}" id="tyl_{$post[\'pid\']}">
-	{$post[\'thankyoulike_data\']}')."#i", '', 0);
 	find_replace_templatesets("postbit_classic", "#".preg_quote('{$post[\'button_tyl\']}')."#i", '', 0);
 	find_replace_templatesets("postbit_author_user", "#".preg_quote('
 	%%TYL_NUMTHANKEDLIKED%%<br />')."#i", '', 0);
-	find_replace_templatesets("member_profile", "#".preg_quote('
-{$tyl_memprofile}')."#i", '', 0);
-
-	// Remove templates left over from any of the older versions of the plugin
-	//v1.4 (changed ver on jscript to reload since it was changed)
-		find_replace_templatesets("showthread", "#".preg_quote('<script type="text/javascript" src="{$mybb->settings[\'bburl\']}/jscripts/thankyoulike.js?ver=130"></script>
-<script type="text/javascript">
-<!--
-	var tylEnabled = "{$mybb->settings[\'g33k_thankyoulike_enabled\']}";
-	var tylCollapsible = "{$mybb->settings[\'g33k_thankyoulike_collapsible\']}";
-	var tylUser = "{$mybb->user[\'uid\']}";
--->
-</script>
-')."#i", '', 0);
-	//v1.2
-	find_replace_templatesets("showthread", "#".preg_quote('<script type="text/javascript" src="{$mybb->settings[\'bburl\']}/jscripts/thankyoulike.js?ver=120"></script>
-<script type="text/javascript">
-<!--
-	var tylEnabled = "{$mybb->settings[\'g33k_thankyoulike_enabled\']}";
-	var tylCollapsible = "{$mybb->settings[\'g33k_thankyoulike_collapsible\']}";
-	var tylUser = "{$mybb->user[\'uid\']}";
--->
-</script>
-')."#i", '', 0);
-
-	//v1.1
-	find_replace_templatesets("showthread", "#".preg_quote('<script type="text/javascript" src="{$mybb->settings[\'bburl\']}/jscripts/thankyoulike.js?ver=110"></script>
-<script type="text/javascript">
-<!--
-	var tylEnabled = "{$mybb->settings[\'g33k_thankyoulike_enabled\']}";
-	var tylCollapsible = "{$mybb->settings[\'g33k_thankyoulike_collapsible\']}";
-	var tylUser = "{$mybb->user[\'uid\']}";
--->
-</script>
-')."#i", '', 0);
-
-	//v1.0
-	find_replace_templatesets("showthread", "#".preg_quote('<script type="text/javascript" src="{$mybb->settings[\'bburl\']}/jscripts/thankyoulike.js?ver=100"></script>
-<script type="text/javascript">
-<!--
-	var tylEnabled = "{$mybb->settings[\'g33k_thankyoulike_enabled\']}";
-	var tylCollapsible = "{$mybb->settings[\'g33k_thankyoulike_collapsible\']}";
--->
-</script>
-')."#i", '', 0);
-	find_replace_templatesets("postbit", "#".preg_quote('	<tr style="{$post[\'tyl_display\']};" id="tyl_{$post[\'pid\']}">
-			{$post[\'thankyoulike_data\']}
-		</tr>
-	')."#i", '', 0);
-	find_replace_templatesets("postbit_classic", "#".preg_quote('<tr style="{$post[\'tyl_display\']};" id="tyl_{$post[\'pid\']}">
-	{$post[\'thankyoulike_data\']}
-</tr>
-')."#i", '', 0);
+	find_replace_templatesets("member_profile", '#{\$tyl_memprofile}(\r?)\n#', "", 0);
 	
 }
 
@@ -757,23 +695,18 @@ function thankyoulike_postbit($post)
 		
 		// Determine whether we're showing tyl for this post:
 		$thread = get_thread($post['tid']);
-		$imgdir = '';
-		if(($tyled && $mybb->settings[$prefix.'removing'] != "1") || (!is_moderator($post['fid'], "caneditposts") && $thread['closed'] == 1) || $post['uid'] == $mybb->user['uid'])
+		if(($tyled && $mybb->settings[$prefix.'removing'] != "1") || (!is_moderator($post['fid'], "caneditposts") && $thread['closed'] == 1) || $post['uid'] == $mybb->user['uid'] || is_member($mybb->settings[$prefix.'hideforgroups']) || $mybb->settings[$prefix.'hideforgroups'] == "-1")
 		{
 			// Show no button for poster or user who has already thanked/liked and disabled removing. 
 			$post['button_tyl'] = '';
 		}
 		else if($tyled && $mybb->settings[$prefix.'removing'] == "1" && (($mybb->settings[$prefix.'firstall'] == "first" && $thread['firstpost'] == $post['pid']) || $mybb->settings[$prefix.'firstall'] == "all"))
 		{
-			// Fallback to the english button if the theme image lang button is not there
-			$imgdir = is_file($theme['imglangdir'].'/postbit_'.$pre.'_del.png') ? $theme['imglangdir'] : "images/english";
 			// Show remove button if removing already thanked/liked and removing enabled and is either the first post in thread if setting is for first or setting is all
 			eval("\$post['button_tyl'] = \"".$templates->get("thankyoulike_button_del")."\";");
 		}
 		else if(($mybb->settings[$prefix.'firstall'] == "first" && $thread['firstpost'] == $post['pid']) || $mybb->settings[$prefix.'firstall'] == "all")
 		{
-			// Fallback to the english button if the theme image lang button is not there
-			$imgdir = is_file($theme['imglangdir'].'/postbit_'.$pre.'_add.png') ? $theme['imglangdir'] : "images/english";
 			// Same as above but show add button
 			eval("\$post['button_tyl'] = \"".$templates->get("thankyoulike_button_add")."\";");
 		}
