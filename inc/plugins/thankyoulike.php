@@ -49,14 +49,13 @@ function thankyoulike_info()
 	
     $info = array(
         "name"				=> "Thank You/Like System",
-        "description"		=> "Adds option for users to Thank the user for the post or 'Like' the post.<br /> Edited by: <a href=\"http://my-bb.ir\" target=\"_blank\">AliReza_Tofighi</a>; modified by SvePu and Eldenroot",
+        "description"			=> "Adds option for users to Thank the user for the post or 'Like' the post.<br />*Edited for MyBB 1.8 by: <a href=\"http://my-bb.ir\" target=\"_blank\">AliReza_Tofighi</a><br />*Maintained by: <a href=\"http://community.mybb.com/user-91011.html\" target=\"_blank\">SvePu</a> and <a href=\"http://community.mybb.com/user-84065.html\" target=\"_blank\">Eldenroot</a><br />*Sources: <a href=\"https://github.com/Cu8eR/thankyou-like-plugin\" target=\"_blank\">GitHub</a>",
         "website"			=> "http://www.geekplugins.com/mybb/thankyoulikesystem",
         "author"			=> "- G33K -",
-        "authorsite"		=> "http://community.mybboard.net/user-19236.html",
-        "version"			=> "1.6",
-		"intver"			=> "160",
-		"guid" 				=> "b77f36ef5b0ce7eec9d38e488214713a",
-		"compatibility" 	=> "18*"
+        "authorsite"			=> "http://community.mybboard.net/user-19236.html",
+        "codename"			=> "",
+        "version"			=> "1.7",
+	"compatibility" 		=> "18*"
     );
 	
 	$info_desc = '';
