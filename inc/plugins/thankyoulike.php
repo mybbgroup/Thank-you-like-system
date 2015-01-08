@@ -15,7 +15,6 @@
  * If not, see <http://www.gnu.org/licenses/>.
  *
  * $Id: thankyoulike.php 55 2011-10-26 08:55:00Z - G33K - $
- * Latest modification by Svepu - 2015-01-08 - 
  */
 if(!defined("IN_MYBB"))
 {
@@ -50,14 +49,14 @@ function thankyoulike_info()
 	
     $info = array(
         "name"				=> "Thank You/Like System",
-        "description"		=> "Adds option for users to Thank the user for the post or 'Like' the post.<br />*Edited for MyBB 1.8 by: <a href=\"http://my-bb.ir\" target=\"_blank\">AliReza_Tofighi</a><br />*Maintained by: <a href=\"http://community.mybb.com/user-91011.html\" target=\"_blank\">SvePu</a> and <a href=\"http://community.mybb.com/user-84065.html\" target=\"_blank\">Eldenroot</a><br />*Sources: <a href=\"https://github.com/Cu8eR/thankyou-like-plugin\" target=\"_blank\">GitHub</a>",
+        "description"			=> "Adds option for users to Thank the user for the post or 'Like' the post.<br />*Edited for MyBB 1.8 by: <a href=\"http://my-bb.ir\" target=\"_blank\">AliReza_Tofighi</a><br />*Maintained by: <a href=\"http://community.mybb.com/user-91011.html\" target=\"_blank\">SvePu</a> and <a href=\"http://community.mybb.com/user-84065.html\" target=\"_blank\">Eldenroot</a><br />*Sources: <a href=\"https://github.com/Cu8eR/thankyou-like-plugin\" target=\"_blank\">GitHub</a>",
         "website"			=> "http://www.geekplugins.com/mybb/thankyoulikesystem",
         "author"			=> "- G33K -",
-        "authorsite"		=> "http://community.mybboard.net/user-19236.html",
+        "authorsite"			=> "http://community.mybboard.net/user-19236.html",
         "version"			=> "1.7",
-		"intver"			=> "180",
-		"guid" 				=> "",
-		"compatibility" 	=> "18*"
+	"intver"			=> "180",
+	"codename" 			=> "",
+	"compatibility" 		=> "18*"
     );
 	
 	$info_desc = '';
