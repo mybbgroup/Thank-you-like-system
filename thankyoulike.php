@@ -17,6 +17,7 @@
  * $Id: thankyoulike.php 53 2011-10-26 08:17:45Z - G33K - $
  */
 
+
 define("IN_MYBB", 1);
 define("NO_ONLINE", 1);
 define('THIS_SCRIPT', 'thankyoulike.php');
@@ -120,7 +121,7 @@ check_forum_password($forum['fid']);
 // Check to see if the thread is closed, and if the user is a mod.
 if(!is_moderator($fid, "caneditposts"))
 {
-	if($thread['closed'] == 1)
+	if($thread['closed'] == 1 && $mybb->settings[$prefix.'closedthreads'] != "1")
 	{
 		error($lang->sprintf($lang->tyl_error_threadclosed, $pre));
 	}
@@ -300,7 +301,8 @@ if($mybb->input['ajax'])
 		$profile_link = get_profile_link($tyl['uid']);
 		// Format username...or not
 		$username = $mybb->settings[$prefix.'unameformat'] == "1" ? format_name($tyl['username'], $tyl['usergroup'], $tyl['displaygroup']) : $tyl['username'];
-		$dt = $mybb->settings[$prefix.'showdt'] == "1" ? " (".my_date($mybb->settings[$prefix.'dtformat'], $tyl['dateline']).")" : "";
+		$datedisplay_next = $mybb->settings[$prefix.'showdt'] == "nexttoname" ? "<span class='smalltext'> (".my_date($mybb->settings[$prefix.'dtformat'], $tyl['dateline']).")</span>" : "";
+		$datedisplay_title = $mybb->settings[$prefix.'showdt'] == "astitle" ? "title='".my_date($mybb->settings[$prefix.'dtformat'], $tyl['dateline'])."'" : "";
 		eval("\$thankyoulike_users = \"".$templates->get("thankyoulike_users", 1, 0)."\";");
 		$tyls .= trim($thankyoulike_users);
 		$comma = ', ';	
@@ -346,16 +348,16 @@ if($mybb->input['ajax'])
 	// Setup the collapsible elements
 	if ($mybb->settings[$prefix.'collapsible'] == "1" && $mybb->settings[$prefix.'colldefault'] == "closed")
 	{
-		$tyl_title_display = "display: none";
+		$tyl_title_display = "display: none;";
 		$tyl_title_display_collapsed = "";
-		$tyl_data_display = "display: none";
+		$tyl_data_display = "display: none;";
 		$tyl_expcolimg = "collapse_collapsed.png";
 		eval("\$tyl_expcol = \"".$templates->get("thankyoulike_expcollapse", 1, 0)."\";");
 	}
 	else if ($mybb->settings[$prefix.'collapsible'] == "1" && $mybb->settings[$prefix.'colldefault'] == "open")
 	{
 		$tyl_title_display = "";
-		$tyl_title_display_collapsed = "display: none";
+		$tyl_title_display_collapsed = "display: none;";
 		$tyl_data_display = "";
 		$tyl_expcolimg = "collapse.png";
 		eval("\$tyl_expcol = \"".$templates->get("thankyoulike_expcollapse", 1, 0)."\";");
@@ -363,30 +365,25 @@ if($mybb->input['ajax'])
 	else
 	{
 		$tyl_title_display = "";
-		$tyl_title_display_collapsed = "display: none";
+		$tyl_title_display_collapsed = "display: none;";
 		$tyl_data_display = "";
 		$tyl_expcolimg = "";
 		$tyl_expcol = "";
 		$lang->tyl_title_collapsed = "";
 	}
 	$button_tyl = '';
-	$imgdir = '';
-	if(($tyled && $mybb->settings[$prefix.'removing'] != "1") || (!is_moderator($post['fid'], "caneditposts") && $thread['closed'] == 1) || $post['uid'] == $mybb->user['uid'])
+	if(($tyled && $mybb->settings[$prefix.'removing'] != "1") || (!is_moderator($post['fid'], "caneditposts") && $thread['closed'] == 1 && $mybb->settings[$prefix.'closedthreads'] != "1") || $post['uid'] == $mybb->user['uid'] || is_member($mybb->settings[$prefix.'hideforgroups']) || $mybb->settings[$prefix.'hideforgroups'] == "-1")
 	{
 		// Show no button for poster or user who has already thanked/liked or removing is disabled.
 		$button_tyl = '';
 	}
 	else if($tyled && $mybb->settings[$prefix.'removing'] == "1" && (($mybb->settings[$prefix.'firstall'] == "first" && $thread['firstpost'] == $post['pid']) || $mybb->settings[$prefix.'firstall'] == "all"))
 	{
-		// Fallback to the english button if the theme image lang button is not there
-		$imgdir = is_file($theme['imglangdir'].'/postbit_'.$pre.'_del.png') ? $theme['imglangdir'] : "images/english";
 		// Show remove button if removing already thanked/liked and removing enabled and is either the first post in thread if setting is for first or setting is all
 		eval("\$button_tyl = \"".$templates->get("thankyoulike_button_del")."\";");
 	}
 	else if(($mybb->settings[$prefix.'firstall'] == "first" && $thread['firstpost'] == $post['pid']) || $mybb->settings[$prefix.'firstall'] == "all")
 	{
-		// Fallback to the english button if the theme image lang button is not there
-		$imgdir = is_file($theme['imglangdir'].'/postbit_'.$pre.'_add.png') ? $theme['imglangdir'] : "images/english";
 		// Same as above but show add button
 		eval("\$button_tyl = \"".$templates->get("thankyoulike_button_add")."\";");
 	}

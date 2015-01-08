@@ -15,7 +15,7 @@
  * If not, see <http://www.gnu.org/licenses/>.
  *
  * $Id: thankyoulike.php 55 2011-10-26 08:55:00Z - G33K - $
- * Latest modification by Svepu - 2015-01-07 - 
+ * Latest modification by Svepu - 2015-01-08 - 
  */
 if(!defined("IN_MYBB"))
 {
@@ -210,6 +210,11 @@ all=All Posts',
 				'description'		=> 'Do you want to allow the removing of Thanks/Like from a post already Thanked/Liked?',
 				'optionscode'		=> 'yesno',
 				'value'				=> '0'),
+		'closedthreads'				=> array(
+				'title'				=> 'Allow in Closed Threads',
+				'description'		=> 'Do you want to allow to give Thanks/Like in closed threads?',
+				'optionscode'		=> 'yesno',
+				'value'				=> '0'),
 		'exclude' 					=> array(
 				'title'				=> 'Excluded Forums',
 				'description'		=> 'Select forums where you do not want the threads and posts to use the thank you/like system. (only forums - no categories)',
@@ -224,7 +229,7 @@ all=All Posts',
 				'title'				=> 'Hide ThankYou/Like Button',
 				'description'		=> 'Select User Groups which cannot see Thanks/Like button.',
 				'optionscode'		=> 'groupselect',
-				'value'				=> ''),
+				'value'				=> '1,7'),
 		'showdt' 				=> array(
 				'title'				=> 'Show Date/Time',
 				'description'		=> 'Do you want to show the Date/Time the thanks/like was received in the Thanks/Like list?',
@@ -745,7 +750,7 @@ function thankyoulike_postbit($post)
 		
 		// Determine whether we're showing tyl for this post:
 		$thread = get_thread($post['tid']);
-		if(($tyled && $mybb->settings[$prefix.'removing'] != "1") || (!is_moderator($post['fid'], "caneditposts") && $thread['closed'] == 1) || $post['uid'] == $mybb->user['uid'] || is_member($mybb->settings[$prefix.'hideforgroups']) || $mybb->settings[$prefix.'hideforgroups'] == "-1")
+		if(($tyled && $mybb->settings[$prefix.'removing'] != "1") || (!is_moderator($post['fid'], "caneditposts") && $thread['closed'] == 1 && $mybb->settings[$prefix.'closedthreads'] != "1") || $post['uid'] == $mybb->user['uid'] || is_member($mybb->settings[$prefix.'hideforgroups']) || $mybb->settings[$prefix.'hideforgroups'] == "-1")
 		{
 			// Show no button for poster or user who has already thanked/liked and disabled removing. 
 			$post['button_tyl'] = '';
@@ -1413,6 +1418,7 @@ function thankyoulike_settings_peeker()
 		new Peeker($$(".setting_'.$prefix.'enabled"), $("row_setting_'.$prefix.'thankslike"), /1/, true);
 		new Peeker($$(".setting_'.$prefix.'enabled"), $("row_setting_'.$prefix.'firstall"), /1/, true);
 		new Peeker($$(".setting_'.$prefix.'enabled"), $("row_setting_'.$prefix.'removing"), /1/, true);
+		new Peeker($$(".setting_'.$prefix.'enabled"), $("row_setting_'.$prefix.'closedthreads"), /1/, true);
 		new Peeker($$(".setting_'.$prefix.'enabled"), $("row_setting_'.$prefix.'exclude"), /1/, true);		
 		new Peeker($$(".setting_'.$prefix.'enabled"), $("row_setting_'.$prefix.'unameformat"), /1/, true);
 		new Peeker($$(".setting_'.$prefix.'enabled"), $("row_setting_'.$prefix.'hideforgroups"), /1/, true);
