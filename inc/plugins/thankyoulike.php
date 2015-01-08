@@ -15,6 +15,7 @@
  * If not, see <http://www.gnu.org/licenses/>.
  *
  * $Id: thankyoulike.php 55 2011-10-26 08:55:00Z - G33K - $
+ * Latest modification by Svepu - 2015-01-08 - 
  */
 if(!defined("IN_MYBB"))
 {
@@ -49,32 +50,27 @@ function thankyoulike_info()
 	
     $info = array(
         "name"				=> "Thank You/Like System",
-        "description"			=> "Adds option for users to Thank the user for the post or 'Like' the post.<br />*Edited for MyBB 1.8 by: <a href=\"http://my-bb.ir\" target=\"_blank\">AliReza_Tofighi</a><br />*Maintained by: <a href=\"http://community.mybb.com/user-91011.html\" target=\"_blank\">SvePu</a> and <a href=\"http://community.mybb.com/user-84065.html\" target=\"_blank\">Eldenroot</a><br />*Sources: <a href=\"https://github.com/Cu8eR/thankyou-like-plugin\" target=\"_blank\">GitHub</a>",
+        "description"		=> "Adds option for users to Thank the user for the post or 'Like' the post.<br />*Edited for MyBB 1.8 by: <a href=\"http://my-bb.ir\" target=\"_blank\">AliReza_Tofighi</a><br />*Maintained by: <a href=\"http://community.mybb.com/user-91011.html\" target=\"_blank\">SvePu</a> and <a href=\"http://community.mybb.com/user-84065.html\" target=\"_blank\">Eldenroot</a><br />*Sources: <a href=\"https://github.com/Cu8eR/thankyou-like-plugin\" target=\"_blank\">GitHub</a>",
         "website"			=> "http://www.geekplugins.com/mybb/thankyoulikesystem",
         "author"			=> "- G33K -",
-        "authorsite"			=> "http://community.mybboard.net/user-19236.html",
-        "codename"			=> "",
+        "authorsite"		=> "http://community.mybboard.net/user-19236.html",
         "version"			=> "1.7",
-	"compatibility" 		=> "18*"
+		"intver"			=> "180",
+		"guid" 				=> "",
+		"compatibility" 	=> "18*"
     );
 	
 	$info_desc = '';
 	$result = $db->simple_select('settinggroups', 'gid', "name = '{$prefix}settings'", array('limit' => 1));
 	$group = $db->fetch_array($result);
-	// Deal with old 1.4 admin urls
-	$sep = '-';
-	if($mybb->version_code < 1600)
-	{
-		$sep = '/';
-	}
 	if(!empty($group['gid']))
 	{
-		$info_desc .= "<i><small>[<a href=\"index.php?module=config".$sep."settings&action=change&gid=".$group['gid']."\">Configure Settings</a>]</small></i>";
+		$info_desc .= "<i><small>[<a href=\"index.php?module=config-settings&action=change&gid=".$group['gid']."\">Configure Settings</a>]</small></i>";
 	}
     
     if(is_array($plugins_cache) && is_array($plugins_cache['active']) && $plugins_cache['active'][$codename])
     {
-	    $info_desc .= "<i><small>[<a href=\"index.php?module=tools".$sep."thankyoulike_recount\">Recount Thank Yous/Likes</a>]</small></i>";
+	    $info_desc .= "<i><small>[<a href=\"index.php?module=tools-thankyoulike_recount\">Recount Thank Yous/Likes</a>]</small></i>";
 		$info_desc .= '<form action="https://www.paypal.com/cgi-bin/webscr" method="post" style="float: right;" target="_blank">
 <input type="hidden" name="cmd" value="_s-xclick">
 <input type="hidden" name="hosted_button_id" value="KCNAC5PE828X8">
@@ -137,7 +133,7 @@ function thankyoulike_install()
   				uid int unsigned NOT NULL default '0',
 				puid int unsigned NOT NULL default '0',
   				dateline bigint(30) NOT NULL default '0',
-  				KEY pid (pid, uid),
+  				UNIQUE KEY pid (pid, uid),
   				PRIMARY KEY (tlid)
 				) ENGINE=MyISAM
 				".$db->build_create_table_collation().";");
@@ -214,21 +210,34 @@ all=All Posts',
 				'description'		=> 'Do you want to allow the removing of Thanks/Like from a post already Thanked/Liked?',
 				'optionscode'		=> 'yesno',
 				'value'				=> '0'),
+		'closedthreads'				=> array(
+				'title'				=> 'Allow in Closed Threads',
+				'description'		=> 'Do you want to allow to give Thanks/Like in closed threads?',
+				'optionscode'		=> 'yesno',
+				'value'				=> '0'),
 		'exclude' 					=> array(
 				'title'				=> 'Excluded Forums',
-				'description'		=> 'Enter forum IDs where you do not want the threads and posts to use the thank you/like system. Separate multiple entries with a coma',
-				'optionscode'		=> 'text',
+				'description'		=> 'Select forums where you do not want the threads and posts to use the thank you/like system. (only forums - no categories)',
+				'optionscode'		=> 'forumselect',
 				'value'				=> ''),
 		'unameformat' 				=> array(
 				'title'				=> 'Format Usernames',
 				'description'		=> 'Do you want to format the usernames in the thank/list according to their groups?',
 				'optionscode'		=> 'yesno',
 				'value'				=> '1'),
+		'hideforgroups' 			=> array(
+				'title'				=> 'Hide ThankYou/Like Button',
+				'description'		=> 'Select User Groups which cannot see Thanks/Like button.',
+				'optionscode'		=> 'groupselect',
+				'value'				=> '1,7'),
 		'showdt' 				=> array(
 				'title'				=> 'Show Date/Time',
 				'description'		=> 'Do you want to show the Date/Time the thanks/like was received in the Thanks/Like list?',
-				'optionscode'		=> 'yesno',
-				'value'				=> '1'),
+				'optionscode'		=> 'radio
+none=Not Display
+nexttoname=Display next to user name
+astitle=Display on mouse over username',
+				'value'				=> 'astitle'),
 		'dtformat' 				=> array(
 				'title'				=> 'Date/Time Format',
 				'description'		=> 'Set the format you want to use to show the Date/Time in the thank/like list.<br />Format is same as the one used by PHP\'s date() function.<br />Example format: m-d-Y h:i A &lt;&lt;will show&gt;&gt; 12-31-2009 12:01 PM',
@@ -254,12 +263,7 @@ dtdesc=Date/Time Added Descending',
 				'optionscode'		=> 'radio
 open=List Shown
 closed=List Hidden (Collapsed)',
-				'value'				=> 'open'),
-		'hideforgroups' 			=> array(
-				'title'				=> 'Hide ThankYou/Like Button',
-				'description'		=> 'Select Usergroups who cant see TYL button.',
-				'optionscode'		=> 'groupselect',
-				'value'				=> '')
+				'value'				=> 'open')
 	);
 	
 	$x = 1;
@@ -315,20 +319,20 @@ function thankyoulike_activate()
 
 	// Now add
 	$tyl_templates = array(
-		'thankyoulike'					=> "			<div class=\"post_controls {\$unapproved_shade}\">
+		'thankyoulike'					=> "			<div class=\"post_controls tyllist {\$unapproved_shade}\">
 				{\$tyl_expcol} 
 				<span id=\"tyl_title_{\$post['pid']}\" style=\"{\$tyl_title_display}\">{\$lang->tyl_title}</span><span id=\"tyl_title_collapsed_{\$post['pid']}\" style=\"{\$tyl_title_display_collapsed}\">{\$lang->tyl_title_collapsed}</span><br />
 				<span id=\"tyl_data_{\$post['pid']}\" style=\"{\$tyl_data_display}\">{\$post['thankyoulike']}</span>
 			</div>",
-		'thankyoulike_classic'					=> "	<div class=\"post_controls {\$unapproved_shade}\">
+		'thankyoulike_classic'					=> "	<div class=\"post_controls tyllist_classic {\$unapproved_shade}\">
 		{\$tyl_expcol} 
 		<span id=\"tyl_title_{\$post['pid']}\" style=\"{\$tyl_title_display}\">{\$lang->tyl_title}</span><span id=\"tyl_title_collapsed_{\$post['pid']}\" style=\"{\$tyl_title_display_collapsed}\">{\$lang->tyl_title_collapsed}</span><br />
 		<span id=\"tyl_data_{\$post['pid']}\" style=\"{\$tyl_data_display}\">&nbsp;&nbsp;• {\$post['thankyoulike']}</span>
 	</div>",
-		'thankyoulike_expcollapse'		=> "<a href=\"#\" onclick=\"thankyoulike.tgl({\$post['pid']});return false;\" title=\"{\$tyl_showhide}\" id=\"tyl_a_expcol_{\$post['pid']}\"><img src=\"{\$theme['imgdir']}/{\$tyl_expcolimg}\" style=\"vertical-align: bottom;\" alt=\"{\$tyl_showhide}\" id=\"tyl_i_expcol_{\$post['pid']}\" /></a> ",
-		'thankyoulike_button_add'		=> "<div style=\"display:inline-block\" id=\"tyl_btn_{\$post['pid']}\" class=\"postbit_buttons\"><a href=\"thankyoulike.php?action=add&amp;pid={\$post['pid']}&amp;my_post_key={\$mybb->post_code}\" onclick=\"return thankyoulike.add({\$post['pid']}, {\$post['tid']});\" title=\"{\$lang->add_tyl}\" id=\"tyl_a{\$post['pid']}\"><span style=\"background-image: url(images/thankyoulike/thx_add.png)\" id=\"tyl_i{\$post['pid']}\">{\$lang->add_tyl}</span></a></div>",
-		'thankyoulike_button_del'		=> "<div style=\"display:inline-block\" id=\"tyl_btn_{\$post['pid']}\" class=\"postbit_buttons\"><a href=\"thankyoulike.php?action=del&amp;pid={\$post['pid']}&amp;my_post_key={\$mybb->post_code}\" onclick=\"return thankyoulike.del({\$post['pid']}, {\$post['tid']});\" title=\"{\$lang->del_tyl}\" id=\"tyl_a{\$post['pid']}\"><span style=\"background-image: url(images/thankyoulike/thx_del.png)\" id=\"tyl_i{\$post['pid']}\">{\$lang->del_tyl}</span></a></div>",
-		'thankyoulike_users'			=> "<span class=\"smalltext\">{\$comma}</span><a href=\"{\$profile_link}\" class=\"smalltext\" title=\"{\$dt}\">{\$username}</a>",
+		'thankyoulike_expcollapse'		=> "<a href=\"#\" onclick=\"thankyoulike.tgl({\$post['pid']});return false;\" title=\"{\$tyl_showhide}\" id=\"tyl_a_expcol_{\$post['pid']}\"><img src=\"{\$theme['imgdir']}/{\$tyl_expcolimg}\" alt=\"{\$tyl_showhide}\" id=\"tyl_i_expcol_{\$post['pid']}\" /></a> ",
+		'thankyoulike_button_add'		=> "<div id=\"tyl_btn_{\$post['pid']}\" class=\"postbit_buttons\"><a class=\"add_tyl_button\" href=\"thankyoulike.php?action=add&amp;pid={\$post['pid']}&amp;my_post_key={\$mybb->post_code}\" onclick=\"return thankyoulike.add({\$post['pid']}, {\$post['tid']});\" title=\"{\$lang->add_tyl}\" id=\"tyl_a{\$post['pid']}\"><span id=\"tyl_i{\$post['pid']}\">{\$lang->add_tyl}</span></a></div>",
+		'thankyoulike_button_del'		=> "<div id=\"tyl_btn_{\$post['pid']}\" class=\"postbit_buttons\"><a class=\"del_tyl_button\" href=\"thankyoulike.php?action=del&amp;pid={\$post['pid']}&amp;my_post_key={\$mybb->post_code}\" onclick=\"return thankyoulike.del({\$post['pid']}, {\$post['tid']});\" title=\"{\$lang->del_tyl}\" id=\"tyl_a{\$post['pid']}\"><span id=\"tyl_i{\$post['pid']}\">{\$lang->del_tyl}</span></a></div>",
+		'thankyoulike_users'			=> "<span class=\"smalltext\">{\$comma}</span><a href=\"{\$profile_link}\" class=\"smalltext\" {\$datedisplay_title}>{\$username}</a>{\$datedisplay_next}",
 		'thankyoulike_postbit'			=> "{\$lang->tyl_rcvd}: {\$post['tyl_unumrtyls']}
 <br />
 {\$lang->tyl_given}: {\$post['tyl_unumtyls']}",
@@ -376,6 +380,47 @@ function thankyoulike_activate()
 	} 
 
 	rebuild_settings();
+	
+	// css-class for g33k_thankyoulike	
+	$css = array(
+	"name" => "g33k_thankyoulike.css",
+	"tid" => 1,
+	"attachedto" => "showthread.php",
+	"stylesheet" => "div[id^=tyl_btn_] {
+	display: inline-block;
+}
+
+a.add_tyl_button span{
+background-image: url(images/thankyoulike/thx_add.png);
+}
+
+a.del_tyl_button span{
+background-image: url(images/thankyoulike/thx_del.png);
+}
+
+.tyllist{
+}
+
+.tyllist_classic{
+}
+
+img[id^=tyl_i_expcol_]{
+	vertical-align: bottom;
+}",
+    "cachefile" => $db->escape_string(str_replace('/', '', g33k_thankyoulike.css)),
+	"lastmodified" => TIME_NOW
+	);
+
+	require_once MYBB_ADMIN_DIR."inc/functions_themes.php";
+
+	$sid = $db->insert_query("themestylesheets", $css);
+	$db->update_query("themestylesheets", array("cachefile" => "css.php?stylesheet=".$sid), "sid = '".$sid."'", 1);
+
+	$tids = $db->simple_select("themes", "tid");
+	while($theme = $db->fetch_array($tids))
+	{
+		update_theme_stylesheet_list($theme['tid']);
+	}
 
 }
 
@@ -416,6 +461,16 @@ function thankyoulike_deactivate()
 	find_replace_templatesets("postbit_author_user", "#".preg_quote('
 	%%TYL_NUMTHANKEDLIKED%%<br />')."#i", '', 0);
 	find_replace_templatesets("member_profile", '#{\$tyl_memprofile}(\r?)\n#', "", 0);
+	
+	$db->delete_query("themestylesheets", "name = 'g33k_thankyoulike.css'");
+
+	require_once MYBB_ADMIN_DIR."inc/functions_themes.php";
+
+	$query = $db->simple_select("themes", "tid");
+	while($theme = $db->fetch_array($query))
+	{
+		update_theme_stylesheet_list($theme['tid']);
+	}
 	
 }
 
@@ -520,7 +575,7 @@ function thankyoulike_postbit($post)
 	
 	$lang->load("thankyoulike");
 	
-	if ($mybb->settings[$prefix.'enabled'] == "1")
+	if ($mybb->settings[$prefix.'enabled'] == "1" && $mybb->settings[$prefix.'exclude'] != "-1")
 	{		
 		// Check first if this post is in an excluded forum, if it is end right here.
 		$forums = explode(",", $mybb->settings[$prefix.'exclude']);
@@ -617,7 +672,8 @@ function thankyoulike_postbit($post)
 				$profile_link = get_profile_link($tyl['uid']);
 				// Format username...or not
 				$username = $mybb->settings[$prefix.'unameformat'] == "1" ? format_name($tyl['username'], $tyl['usergroup'], $tyl['displaygroup']) : $tyl['username'];
-				$dt = $mybb->settings[$prefix.'showdt'] == "1" ? " ".my_date($mybb->settings[$prefix.'dtformat'], $tyl['dateline'])."" : "";
+				$datedisplay_next = $mybb->settings[$prefix.'showdt'] == "nexttoname" ? "<span class='smalltext'> (".my_date($mybb->settings[$prefix.'dtformat'], $tyl['dateline']).")</span>" : "";
+				$datedisplay_title = $mybb->settings[$prefix.'showdt'] == "astitle" ? "title='".my_date($mybb->settings[$prefix.'dtformat'], $tyl['dateline'])."'" : "";
 				eval("\$thankyoulike_users = \"".$templates->get("thankyoulike_users", 1, 0)."\";");
 				$tyls .= trim($thankyoulike_users);
 				$comma = ', ';	
@@ -694,7 +750,7 @@ function thankyoulike_postbit($post)
 		
 		// Determine whether we're showing tyl for this post:
 		$thread = get_thread($post['tid']);
-		if(($tyled && $mybb->settings[$prefix.'removing'] != "1") || (!is_moderator($post['fid'], "caneditposts") && $thread['closed'] == 1) || $post['uid'] == $mybb->user['uid'] || is_member($mybb->settings[$prefix.'hideforgroups']) || $mybb->settings[$prefix.'hideforgroups'] == "-1")
+		if(($tyled && $mybb->settings[$prefix.'removing'] != "1") || (!is_moderator($post['fid'], "caneditposts") && $thread['closed'] == 1 && $mybb->settings[$prefix.'closedthreads'] != "1") || $post['uid'] == $mybb->user['uid'] || is_member($mybb->settings[$prefix.'hideforgroups']) || $mybb->settings[$prefix.'hideforgroups'] == "-1")
 		{
 			// Show no button for poster or user who has already thanked/liked and disabled removing. 
 			$post['button_tyl'] = '';
@@ -1362,8 +1418,10 @@ function thankyoulike_settings_peeker()
 		new Peeker($$(".setting_'.$prefix.'enabled"), $("row_setting_'.$prefix.'thankslike"), /1/, true);
 		new Peeker($$(".setting_'.$prefix.'enabled"), $("row_setting_'.$prefix.'firstall"), /1/, true);
 		new Peeker($$(".setting_'.$prefix.'enabled"), $("row_setting_'.$prefix.'removing"), /1/, true);
+		new Peeker($$(".setting_'.$prefix.'enabled"), $("row_setting_'.$prefix.'closedthreads"), /1/, true);
 		new Peeker($$(".setting_'.$prefix.'enabled"), $("row_setting_'.$prefix.'exclude"), /1/, true);		
 		new Peeker($$(".setting_'.$prefix.'enabled"), $("row_setting_'.$prefix.'unameformat"), /1/, true);
+		new Peeker($$(".setting_'.$prefix.'enabled"), $("row_setting_'.$prefix.'hideforgroups"), /1/, true);
 		new Peeker($$(".setting_'.$prefix.'enabled"), $("row_setting_'.$prefix.'showdt"), /1/, true);
 		new Peeker($$(".setting_'.$prefix.'enabled"), $("row_setting_'.$prefix.'dtformat"), /1/, true);
 		new Peeker($$(".setting_'.$prefix.'enabled"), $("row_setting_'.$prefix.'sortorder"), /1/, true);
