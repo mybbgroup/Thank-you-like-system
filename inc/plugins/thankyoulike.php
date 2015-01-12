@@ -55,7 +55,7 @@ function thankyoulike_info()
         "authorsite"			=> "http://community.mybboard.net/user-19236.html",
         "version"			=> "1.7",
 	"intver"			=> "180",
-	"codename" 			=> "",
+	"codename" 			=> "thankyoulikesystem",
 	"compatibility" 		=> "18*"
     );
 	
