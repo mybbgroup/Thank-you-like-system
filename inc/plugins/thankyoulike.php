@@ -391,12 +391,12 @@ function thankyoulike_activate()
 
 a.add_tyl_button span{
 	background-image: url(images/thankyoulike/thx_add.png);
-	font-weight:normal
+	font-weight: normal;
 }
 
 a.del_tyl_button span{
 	background-image: url(images/thankyoulike/thx_del.png);
-	font-weight:normal
+	font-weight: normal;
 }
 
 .tyllist{
