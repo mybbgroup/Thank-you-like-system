@@ -53,8 +53,7 @@ function thankyoulike_info()
         "website"			=> "http://www.geekplugins.com/mybb/thankyoulikesystem",
         "author"			=> "- G33K -",
         "authorsite"			=> "http://community.mybboard.net/user-19236.html",
-        "version"			=> "1.7",
-	"intver"			=> "180",
+        "version"			=> "1.8",
 	"codename" 			=> "thankyoulikesystem",
 	"compatibility" 		=> "18*"
     );
