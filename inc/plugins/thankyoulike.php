@@ -401,6 +401,8 @@ background-image: url(images/thankyoulike/thx_del.png);
 }
 
 .tyllist_classic{
+	border-bottom: 1px dotted #ccc;
+	padding: 2px 5px;
 }
 
 img[id^=tyl_i_expcol_]{
