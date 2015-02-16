@@ -53,7 +53,7 @@ function thankyoulike_info()
         "website"			=> "http://www.geekplugins.com/mybb/thankyoulikesystem",
         "author"			=> "- G33K -",
         "authorsite"			=> "http://community.mybboard.net/user-19236.html",
-        "version"			=> "1.8",
+        "version"			=> "1.9",
 	"codename" 			=> "thankyoulikesystem",
 	"compatibility" 		=> "18*"
     );
@@ -189,41 +189,46 @@ function thankyoulike_install()
 				'description' 		=> 'Enable/Disable the Thank You/Like System',
 				'optionscode'		=> 'onoff',
 				'value'				=> '1'),
-		'thankslike' 					=> array(
+		'thankslike' 			=> array(
 				'title'				=> 'Thank You or Like',
 				'description'		=> 'Choose if you want to use the Thank You system or the Like System.',
 				'optionscode'		=> 'radio
 thanks=Use Thank You
 like=Use Like',
 				'value'				=> 'thanks'),
-		'firstall' 				=> array(
+		'firstall' 					=> array(
 				'title'				=> 'First Post only or All',
 				'description'		=> 'Do you want the thanks or Like to be given on the first post of a thread only or on all the posts of a thread?.',
 				'optionscode'		=> 'radio
 first=First Post Only
 all=All Posts',
 				'value'				=> 'first'),
-		'removing' 					=> array(
+		'firstalloverwrite'		=> array(
+				'title'				=> 'Special option for Display TYL-Buttons in ALL Posts.',
+				'description'		=> 'Overwrite the above selected option All in certain forums (choose only forums - no categories)',
+				'optionscode'		=> 'forumselect',
+				'value'				=> ''),
+		'removing' 				=> array(
 				'title'				=> 'Allow Removing',
 				'description'		=> 'Do you want to allow the removing of Thanks/Like from a post already Thanked/Liked?',
 				'optionscode'		=> 'yesno',
 				'value'				=> '0'),
-		'closedthreads'				=> array(
+		'closedthreads'			=> array(
 				'title'				=> 'Allow in Closed Threads',
 				'description'		=> 'Do you want to allow to give Thanks/Like in closed threads?',
 				'optionscode'		=> 'yesno',
 				'value'				=> '0'),
-		'exclude' 					=> array(
+		'exclude' 				=> array(
 				'title'				=> 'Excluded Forums',
 				'description'		=> 'Select forums where you do not want the threads and posts to use the thank you/like system. (only forums - no categories)',
 				'optionscode'		=> 'forumselect',
 				'value'				=> ''),
-		'unameformat' 				=> array(
+		'unameformat' 			=> array(
 				'title'				=> 'Format Usernames',
 				'description'		=> 'Do you want to format the usernames in the thank/list according to their groups?',
 				'optionscode'		=> 'yesno',
 				'value'				=> '1'),
-		'hideforgroups' 			=> array(
+		'hideforgroups' 		=> array(
 				'title'				=> 'Hide ThankYou/Like Button',
 				'description'		=> 'Select User Groups which cannot see Thanks/Like button.',
 				'optionscode'		=> 'groupselect',
@@ -241,7 +246,7 @@ astitle=Display on mouse over username',
 				'description'		=> 'Set the format you want to use to show the Date/Time in the thank/like list.<br />Format is same as the one used by PHP\'s date() function.<br />Example format: m-d-Y h:i A &lt;&lt;will show&gt;&gt; 12-31-2009 12:01 PM',
 				'optionscode'		=> 'text',
 				'value'				=> 'm-d-Y'),
-		'sortorder' 				=> array(
+		'sortorder' 			=> array(
 				'title'				=> 'Sort Order',
 				'description'		=> 'Select the sort order for the thanks/like list.',
 				'optionscode'		=> 'select
@@ -250,12 +255,12 @@ userdesc=Username Descending
 dtasc=Date/Time Added Ascending
 dtdesc=Date/Time Added Descending',
 				'value'				=> 'userasc'),
-		'collapsible' 				=> array(
+		'collapsible' 			=> array(
 				'title'				=> 'Thanks/Like List Collapsible',
 				'description'		=> 'Do you want the thanks/like list to be collapsible (Show/Hide ability)?',
 				'optionscode'		=> 'yesno',
 				'value'				=> '1'),
-		'colldefault' 				=> array(
+		'colldefault' 			=> array(
 				'title'				=> 'Default Collapsible State',
 				'description'		=> 'If you want the list to be collapsible, what is the default state you want it in when the page loads, open or closed(hidden)?',
 				'optionscode'		=> 'radio
@@ -764,9 +769,16 @@ function thankyoulike_postbit($post)
 		}
 		else if(($mybb->settings[$prefix.'firstall'] == "first" && $thread['firstpost'] == $post['pid']) || $mybb->settings[$prefix.'firstall'] == "all")
 		{
-			// Same as above but show add button
-			eval("\$post['button_tyl'] = \"".$templates->get("thankyoulike_button_add")."\";");
-		}
+			if ((my_strpos($mybb->settings['firstalloverwrite'], $post['fid']) !== false || $mybb->settings['firstalloverwrite'] == "-1") && $thread['firstpost'] != $post['pid'])
+			{
+				$post['button_tyl'] = '';
+			}
+			else
+			{
+				// Same as above but show add button
+				eval("\$post['button_tyl'] = \"".$templates->get("thankyoulike_button_add")."\";");
+			}
+		} 
 		
 		if($count>0 && (($mybb->settings[$prefix.'firstall'] == "first" && $thread['firstpost'] == $post['pid']) || $mybb->settings[$prefix.'firstall'] == "all"))
 		{
