@@ -42,20 +42,21 @@ $plugins->add_hook("admin_page_output_footer","thankyoulike_settings_peeker");
 
 function thankyoulike_info()
 {
-	global $plugins_cache, $mybb, $db;
+	global $plugins_cache, $mybb, $db, $lang;
+	$lang->load('config_thankyoulike');
 	
 	$codename = basename(__FILE__, ".php");
 	$prefix = 'g33k_'.$codename.'_';
 	
     $info = array(
-        "name"				=> "Thank You/Like System",
-        "description"			=> "Adds option for users to Thank the user for the post or 'Like' the post.<br />*Edited for MyBB 1.8 by: <a href=\"http://my-bb.ir\" target=\"_blank\">AliReza_Tofighi</a><br />*Maintained by: <a href=\"http://community.mybb.com/user-91011.html\" target=\"_blank\">SvePu</a> and <a href=\"http://community.mybb.com/user-84065.html\" target=\"_blank\">Eldenroot</a><br />*Sources: <a href=\"https://github.com/Cu8eR/thankyou-like-plugin\" target=\"_blank\">GitHub</a>",
-        "website"			=> "http://www.geekplugins.com/mybb/thankyoulikesystem",
-        "author"			=> "- G33K -",
-        "authorsite"			=> "http://community.mybboard.net/user-19236.html",
-        "version"			=> "1.9",
-	"codename" 			=> "thankyoulikesystem",
-	"compatibility" 		=> "18*"
+		"name"			=> $db->escape_string($lang->tyl_info_title),
+		"description"	=> $db->escape_string($lang->tyl_info_desc),
+		"website"		=> "http://www.geekplugins.com/mybb/thankyoulikesystem",
+		"author"		=> "- G33K -",
+		"authorsite"	=> "http://community.mybboard.net/user-19236.html",
+		"version"		=> "1.9",
+		"codename"		=> "thankyoulikesystem",
+		"compatibility"	=> "18*"
     );
 	
 	$info_desc = '';
@@ -63,12 +64,12 @@ function thankyoulike_info()
 	$group = $db->fetch_array($result);
 	if(!empty($group['gid']))
 	{
-		$info_desc .= "<i><small>[<a href=\"index.php?module=config-settings&action=change&gid=".$group['gid']."\">Configure Settings</a>]</small></i>";
+		$info_desc .= "<i><small>[<a href=\"index.php?module=config-settings&action=change&gid=".$group['gid']."\">".$db->escape_string($lang->tyl_info_desc_configsettings)."</a>]</small></i>";
 	}
     
     if(is_array($plugins_cache) && is_array($plugins_cache['active']) && $plugins_cache['active'][$codename])
     {
-	    $info_desc .= "<i><small>[<a href=\"index.php?module=tools-thankyoulike_recount\">Recount Thank Yous/Likes</a>]</small></i>";
+	    $info_desc .= "<i><small>[<a href=\"index.php?module=tools-thankyoulike_recount\">".$db->escape_string($lang->tyl_info_desc_recount)."</a>]</small></i>";
 		$info_desc .= '<form action="https://www.paypal.com/cgi-bin/webscr" method="post" style="float: right;" target="_blank">
 <input type="hidden" name="cmd" value="_s-xclick">
 <input type="hidden" name="hosted_button_id" value="KCNAC5PE828X8">
@@ -85,7 +86,7 @@ function thankyoulike_info()
 	if(file_exists(MYBB_ROOT."tyl_unlock"))
 	{
 		// Show warning if tyl_unlock file exists letting user know that uninstalling will remove everything from the database
-		$info['description'] .= "<ul><li style=\"list-style-image: url(styles/default/images/icons/error.png)\">Warning! tyl_unlock file located! Uninstalling will remove ALL the thankyou/like data from the database. If you would like to preserve the thankyou/like data while uninstalling then remove the tyl_unlock file from the forum root folder.</li></ul>";
+		$info['description'] .= "<ul><li style=\"list-style-image: url(styles/default/images/icons/error.png)\">".$db->escape_string($lang->tyl_info_desc_warning)."</li></ul>";
 	}
     
     return $info;
@@ -93,7 +94,8 @@ function thankyoulike_info()
 
 function thankyoulike_install()
 {
-	global $mybb, $db;
+	global $mybb, $db, $lang;
+	$lang->load('config_thankyoulike');
 	
 	$codename = basename(__FILE__, ".php");
 	$prefix = 'g33k_'.$codename.'_';
@@ -175,8 +177,8 @@ function thankyoulike_install()
 
 	$setting_group = array(
 		'name' 			=>	$prefix.'settings',
-		'title' 		=>	'Thank You/Like System',
-		'description' 	=>	'Settings to customize the Thank You/Like System Plugin',
+		'title' 		=>	$db->escape_string($lang->tyl_title),
+		'description' 	=>	$db->escape_string($lang->tyl_desc),
 		'disporder' 	=>	intval($disporder),
 		'isdefault' 	=>	0
 	);
@@ -184,71 +186,71 @@ function thankyoulike_install()
 	$gid = $db->insert_id();
 	
 	$settings = array(
-		'enabled' 		=> array(
-				'title' 			=> 'Enable/Disable', 
-				'description' 		=> 'Enable/Disable the Thank You/Like System',
+		'enabled' 				=> array(
+				'title' 			=> $lang->tyl_enabled_title, 
+				'description' 		=> $lang->tyl_enabled_desc,
 				'optionscode'		=> 'onoff',
 				'value'				=> '1'),
 		'thankslike' 			=> array(
-				'title'				=> 'Thank You or Like',
-				'description'		=> 'Choose if you want to use the Thank You system or the Like System.',
+				'title'				=> $lang->tyl_thankslike_title,
+				'description'		=> $lang->tyl_thankslike_desc,
 				'optionscode'		=> 'radio
 thanks=Use Thank You
 like=Use Like',
 				'value'				=> 'thanks'),
 		'firstall' 					=> array(
-				'title'				=> 'First Post only or All',
-				'description'		=> 'Do you want the thanks or Like to be given on the first post of a thread only or on all the posts of a thread?.',
+				'title'				=> $lang->tyl_firstall_title,
+				'description'		=> $lang->tyl_firstall_desc,
 				'optionscode'		=> 'radio
 first=First Post Only
 all=All Posts',
 				'value'				=> 'first'),
 		'firstalloverwrite'		=> array(
-				'title'				=> 'Special option for Display TYL-Buttons in ALL Posts.',
-				'description'		=> 'Overwrite the above selected option All in certain forums (choose only forums - no categories)',
+				'title'				=> $lang->tyl_firstalloverwrite_title,
+				'description'		=> $lang->tyl_firstalloverwrite_desc,
 				'optionscode'		=> 'forumselect',
 				'value'				=> ''),
 		'removing' 				=> array(
-				'title'				=> 'Allow Removing',
-				'description'		=> 'Do you want to allow the removing of Thanks/Like from a post already Thanked/Liked?',
+				'title'				=> $lang->tyl_removing_title,
+				'description'		=> $lang->tyl_removing_desc,
 				'optionscode'		=> 'yesno',
 				'value'				=> '0'),
 		'closedthreads'			=> array(
-				'title'				=> 'Allow in Closed Threads',
-				'description'		=> 'Do you want to allow to give Thanks/Like in closed threads?',
+				'title'				=> $lang->tyl_closedthreads_title,
+				'description'		=> $lang->tyl_closedthreads_desc,
 				'optionscode'		=> 'yesno',
 				'value'				=> '0'),
 		'exclude' 				=> array(
-				'title'				=> 'Excluded Forums',
-				'description'		=> 'Select forums where you do not want the threads and posts to use the thank you/like system. (only forums - no categories)',
+				'title'				=> $lang->tyl_exclude_title,
+				'description'		=> $lang->tyl_exclude_desc,
 				'optionscode'		=> 'forumselect',
 				'value'				=> ''),
 		'unameformat' 			=> array(
-				'title'				=> 'Format Usernames',
-				'description'		=> 'Do you want to format the usernames in the thank/list according to their groups?',
+				'title'				=> $lang->tyl_unameformat_title,
+				'description'		=> $lang->tyl_unameformat_desc,
 				'optionscode'		=> 'yesno',
 				'value'				=> '1'),
 		'hideforgroups' 		=> array(
-				'title'				=> 'Hide ThankYou/Like Button',
-				'description'		=> 'Select User Groups which cannot see Thanks/Like button.',
+				'title'				=> $lang->tyl_hideforgroups_title,
+				'description'		=> $lang->tyl_hideforgroups_desc,
 				'optionscode'		=> 'groupselect',
 				'value'				=> '1,7'),
 		'showdt' 				=> array(
-				'title'				=> 'Show Date/Time',
-				'description'		=> 'Do you want to show the Date/Time the thanks/like was received in the Thanks/Like list?',
+				'title'				=> $lang->tyl_showdt_title,
+				'description'		=> $lang->tyl_showdt_desc,
 				'optionscode'		=> 'radio
 none=Not Display
 nexttoname=Display next to user name
 astitle=Display on mouse over username',
 				'value'				=> 'astitle'),
 		'dtformat' 				=> array(
-				'title'				=> 'Date/Time Format',
-				'description'		=> 'Set the format you want to use to show the Date/Time in the thank/like list.<br />Format is same as the one used by PHP\'s date() function.<br />Example format: m-d-Y h:i A &lt;&lt;will show&gt;&gt; 12-31-2009 12:01 PM',
+				'title'				=> $lang->tyl_dtformat_title,
+				'description'		=> $lang->tyl_dtformat_desc,
 				'optionscode'		=> 'text',
 				'value'				=> 'm-d-Y'),
 		'sortorder' 			=> array(
-				'title'				=> 'Sort Order',
-				'description'		=> 'Select the sort order for the thanks/like list.',
+				'title'				=> $lang->tyl_sortorder_title,
+				'description'		=> $lang->tyl_sortorder_desc,
 				'optionscode'		=> 'select
 userasc=Username Ascending
 userdesc=Username Descending
@@ -256,13 +258,13 @@ dtasc=Date/Time Added Ascending
 dtdesc=Date/Time Added Descending',
 				'value'				=> 'userasc'),
 		'collapsible' 			=> array(
-				'title'				=> 'Thanks/Like List Collapsible',
-				'description'		=> 'Do you want the thanks/like list to be collapsible (Show/Hide ability)?',
+				'title'				=> $lang->tyl_collapsible_title,
+				'description'		=> $lang->tyl_collapsible_desc,
 				'optionscode'		=> 'yesno',
 				'value'				=> '1'),
 		'colldefault' 			=> array(
-				'title'				=> 'Default Collapsible State',
-				'description'		=> 'If you want the list to be collapsible, what is the default state you want it in when the page loads, open or closed(hidden)?',
+				'title'				=> $lang->tyl_colldefault_title,
+				'description'		=> $lang->tyl_colldefault_desc,
 				'optionscode'		=> 'radio
 open=List Shown
 closed=List Hidden (Collapsed)',
