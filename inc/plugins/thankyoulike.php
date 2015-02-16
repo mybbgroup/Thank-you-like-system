@@ -769,7 +769,7 @@ function thankyoulike_postbit($post)
 		}
 		else if(($mybb->settings[$prefix.'firstall'] == "first" && $thread['firstpost'] == $post['pid']) || $mybb->settings[$prefix.'firstall'] == "all")
 		{
-			if ((my_strpos($mybb->settings['firstalloverwrite'], $post['fid']) !== false || $mybb->settings['firstalloverwrite'] == "-1") && $thread['firstpost'] != $post['pid'])
+			if ((my_strpos($mybb->settings[$prefix.'firstalloverwrite'], $post['fid']) !== false || $mybb->settings[$prefix.'firstalloverwrite'] == "-1") && $thread['firstpost'] != $post['pid'])
 			{
 				$post['button_tyl'] = '';
 			}
