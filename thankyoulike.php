@@ -384,14 +384,14 @@ if($mybb->input['ajax'])
 	}
 	else if(($mybb->settings[$prefix.'firstall'] == "first" && $thread['firstpost'] == $post['pid']) || $mybb->settings[$prefix.'firstall'] == "all")
 	{
-		if ((my_strpos($mybb->settings['firstalloverwrite'], $post['fid']) !== false || $mybb->settings['firstalloverwrite'] == "-1") && $thread['firstpost'] != $post['pid'])
+		if ((my_strpos($mybb->settings[$prefix.'firstalloverwrite'], $post['fid']) !== false || $mybb->settings[$prefix.'firstalloverwrite'] == "-1") && $thread['firstpost'] != $post['pid'])
 		{
-			$post['button_tyl'] = '';
+			$button_tyl = '';
 		}
 		else
 		{
 			// Same as above but show add button
-			eval("\$post['button_tyl'] = \"".$templates->get("thankyoulike_button_add")."\";");
+			eval("\$button_tyl = \"".$templates->get("thankyoulike_button_add")."\";");
 		}
 	}
 	
