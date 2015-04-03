@@ -54,7 +54,7 @@ function thankyoulike_info()
 		"website"		=> "http://www.geekplugins.com/mybb/thankyoulikesystem",
 		"author"		=> "- G33K -",
 		"authorsite"	=> "http://community.mybboard.net/user-19236.html",
-		"version"		=> "1.9",
+		"version"		=> "1.9.1",
 		"codename"		=> "thankyoulikesystem",
 		"compatibility"	=> "18*"
     );
