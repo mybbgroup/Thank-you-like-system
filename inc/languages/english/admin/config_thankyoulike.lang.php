@@ -6,7 +6,7 @@
  */
 
 $l['tyl_info_title'] = "Thank You/Like System";
-$l['tyl_info_desc'] = "Adds option for users to Thank the user for the post or Like the post.<br />*Edited for MyBB 1.8 by: <a href=\"http://www.my-bb.ir\" target=\"_blank\">AliReza_Tofighi</a><br />*Maintained by: <a href=\"http://www.community.mybb.com/user-91011.html\" target=\"_blank\">SvePu</a> and <a href=\"http://www.community.mybb.com/user-84065.html\" target=\"_blank\">Eldenroot</a><br />*Sources: <a href=\"https://www.github.com/Cu8eR/thankyou-like-plugin\" target=\"_blank\">GitHub</a>";
+$l['tyl_info_desc'] = "Adds option for users to Thank the user for the post or Like the post.<br />*Edited for MyBB 1.8 by: <a href='http://www.my-bb.ir' target='_blank'>AliReza_Tofighi</a><br />*Maintained by: <a href='http://www.community.mybb.com/user-91011.html' target='_blank'>SvePu</a> and <a href='http://www.community.mybb.com/user-84065.html' target='_blank'>Eldenroot</a><br />*Sources: <a href='https://www.github.com/Cu8eR/thankyou-like-plugin' target='_blank'>GitHub</a>";
 $l['tyl_info_desc_recount'] = "Recount Thank Yous/Likes";
 $l['tyl_info_desc_configsettings'] = "Configure Settings";
 $l['tyl_info_desc_warning'] = "Warning! tyl_unlock file located! Uninstalling will remove ALL the thankyou/like data from the database. If you would like to preserve the thankyou/like data while uninstalling then remove the tyl_unlock file from the forum root folder.";
