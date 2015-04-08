@@ -402,7 +402,7 @@ function thankyoulike_activate()
 
 a.add_tyl_button span{
 	background-image: url(images/thankyoulike/thx_add.png);
-	font-weight: normal;
+	font-weight: bold;
 }
 
 a.del_tyl_button span{
@@ -415,6 +415,7 @@ a.del_tyl_button span{
 
 .tyllist_classic{
 	border-bottom: 1px dotted #ccc;
+	border-top: 1px dotted #ccc;
 	padding: 2px 5px;
 }
 
