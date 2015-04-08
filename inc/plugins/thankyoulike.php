@@ -332,7 +332,7 @@ function thankyoulike_activate()
 		'thankyoulike'					=> "			<div class=\"post_controls tyllist {\$unapproved_shade}\">
 				{\$tyl_expcol} 
 				<span id=\"tyl_title_{\$post['pid']}\" style=\"{\$tyl_title_display}\">{\$lang->tyl_title}</span><span id=\"tyl_title_collapsed_{\$post['pid']}\" style=\"{\$tyl_title_display_collapsed}\">{\$lang->tyl_title_collapsed}</span><br />
-				<span id=\"tyl_data_{\$post['pid']}\" style=\"{\$tyl_data_display}\">{\$post['thankyoulike']}</span>
+				<span id=\"tyl_data_{\$post['pid']}\" style=\"{\$tyl_data_display}\">&nbsp;&nbsp;• {\$post['thankyoulike']}</span>
 			</div>",
 		'thankyoulike_classic'					=> "	<div class=\"post_controls tyllist_classic {\$unapproved_shade}\">
 		{\$tyl_expcol} 
