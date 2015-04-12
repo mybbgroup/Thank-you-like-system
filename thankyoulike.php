@@ -178,7 +178,24 @@ if($mybb->input['action'] == "add")
 	);
 
 	$tlid = $db->insert_query($prefix."thankyoulike", $tyl_data);
-	
+	// Verify if myalerts exists and if compatible with 1.8.x then add alert type
+	include_once('inc/plugins/thankyoulike.php');
+	if(function_exists("myalerts_info")){
+		// Load myalerts info into an array
+		$my_alerts_info = myalerts_info();
+		// Set version info to a new var
+		$verify = $my_alerts_info['version'];
+		// If MyAlerts 2.0 or better then do this !!!
+		if($verify >= "2.0.0"){
+		global $cache;
+			// Load cache data and compare if version is the same or don't
+			$myalerts_plugins = $cache->read('mybbstuff_myalerts_alert_types');
+			if($myalerts_plugins['tyl']['code'] == 'tyl'){
+				tyl_recordAlertThankyou();	
+			}
+		}
+	}
+
 	if($tlid)
 	{
 		// Update tyl count in posts and threads and users and total
@@ -229,6 +246,9 @@ if($mybb->input['action'] == "del")
 		{
 			// process delete
 			$db->delete_query($prefix."thankyoulike", "tlid='".$tyl_r['tlid']."'", "1");
+			// if alert of user was added and unread then review if delete thanks and delete alert too.
+			$db->query("DELETE FROM ".TABLE_PREFIX."alerts WHERE from_user_id={$mybb->user['uid']} AND object_id='{$pid}' AND unread=1 LIMIT 1");
+
 			// Update counts
 			if($post['tyl_pnumtyls'] == 1)
 			{
