@@ -247,8 +247,9 @@ if($mybb->input['action'] == "del")
 			// process delete
 			$db->delete_query($prefix."thankyoulike", "tlid='".$tyl_r['tlid']."'", "1");
 			// if alert of user was added and unread then review if delete thanks and delete alert too.
-			$db->query("DELETE FROM ".TABLE_PREFIX."alerts WHERE from_user_id={$mybb->user['uid']} AND object_id='{$pid}' AND unread=1 LIMIT 1");
-
+			if((function_exists('myalerts_is_activated') && myalerts_is_activated()) && $mybb->user['uid']){
+				$db->query("DELETE FROM ".TABLE_PREFIX."alerts WHERE from_user_id={$mybb->user['uid']} AND object_id='{$pid}' AND unread=1 LIMIT 1");
+			}
 			// Update counts
 			if($post['tyl_pnumtyls'] == 1)
 			{
