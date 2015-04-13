@@ -391,7 +391,7 @@ function thankyoulike_activate()
 
 	rebuild_settings();
 
-	// Verify if myalerts exists and if compatible with 1.8.x then add alert type
+	// Verify if myalerts exists and if it is compatible with 1.8.x, then add alert type
 	include_once('inc/plugins/thankyoulike.php');
 	if(function_exists("myalerts_info")){
 		// Load myalerts info into an array
@@ -401,7 +401,7 @@ function thankyoulike_activate()
 		// If MyAlerts 2.0 or better then do this !!!
 		if($verify >= "2.0.0"){
 		global $cache;
-			// Load cache data and compare if version is the same or don't
+			// Load cache data and compare if version is the same or not
 			$myalerts_plugins = $cache->read('mybbstuff_myalerts_alert_types');
 			if($myalerts_plugins['tyl']['code'] == 'tyl'){
 				tyl_recordAlertThankyou();	
@@ -499,7 +499,7 @@ function thankyoulike_deactivate()
 		$my_alerts_info = myalerts_info();
 		// Set version info to a new var
 		$verify = $my_alerts_info['version'];
-		// If MyAlerts 2.0 or better then do this !!!
+		// If MyAlerts is v2.0 or better then do this!!!
 		if($verify >= "2.0.0"){	
 			if($db->table_exists("alert_types")){
 				$alertTypeManager = MybbStuff_MyAlerts_AlertTypeManager::getInstance();
@@ -587,7 +587,7 @@ function thankyoulike_templatelist()
 		// Registering alert formatter
 		if((function_exists('myalerts_is_activated') && myalerts_is_activated()) && $mybb->user['uid']){
 			global $cache, $formatterManager;
-			// Load cache data and compare if version is the same or don't
+			// Load cache data and compare if version is the same or not
 			$myalerts_plugins = $cache->read('mybbstuff_myalerts_alert_types');
 		
 			if($myalerts_plugins['tyl']['code'] == 'tyl' && $myalerts_plugins['tyl']['enabled'] == 1){
