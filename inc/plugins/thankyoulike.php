@@ -420,11 +420,13 @@ function thankyoulike_activate()
 
 a.add_tyl_button span{
 	background-image: url(images/thankyoulike/thx_add.png);
+	background-repeat: no-repeat;
 	font-weight: bold;
 }
 
 a.del_tyl_button span{
 	background-image: url(images/thankyoulike/thx_del.png);
+	background-repeat: no-repeat;
 	font-weight: normal;
 }
 
