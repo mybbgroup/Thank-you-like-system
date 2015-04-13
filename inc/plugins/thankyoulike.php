@@ -314,7 +314,7 @@ function thankyoulike_is_installed()
 
 function thankyoulike_activate()
 {
-	global $mybb, $db;
+	global $mybb, $db, $cache;
 	
 	$codename = basename(__FILE__, ".php");
 	$prefix = 'g33k_'.$codename.'_';
@@ -390,6 +390,24 @@ function thankyoulike_activate()
 	} 
 
 	rebuild_settings();
+
+	// Verify if myalerts exists and if compatible with 1.8.x then add alert type
+	include_once('inc/plugins/thankyoulike.php');
+	if(function_exists("myalerts_info")){
+		// Load myalerts info into an array
+		$my_alerts_info = myalerts_info();
+		// Set version info to a new var
+		$verify = $my_alerts_info['version'];
+		// If MyAlerts 2.0 or better then do this !!!
+		if($verify >= "2.0.0"){
+		global $cache;
+			// Load cache data and compare if version is the same or don't
+			$myalerts_plugins = $cache->read('mybbstuff_myalerts_alert_types');
+			if($myalerts_plugins['tyl']['code'] == 'tyl'){
+				tyl_recordAlertThankyou();	
+			}
+		}
+	}
 	
 	// css-class for g33k_thankyoulike	
 	$css = array(
@@ -440,7 +458,7 @@ img[id^=tyl_i_expcol_]{
 
 function thankyoulike_deactivate()
 {
-	global $db;
+	global $db, $cache;
 	
 	$codename = basename(__FILE__, ".php");
 	$prefix = 'g33k_'.$codename.'_';
@@ -475,10 +493,24 @@ function thankyoulike_deactivate()
 	find_replace_templatesets("postbit_author_user", "#".preg_quote('
 	%%TYL_NUMTHANKEDLIKED%%<br />')."#i", '', 0);
 	find_replace_templatesets("member_profile", '#{\$tyl_memprofile}(\r?)\n#', "", 0);
-	
-	$db->delete_query("themestylesheets", "name = 'g33k_thankyoulike.css'");
+
+	if(function_exists("myalerts_info")){
+		// Load myalerts info into an array
+		$my_alerts_info = myalerts_info();
+		// Set version info to a new var
+		$verify = $my_alerts_info['version'];
+		// If MyAlerts 2.0 or better then do this !!!
+		if($verify >= "2.0.0"){	
+			if($db->table_exists("alert_types")){
+				$alertTypeManager = MybbStuff_MyAlerts_AlertTypeManager::getInstance();
+				$alertTypeManager->deleteByCode('tyl');
+			}
+		}
+	}
 
 	require_once MYBB_ADMIN_DIR."inc/functions_themes.php";
+
+	$db->delete_query("themestylesheets", "name = 'g33k_thankyoulike.css'");
 
 	$query = $db->simple_select("themes", "tid");
 	while($theme = $db->fetch_array($query))
@@ -545,13 +577,27 @@ function thankyoulike_uninstall()
 
 function thankyoulike_templatelist()
 {
-	global $mybb, $templatelist;
+	global $mybb, $cache, $lang, $code, $templatelist;
 	
 	$codename = basename(__FILE__, ".php");
 	$prefix = 'g33k_'.$codename.'_';
-	
 	if ($mybb->settings[$prefix.'enabled'] == "1")
 	{
+	$lang->load('thankyoulike', false, true);
+		// Registering alert formatter
+		if((function_exists('myalerts_is_activated') && myalerts_is_activated()) && $mybb->user['uid']){
+			global $cache, $formatterManager;
+			// Load cache data and compare if version is the same or don't
+			$myalerts_plugins = $cache->read('mybbstuff_myalerts_alert_types');
+		
+			if($myalerts_plugins['tyl']['code'] == 'tyl' && $myalerts_plugins['tyl']['enabled'] == 1){
+				if (class_exists('MybbStuff_MyAlerts_AlertFormatterManager') && class_exists('ThankyouAlertFormatter')) {
+					$code = 'tyl';
+					$formatterManager = MybbStuff_MyAlerts_AlertFormatterManager::getInstance();
+					$formatterManager->registerFormatter(new ThankyouAlertFormatter($mybb, $lang, $code));
+				}
+			}
+		}	
 		$template_list = '';
 		if (THIS_SCRIPT == 'showthread.php')
 		{
@@ -865,6 +911,82 @@ function thankyoulike_postbit_udetails($post)
 	}
 	return $post;
 }
+
+// Sending the alert to db
+function tyl_recordAlertThankyou()
+{
+	global $db, $lang, $mybb, $alert, $post, $codename, $prefix;
+	
+	$codename = basename(__FILE__, ".php");
+	$prefix = 'g33k_'.$codename.'_';
+	
+	$lang->load("thankyoulike", false, true);
+	
+	if(!$mybb->settings[$prefix.'enabled'] == "1")
+	{
+		return false;
+	}
+
+	$uid = (int)$post['uid'];
+	$tid = (int)$post['tid'];
+	$pid = (int)$post['pid'];
+	$subject = htmlspecialchars_uni($post['subject']);
+	$fid = (int)$post['fid'];
+
+    $alertType = MybbStuff_MyAlerts_AlertTypeManager::getInstance()->getByCode('tyl');
+	
+    if(isset($alertType) && $alertType->getEnabled()){
+		$alert = new MybbStuff_MyAlerts_Entity_Alert($uid, $alertType, $pid, $mybb->user['uid']);
+				$alert->setExtraDetails(
+				array(
+					'tid' 		=> $tid,
+					'pid'		=> $pid,
+					't_subject' => $db->escape_string($subject),
+					'fid'		=> $fid					
+				)); 
+		MybbStuff_MyAlerts_AlertManager::getInstance()->addAlert($alert);
+	}
+}
+
+ // Alert formatter for my custom alerts.
+if(class_exists("MybbStuff_MyAlerts_Formatter_AbstractFormatter")){
+	global $mybb, $codename, $prefix;
+	$codename = basename(__FILE__, ".php");
+	$prefix = 'g33k_'.$codename.'_';
+
+	if ($mybb->settings[$prefix.'enabled'] == "1")
+	{
+	class ThankyouAlertFormatter extends MybbStuff_MyAlerts_Formatter_AbstractFormatter{
+		public function formatAlert(MybbStuff_MyAlerts_Entity_Alert $alert, array $outputAlert)
+		{
+        $alertContent = $alert->getExtraDetails();
+        $postLink = $this->buildShowLink($alert);
+		
+			return $this->lang->sprintf(
+				$this->lang->tyl_alert,
+				$outputAlert['from_user'],
+				htmlspecialchars_uni($alertContent['t_subject']),					
+				$outputAlert['dateline']
+			);
+		}
+
+		public function init()
+		{
+			if (!$this->lang->thankyoulike) {
+				$this->lang->load('thankyoulike');
+			}
+		}
+
+		public function buildShowLink(MybbStuff_MyAlerts_Entity_Alert $alert)
+		{
+        $alertContent = $alert->getExtraDetails();
+        $postLink = $this->mybb->settings['bburl'] . '/' . get_post_link((int)$alertContent['pid'], (int)$alertContent['tid']).'#pid'.(int)$alertContent['pid'];              
+
+        return $postLink;
+		}
+	}
+	}
+}	
 
 function thankyoulike_memprofile()
 {

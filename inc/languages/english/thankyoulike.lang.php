@@ -64,3 +64,6 @@ $l['tyl_error_threadclosed'] = "You cannot {1} this post because it has been clo
 $l['tyl_redirect_tyled'] = "Your {1} has been added to the post";
 $l['tyl_redirect_deleted'] = "Your {1} has been removed from the post";
 $l['tyl_redirect_back'] = "<br />You will now be taken back to the post.";
+
+$l['tyl_alert'] = '{1} thanked/liked your post "{2}" ({3})';
+$l['myalerts_setting_tyl'] = 'Receive an alert when someone add thanks/like to my post?';
