@@ -392,7 +392,6 @@ function thankyoulike_activate()
 	rebuild_settings();
 
 	// Verify if myalerts exists and if it is compatible with 1.8.x, then add alert type
-	include_once('inc/plugins/thankyoulike.php');
 	if(function_exists("myalerts_info")){
 		// Load myalerts info into an array
 		$my_alerts_info = myalerts_info();
