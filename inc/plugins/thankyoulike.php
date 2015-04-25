@@ -59,7 +59,7 @@ $url_S = '<a href="https://github.com/Cu8eR/thankyou-like-plugin" target="_blank
 		"website"		=> "http://www.geekplugins.com/mybb/thankyoulikesystem",
 		"author"		=> "- G33K -",
 		"authorsite"	=> "http://community.mybboard.net/user-19236.html",
-		"version"		=> "1.9.1",
+		"version"		=> "1.9.2",
 		"codename"		=> "thankyoulikesystem",
 		"compatibility"	=> "18*"
     );
@@ -399,13 +399,17 @@ function thankyoulike_activate()
 		$verify = $my_alerts_info['version'];
 		// If MyAlerts 2.0 or better then do this !!!
 		if($verify >= "2.0.0"){
-		global $cache;
 			// Load cache data and compare if version is the same or don't
 			$myalerts_plugins = $cache->read('mybbstuff_myalerts_alert_types');
-			if($myalerts_plugins['tyl']['code'] == 'tyl'){
-				tyl_recordAlertThankyou();	
+			if($myalerts_plugins['thanks']['code'] != 'tyl'){
+			//Adding alert type to db
+			$alertTypeManager = MybbStuff_MyAlerts_AlertTypeManager::createInstance($db, $cache);
+				$alertType = new MybbStuff_MyAlerts_Entity_AlertType();
+				$alertType->setCode('tyl');
+				$alertType->setEnabled(true);
+			$alertTypeManager->add($alertType);
 			}
-		}
+		}	
 	}
 	
 	// css-class for g33k_thankyoulike	
@@ -419,11 +423,13 @@ function thankyoulike_activate()
 
 a.add_tyl_button span{
 	background-image: url(images/thankyoulike/thx_add.png);
-	font-weight: normal;
+	background-repeat: no-repeat;
+	font-weight: bold;
 }
 
 a.del_tyl_button span{
 	background-image: url(images/thankyoulike/thx_del.png);
+	background-repeat: no-repeat;
 	font-weight: normal;
 }
 
@@ -432,6 +438,7 @@ a.del_tyl_button span{
 
 .tyllist_classic{
 	border-bottom: 1px dotted #ccc;
+	border-top: 1px dotted #ccc;
 	padding: 2px 5px;
 }
 
@@ -498,7 +505,7 @@ function thankyoulike_deactivate()
 		$my_alerts_info = myalerts_info();
 		// Set version info to a new var
 		$verify = $my_alerts_info['version'];
-		// If MyAlerts 2.0 or better then do this !!!
+		// If MyAlerts is v2.0 or better then do this!!!
 		if($verify >= "2.0.0"){	
 			if($db->table_exists("alert_types")){
 				$alertTypeManager = MybbStuff_MyAlerts_AlertTypeManager::getInstance();
@@ -586,7 +593,7 @@ function thankyoulike_templatelist()
 		// Registering alert formatter
 		if((function_exists('myalerts_is_activated') && myalerts_is_activated()) && $mybb->user['uid']){
 			global $cache, $formatterManager;
-			// Load cache data and compare if version is the same or don't
+			// Load cache data and compare if version is the same or not
 			$myalerts_plugins = $cache->read('mybbstuff_myalerts_alert_types');
 		
 			if($myalerts_plugins['tyl']['code'] == 'tyl' && $myalerts_plugins['tyl']['enabled'] == 1){
@@ -625,7 +632,7 @@ function thankyoulike_templatelist()
 	}
 }
 
-function thankyoulike_postbit($post)
+function thankyoulike_postbit(&$post)
 {
 	global $db, $mybb, $theme, $templates, $lang, $pids, $g33k_pcache;
 	
@@ -823,11 +830,12 @@ function thankyoulike_postbit($post)
 		{
 			if ((my_strpos($mybb->settings[$prefix.'firstalloverwrite'], $post['fid']) !== false || $mybb->settings[$prefix.'firstalloverwrite'] == "-1") && $thread['firstpost'] != $post['pid'])
 			{
-				$post['button_tyl'] = '';
+				// If all posts enabled, then show list and button...
+				eval("\$post['button_tyl'] = \"".$templates->get("thankyoulike_button_add")."\";");
 			}
 			else
 			{
-				// Same as above but show add button
+				// Same as above but show add button, to firstpost only, both have to been on that way or won't work...
 				eval("\$post['button_tyl'] = \"".$templates->get("thankyoulike_button_add")."\";");
 			}
 		} 
@@ -871,7 +879,7 @@ function thankyoulike_postbit($post)
 	return $post;
 }
 
-function thankyoulike_postbit_udetails($post)
+function thankyoulike_postbit_udetails(&$post)
 {
 	global $mybb, $templates, $lang;
 	
