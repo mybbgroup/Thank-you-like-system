@@ -379,7 +379,7 @@ function thankyoulike_activate()
 </head>');
 
 	find_replace_templatesets("postbit_classic","#".preg_quote('<div class="post_controls">')."#i","<div style=\"{\$post['tyl_display']}\" id=\"tyl_{\$post['pid']}\">{\$post['thankyoulike_data']}</div>\n<div class=\"post_controls\">");
-	find_replace_templatesets("postbit","#".preg_quote('	</div>')."\n".preg_quote('</div>')."\n".preg_quote('</div>')."#i","	</div>\n</div>\n<div style=\"{\$post['tyl_display']}\" id=\"tyl_{\$post['pid']}\">{\$post['thankyoulike_data']}</div>\n</div>");
+	find_replace_templatesets("postbit","#".preg_quote('<div class="post_controls">')."#i","<div style=\"{\$post['tyl_display']}\" id=\"tyl_{\$post['pid']}\">{\$post['thankyoulike_data']}</div>\n<div class=\"post_controls\">");
 	find_replace_templatesets("postbit", "#".preg_quote('{$post[\'button_edit\']}')."#i", '{$post[\'button_tyl\']}{$post[\'button_edit\']}');
 	find_replace_templatesets("postbit_classic", "#".preg_quote('{$post[\'button_edit\']}')."#i", '{$post[\'button_tyl\']}{$post[\'button_edit\']}');
 	find_replace_templatesets("postbit_author_user", "#".preg_quote('	{$lang->postbit_threads} {$post[\'threadnum\']}<br />')."#i", '	{$lang->postbit_threads} {$post[\'threadnum\']}<br />
@@ -434,11 +434,15 @@ a.del_tyl_button span{
 }
 
 .tyllist{
+	background: #f5f5f5;
+	border-top: 1px dotted #ccc;
+	border-bottom: 1px dotted #ccc;
+	padding: 5px;
 }
 
 .tyllist_classic{
-	border-bottom: 1px dotted #ffffff;
-	border-top: 1px dotted #ffffff;
+	border-top: 1px dotted #ccc;
+	border-bottom: 1px dotted #ccc;
 	padding: 2px 5px;
 }
 
