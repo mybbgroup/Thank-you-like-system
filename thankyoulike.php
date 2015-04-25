@@ -320,8 +320,8 @@ if($mybb->input['ajax'])
 	while($tyl = $db->fetch_array($query1))
 	{
 		$profile_link = get_profile_link($tyl['uid']);
-		// Format username...or not
-		$username = $mybb->settings[$prefix.'unameformat'] == "1" ? format_name($tyl['username'], $tyl['usergroup'], $tyl['displaygroup']) : $tyl['username'];
+		// Format username... or not
+		$tyl_list = $mybb->settings[$prefix.'unameformat'] == "1" ? format_name($tyl['username'], $tyl['usergroup'], $tyl['displaygroup']) : $tyl['username'];
 		$datedisplay_next = $mybb->settings[$prefix.'showdt'] == "nexttoname" ? "<span class='smalltext'> (".my_date($mybb->settings[$prefix.'dtformat'], $tyl['dateline']).")</span>" : "";
 		$datedisplay_title = $mybb->settings[$prefix.'showdt'] == "astitle" ? "title='".my_date($mybb->settings[$prefix.'dtformat'], $tyl['dateline'])."'" : "";
 		eval("\$thankyoulike_users = \"".$templates->get("thankyoulike_users", 1, 0)."\";");
@@ -348,14 +348,18 @@ if($mybb->input['ajax'])
 		$tyl_say = $lang->tyl_say;
 		$tyl_like = $lang->tyl_like;
 	}
+	
 	if ($mybb->settings[$prefix.'thankslike'] == "like")
 	{
 		$pre = "l";
 		$lang->add_tyl = $lang->add_l;
 		$lang->del_tyl = $lang->del_l;
 		$tyl_thankslikes = $lang->tyl_likes;
-		$lang->tyl_title = $lang->sprintf($lang->tyl_title_l, $count, $tyl_user, $tyl_like, $post['username']);
-		$lang->tyl_title_collapsed = $lang->sprintf($lang->tyl_title_collapsed_l, $count, $tyl_user, $tyl_like, $post['username']);
+		$tyl_data = get_user($post['uid']);
+		$tyl_data['username'] = format_name($tyl_data['username'], $tyl_data['usergroup'], $tyl_data['displaygroup']);
+		$tyl_profilelink = build_profile_link($tyl_data['username'], $tyl_data['uid']);
+		$lang->tyl_title = $lang->sprintf($lang->tyl_title_l, $count, $tyl_user, $tyl_like, $tyl_profilelink);
+		$lang->tyl_title_collapsed = $lang->sprintf($lang->tyl_title_collapsed_l, $count, $tyl_user, $tyl_like, $tyl_profilelink);
 	}
 	else if ($mybb->settings[$prefix.'thankslike'] == "thanks")
 	{
@@ -363,8 +367,11 @@ if($mybb->input['ajax'])
 		$lang->add_tyl = $lang->add_ty;
 		$lang->del_tyl = $lang->del_ty;
 		$tyl_thankslikes = $lang->tyl_thanks;
-		$lang->tyl_title = $lang->sprintf($lang->tyl_title_ty, $count, $tyl_user, $tyl_say, $post['username']);
-		$lang->tyl_title_collapsed = $lang->sprintf($lang->tyl_title_collapsed_ty, $count, $tyl_user, $tyl_say, $post['username']);
+		$tyl_data = get_user($post['uid']);
+		$tyl_data['username'] = format_name($tyl_data['username'], $tyl_data['usergroup'], $tyl_data['displaygroup']);
+		$tyl_profilelink = build_profile_link($tyl_data['username'], $tyl_data['uid']);
+		$lang->tyl_title = $lang->sprintf($lang->tyl_title_ty, $count, $tyl_user, $tyl_say, $tyl_profilelink);
+		$lang->tyl_title_collapsed = $lang->sprintf($lang->tyl_title_collapsed_ty, $count, $tyl_user, $tyl_say, $tyl_profilelink);
 	}
 	// Setup the collapsible elements
 	if ($mybb->settings[$prefix.'collapsible'] == "1" && $mybb->settings[$prefix.'colldefault'] == "closed")
@@ -407,7 +414,7 @@ if($mybb->input['ajax'])
 	{
 		if ((my_strpos($mybb->settings[$prefix.'firstalloverwrite'], $post['fid']) !== false || $mybb->settings[$prefix.'firstalloverwrite'] == "-1") && $thread['firstpost'] != $post['pid'])
 		{
-			$button_tyl = '';
+			eval("\$button_tyl = \"".$templates->get("thankyoulike_button_add")."\";");
 		}
 		else
 		{

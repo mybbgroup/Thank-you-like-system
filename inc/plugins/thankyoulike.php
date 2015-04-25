@@ -342,7 +342,7 @@ function thankyoulike_activate()
 		'thankyoulike_expcollapse'		=> "<a href=\"#\" onclick=\"thankyoulike.tgl({\$post['pid']});return false;\" title=\"{\$tyl_showhide}\" id=\"tyl_a_expcol_{\$post['pid']}\"><img src=\"{\$theme['imgdir']}/{\$tyl_expcolimg}\" alt=\"{\$tyl_showhide}\" id=\"tyl_i_expcol_{\$post['pid']}\" /></a> ",
 		'thankyoulike_button_add'		=> "<div id=\"tyl_btn_{\$post['pid']}\" class=\"postbit_buttons\"><a class=\"add_tyl_button\" href=\"thankyoulike.php?action=add&amp;pid={\$post['pid']}&amp;my_post_key={\$mybb->post_code}\" onclick=\"return thankyoulike.add({\$post['pid']}, {\$post['tid']});\" title=\"{\$lang->add_tyl}\" id=\"tyl_a{\$post['pid']}\"><span id=\"tyl_i{\$post['pid']}\">{\$lang->add_tyl}</span></a></div>",
 		'thankyoulike_button_del'		=> "<div id=\"tyl_btn_{\$post['pid']}\" class=\"postbit_buttons\"><a class=\"del_tyl_button\" href=\"thankyoulike.php?action=del&amp;pid={\$post['pid']}&amp;my_post_key={\$mybb->post_code}\" onclick=\"return thankyoulike.del({\$post['pid']}, {\$post['tid']});\" title=\"{\$lang->del_tyl}\" id=\"tyl_a{\$post['pid']}\"><span id=\"tyl_i{\$post['pid']}\">{\$lang->del_tyl}</span></a></div>",
-		'thankyoulike_users'			=> "<span class=\"smalltext\">{\$comma}</span><a href=\"{\$profile_link}\" class=\"smalltext\" {\$datedisplay_title}>{\$username}</a>{\$datedisplay_next}",
+		'thankyoulike_users'			=> "<span class=\"smalltext\">{\$comma}</span><a href=\"{\$profile_link}\" class=\"smalltext\" {\$datedisplay_title}>{\$tyl_list}</a>{\$datedisplay_next}",
 		'thankyoulike_postbit'			=> "{\$lang->tyl_rcvd}: {\$post['tyl_unumrtyls']}
 <br />
 {\$lang->tyl_given}: {\$post['tyl_unumtyls']}",
@@ -399,11 +399,15 @@ function thankyoulike_activate()
 		$verify = $my_alerts_info['version'];
 		// If MyAlerts 2.0 or better then do this !!!
 		if($verify >= "2.0.0"){
-		global $cache;
 			// Load cache data and compare if version is the same or not
 			$myalerts_plugins = $cache->read('mybbstuff_myalerts_alert_types');
-			if($myalerts_plugins['tyl']['code'] == 'tyl'){
-				tyl_recordAlertThankyou();	
+		if($myalerts_plugins['thanks']['code'] != 'tyl'){
++			//Adding alert type to db
++			$alertTypeManager = MybbStuff_MyAlerts_AlertTypeManager::createInstance($db, $cache);
++				$alertType = new MybbStuff_MyAlerts_Entity_AlertType();
++				$alertType->setCode('tyl');
++				$alertType->setEnabled(true);
++			$alertTypeManager->add($alertType);	
 			}
 		}
 	}
@@ -433,8 +437,8 @@ a.del_tyl_button span{
 }
 
 .tyllist_classic{
-	border-bottom: 1px dotted #ccc;
-	border-top: 1px dotted #ccc;
+	border-bottom: 1px dotted #ffffff;
+	border-top: 1px dotted #ffffff;
 	padding: 2px 5px;
 }
 
@@ -628,7 +632,7 @@ function thankyoulike_templatelist()
 	}
 }
 
-function thankyoulike_postbit($post)
+function thankyoulike_postbit(&$post)
 {
 	global $db, $mybb, $theme, $templates, $lang, $pids, $g33k_pcache;
 	
@@ -732,8 +736,8 @@ function thankyoulike_postbit($post)
 			foreach($g33k_pcache[$post['pid']] AS $tyl)
 			{
 				$profile_link = get_profile_link($tyl['uid']);
-				// Format username...or not
-				$username = $mybb->settings[$prefix.'unameformat'] == "1" ? format_name($tyl['username'], $tyl['usergroup'], $tyl['displaygroup']) : $tyl['username'];
+				// Format username... or not
+				$tyl_list = $mybb->settings[$prefix.'unameformat'] == "1" ? format_name($tyl['username'], $tyl['usergroup'], $tyl['displaygroup']) : $tyl['username'];
 				$datedisplay_next = $mybb->settings[$prefix.'showdt'] == "nexttoname" ? "<span class='smalltext'> (".my_date($mybb->settings[$prefix.'dtformat'], $tyl['dateline']).")</span>" : "";
 				$datedisplay_title = $mybb->settings[$prefix.'showdt'] == "astitle" ? "title='".my_date($mybb->settings[$prefix.'dtformat'], $tyl['dateline'])."'" : "";
 				eval("\$thankyoulike_users = \"".$templates->get("thankyoulike_users", 1, 0)."\";");
@@ -766,16 +770,16 @@ function thankyoulike_postbit($post)
 			$pre = "l";
 			$lang->add_tyl = $lang->add_l;
 			$lang->del_tyl = $lang->del_l;
-			$lang->tyl_title = $lang->sprintf($lang->tyl_title_l, $count, $tyl_user, $tyl_like, $post['username']);
-			$lang->tyl_title_collapsed = $lang->sprintf($lang->tyl_title_collapsed_l, $count, $tyl_user, $tyl_like, $post['username']);
+			$lang->tyl_title = $lang->sprintf($lang->tyl_title_l, $count, $tyl_user, $tyl_like, $post['profilelink']);
+			$lang->tyl_title_collapsed = $lang->sprintf($lang->tyl_title_collapsed_l, $count, $tyl_user, $tyl_like, $post['profilelink']);
 		}
 		else if ($mybb->settings[$prefix.'thankslike'] == "thanks")
 		{
 			$pre = "ty";
 			$lang->add_tyl = $lang->add_ty;
 			$lang->del_tyl = $lang->del_ty;
-			$lang->tyl_title = $lang->sprintf($lang->tyl_title_ty, $count, $tyl_user, $tyl_say, $post['username']);
-			$lang->tyl_title_collapsed = $lang->sprintf($lang->tyl_title_collapsed_ty, $count, $tyl_user, $tyl_say, $post['username']);
+			$lang->tyl_title = $lang->sprintf($lang->tyl_title_ty, $count, $tyl_user, $tyl_say, $post['profilelink']);
+			$lang->tyl_title_collapsed = $lang->sprintf($lang->tyl_title_collapsed_ty, $count, $tyl_user, $tyl_say, $post['profilelink']);
 		}
 		// Setup the collapsible elements
 		if ($mybb->settings[$prefix.'collapsible'] == "1" && $mybb->settings[$prefix.'colldefault'] == "closed")
@@ -826,11 +830,12 @@ function thankyoulike_postbit($post)
 		{
 			if ((my_strpos($mybb->settings[$prefix.'firstalloverwrite'], $post['fid']) !== false || $mybb->settings[$prefix.'firstalloverwrite'] == "-1") && $thread['firstpost'] != $post['pid'])
 			{
-				$post['button_tyl'] = '';
+				// If all posts enabled, then show list and button...
+				eval("\$post['button_tyl'] = \"".$templates->get("thankyoulike_button_add")."\";");
 			}
 			else
 			{
-				// Same as above but show add button
+				// Same as above but show add button, to first post only, both have to been on that way or won't work...
 				eval("\$post['button_tyl'] = \"".$templates->get("thankyoulike_button_add")."\";");
 			}
 		} 
@@ -874,7 +879,7 @@ function thankyoulike_postbit($post)
 	return $post;
 }
 
-function thankyoulike_postbit_udetails($post)
+function thankyoulike_postbit_udetails(&$post)
 {
 	global $mybb, $templates, $lang;
 	
