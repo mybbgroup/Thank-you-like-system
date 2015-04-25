@@ -407,7 +407,7 @@ if($mybb->input['ajax'])
 	{
 		if ((my_strpos($mybb->settings[$prefix.'firstalloverwrite'], $post['fid']) !== false || $mybb->settings[$prefix.'firstalloverwrite'] == "-1") && $thread['firstpost'] != $post['pid'])
 		{
-			$button_tyl = '';
+			eval("\$button_tyl = \"".$templates->get("thankyoulike_button_add")."\";");
 		}
 		else
 		{
