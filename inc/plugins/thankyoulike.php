@@ -434,13 +434,14 @@ a.del_tyl_button span{
 }
 
 .tyllist{
-	background: #f5f5f5;
+	background-color: #f5f5f5;
 	border-top: 1px dotted #ccc;
 	border-bottom: 1px dotted #ccc;
-	padding: 5px;
+	padding: 2px 5px;
 }
 
 .tyllist_classic{
+	background-color: #f5f5f5;
 	border-top: 1px dotted #ccc;
 	border-bottom: 1px dotted #ccc;
 	padding: 2px 5px;
