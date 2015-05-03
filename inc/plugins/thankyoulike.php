@@ -374,6 +374,8 @@ function thankyoulike_activate()
 	var tylEnabled = "{$mybb->settings[\'g33k_thankyoulike_enabled\']}";
 	var tylCollapsible = "{$mybb->settings[\'g33k_thankyoulike_collapsible\']}";
 	var tylUser = "{$mybb->user[\'uid\']}";
+	var tylSend = "{$lang->tyl_send}";
+	var tylRemove = "{$lang->tyl_remove}";
 -->
 </script>
 </head>');
@@ -494,6 +496,8 @@ function thankyoulike_deactivate()
 	var tylEnabled = "{$mybb->settings[\'g33k_thankyoulike_enabled\']}";
 	var tylCollapsible = "{$mybb->settings[\'g33k_thankyoulike_collapsible\']}";
 	var tylUser = "{$mybb->user[\'uid\']}";
+	var tylSend = "{$lang->tyl_send}";
+	var tylRemove = "{$lang->tyl_remove}";	
 -->
 </script>
 ')."#i", '', 0);
@@ -595,6 +599,16 @@ function thankyoulike_templatelist()
 	if ($mybb->settings[$prefix.'enabled'] == "1")
 	{
 	$lang->load('thankyoulike', false, true);
+	if ($mybb->settings[$prefix.'thankslike'] == "like")
+		{	
+			$lang->tyl_send = $lang->tyl_send_like;	
+			$lang->tyl_remove= $lang->tyl_remove_like;		
+		}
+		else if ($mybb->settings[$prefix.'thankslike'] == "thanks")
+		{
+			$lang->tyl_send = $lang->tyl_send_thanks;	
+			$lang->tyl_remove= $lang->tyl_remove_thanks;		
+		}
 		// Registering alert formatter
 		if((function_exists('myalerts_is_activated') && myalerts_is_activated()) && $mybb->user['uid']){
 			global $cache, $formatterManager;
@@ -973,13 +987,24 @@ if(class_exists("MybbStuff_MyAlerts_Formatter_AbstractFormatter")){
 		{
         $alertContent = $alert->getExtraDetails();
         $postLink = $this->buildShowLink($alert);
-		
-			return $this->lang->sprintf(
-				$this->lang->tyl_alert,
-				$outputAlert['from_user'],
-				htmlspecialchars_uni($alertContent['t_subject']),					
-				$outputAlert['dateline']
-			);
+					if ($mybb->settings[$prefix.'thankslike'] == "like")
+			{
+				return $this->lang->sprintf(
+					$this->lang->tyl_alert_like,
+					$outputAlert['from_user'],
+					htmlspecialchars_uni($alertContent['t_subject']),					
+					$outputAlert['dateline']
+				);				
+			}
+			else if ($mybb->settings[$prefix.'thankslike'] == "thanks")
+			{		
+				return $this->lang->sprintf(
+					$this->lang->tyl_alert_thanks,
+					$outputAlert['from_user'],
+					htmlspecialchars_uni($alertContent['t_subject']),					
+					$outputAlert['dateline']
+				);
+			}
 		}
 
 		public function init()
