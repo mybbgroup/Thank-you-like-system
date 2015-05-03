@@ -404,12 +404,12 @@ function thankyoulike_activate()
 			// Load cache data and compare if version is the same or not
 			$myalerts_plugins = $cache->read('mybbstuff_myalerts_alert_types');
 		if($myalerts_plugins['thanks']['code'] != 'tyl'){
-+			//Adding alert type to db
-+			$alertTypeManager = MybbStuff_MyAlerts_AlertTypeManager::createInstance($db, $cache);
-+				$alertType = new MybbStuff_MyAlerts_Entity_AlertType();
-+				$alertType->setCode('tyl');
-+				$alertType->setEnabled(true);
-+			$alertTypeManager->add($alertType);	
+			//Adding alert type to db
+			$alertTypeManager = MybbStuff_MyAlerts_AlertTypeManager::createInstance($db, $cache);
+				$alertType = new MybbStuff_MyAlerts_Entity_AlertType();
+				$alertType->setCode('tyl');
+				$alertType->setEnabled(true);
+			$alertTypeManager->add($alertType);	
 			}
 		}
 	}
