@@ -59,7 +59,7 @@ $url_S = '<a href="https://github.com/Cu8eR/thankyou-like-plugin" target="_blank
 		"website"		=> "http://www.geekplugins.com/mybb/thankyoulikesystem",
 		"author"		=> "- G33K -",
 		"authorsite"	=> "http://community.mybboard.net/user-19236.html",
-		"version"		=> "1.9.2",
+		"version"		=> "1.9.3",
 		"codename"		=> "thankyoulikesystem",
 		"compatibility"	=> "18*"
     );
