@@ -2,7 +2,6 @@
 /**
  * Thank You / Like System English Language Pack
  * 
- * $Id: thankyoulike.lang.php 31 2011-04-21 23:12:00Z - G33K - $
  */
 
 $l['tyl_thankyou'] = "Thank You";
@@ -67,9 +66,9 @@ $l['tyl_redirect_back'] = "<br />You will now be taken back to the post.";
 
 $l['tyl_alert_like'] = '{1} added thanks to your post "{2}" ({3})';
 $l['tyl_alert_thanks'] = '{1} added like to your post "{2}" ({3})';
-$l['myalerts_setting_tyl'] = 'Receive an alert when someone add thanks/like to my post?';
+$l['myalerts_setting_tyl'] = 'Receive an alert when someone add Thanks/Like to my post?';
 
 $l['tyl_send_like'] = 'Adding like to this post';
 $l['tyl_send_thanks'] = 'Adding thanks to this post';
-$l['tyl_remove_like'] = 'Removing like to this post';
-$l['tyl_remove_thanks'] = 'Removing thanks to this post';
+$l['tyl_remove_like'] = 'Removing like from this post';
+$l['tyl_remove_thanks'] = 'Removing thanks from this post';
