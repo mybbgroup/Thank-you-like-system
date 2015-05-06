@@ -449,7 +449,7 @@ if($mybb->input['ajax'])
 	}
 	else
 	{
-		// Nothing to show, return blank data with buttons
+		// Nothing to show, return blank data with buttons.
 		
 		echo '{';
 		echo '"tylButton":"'.$button_tyl.'",';
