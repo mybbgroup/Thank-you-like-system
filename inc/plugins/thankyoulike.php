@@ -51,12 +51,13 @@ function thankyoulike_info()
 $url_AT= '<a href="http://my-bb.ir" target="_blank">AliReza_Tofighi</a>';
 $url_SP = '<a href="http://community.mybb.com/user-91011.html" target="_blank">SvePu</a>';
 $url_E = '<a href="http://community.mybb.com/user-84065.html" target="_blank">Eldenroot</a>';
+$url_DN = '<a href="http://community.mybb.com/user-51493.html" target="_blank">Dark Neo</a>';
 $url_S = '<a href="https://github.com/Cu8eR/thankyou-like-plugin" target="_blank">GitHub</a>';
 
     $info = array(
 		"name"			=> $db->escape_string($lang->tyl_info_title),
-		"description"	=> $db->escape_string($lang->tyl_info_desc) . $lang->sprintf($lang->tyl_info_desc_url,$url_AT,$url_SP,$url_E,$url_S),
-		"website"		=> "http://www.geekplugins.com/mybb/thankyoulikesystem",
+		"description"	=> $db->escape_string($lang->tyl_info_desc) . $lang->sprintf($lang->tyl_info_desc_url,$url_AT,$url_SP,$url_E,$url_DN,$url_S),
+		"website"		=> "http://community.mybb.com/thread-169382.html",
 		"author"		=> "- G33K -",
 		"authorsite"	=> "http://community.mybboard.net/user-19236.html",
 		"version"		=> "1.9.3",
