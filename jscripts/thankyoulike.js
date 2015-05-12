@@ -47,7 +47,7 @@ var thankyoulike = {
 				type: 'post',
 				beforeSend:function(){
 					$.jGrowl(tylSend);			
-				}
+				}				
 			}).done(function(data)
 			{
 				thankyoulike.addDone(data, pid);
@@ -77,18 +77,6 @@ var thankyoulike = {
 		}
 		else
 		{
-			tylVisible = 2;
-			if(tylCollapsible == 1 && $("#tyl_"+pid).css('display') != "none")
-			{	
-				if($('#tyl_data_'+pid).is(':visible'))
-				{
-					tylVisible = 1;
-				}
-				else
-				{
-					tylVisible = 0;
-				}
-			}
 			$("#tyl_"+pid).html(data.tylData);
 			$("#tyl_"+pid).css('display', "");
 			$("#tyl_btn_"+pid).html(data.tylButton);
@@ -104,13 +92,12 @@ var thankyoulike = {
 			{
 				return true;
 			}
-			//this.spinner = new ActivityIndicator("body", {image: imagepath + "/spinner_big.gif"});
 			$.ajax('thankyoulike.php?ajax=1&action=del&pid='+pid+'&my_post_key='+my_post_key,
 			{
 				type: 'post',
 				beforeSend:function(){
 					$.jGrowl(tylRemove);			
-				}
+				}				
 			}).done(function(data)
 			{
 				thankyoulike.delDone(data, pid);
@@ -139,18 +126,6 @@ var thankyoulike = {
 		}
 		else
 		{
-			tylVisible = 2;
-			if(tylCollapsible == 1 && $("#tyl_"+pid).css('display') != "none")
-			{	
-				if($('#tyl_data_'+pid).is(':visible'))
-				{
-					tylVisible = 1;
-				}
-				else
-				{
-					tylVisible = 0;
-				}
-			}
 			$("#tyl_"+pid).html(data.tylData);
 			$("#tyl_"+pid).css('display', "");
 			$("#tyl_btn_"+pid).html(data.tylButton);
