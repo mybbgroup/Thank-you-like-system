@@ -599,16 +599,20 @@ function thankyoulike_templatelist()
 	$prefix = 'g33k_'.$codename.'_';
 	if ($mybb->settings[$prefix.'enabled'] == "1")
 	{
-	$lang->load('thankyoulike', false, true);
-	if ($mybb->settings[$prefix.'thankslike'] == "like")
+		$lang->load('thankyoulike', false, true);
+		if ($mybb->settings[$prefix.'thankslike'] == "like")
 		{	
 			$lang->tyl_send = $lang->tyl_send_like;	
-			$lang->tyl_remove= $lang->tyl_remove_like;		
+			$lang->tyl_remove = $lang->tyl_remove_like;	
+			$lang->tyl_alert = $lang->tyl_alert_like;			
+			$lang->myalerts_setting_tyl = $lang->myalerts_setting_tyl_like;	
 		}
 		else if ($mybb->settings[$prefix.'thankslike'] == "thanks")
 		{
 			$lang->tyl_send = $lang->tyl_send_thanks;	
-			$lang->tyl_remove= $lang->tyl_remove_thanks;		
+			$lang->tyl_remove = $lang->tyl_remove_thanks;		
+			$lang->tyl_alert = $lang->tyl_alert_thanks;
+			$lang->myalerts_setting_tyl = $lang->myalerts_setting_tyl_thanks;				
 		}
 		// Registering alert formatter
 		if((function_exists('myalerts_is_activated') && myalerts_is_activated()) && $mybb->user['uid']){
