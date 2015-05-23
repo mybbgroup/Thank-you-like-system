@@ -9,7 +9,7 @@ $l['tyl_info_desc'] = "Adds option for users to Thank the user for the post or L
 $l['tyl_info_desc_url'] ="<br />*Edited for MyBB 1.8 by: {1}<br />*Maintained by: {2}, {3} and {4}<br />*Sources: {5}";
 $l['tyl_info_desc_recount'] = "Recount Thank Yous/Likes";
 $l['tyl_info_desc_configsettings'] = "Configure Settings";
-$l['tyl_info_desc_warning'] = "<strong>Warning! tyl_unlock file located! Uninstalling will remove ALL the Thank you/Like data from the database. If you would like to preserve the Thank you/Like data while uninstalling then remove the tyl_unlock file from the forum root folder.</ strong>";
+$l['tyl_info_desc_warning'] = "<b>Warning! tyl_unlock file located! Uninstalling will remove ALL the Thank you/Like data from the database. If you would like to preserve the Thank you/Like data while uninstalling then remove the tyl_unlock file from the forum root folder.</b>";
 
 $l['tyl_title'] = "Thank You/Like System";
 $l['tyl_desc'] = "Settings to customize the Thank You/Like System Plugin";
