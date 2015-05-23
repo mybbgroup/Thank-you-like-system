@@ -69,7 +69,7 @@ $l['tyl_alert'] = '{1} thanked/liked your post "{2}" ({3})';
 $l['tyl_alert_like'] = '{1} liked your post "{2}" ({3})';
 $l['tyl_alert_thanks'] = '{1} thanked your post "{2}" ({3})';
 $l['myalerts_setting_tyl'] = 'Receive an alert when someone add thanks/like to my post?';
-$l['myalerts_setting_tyl_like'] = 'Receive an alert when someone add like my post?';
+$l['myalerts_setting_tyl_like'] = 'Receive an alert when someone add like to my post?';
 $l['myalerts_setting_tyl_thanks'] = 'Receive an alert when someone add thanks to my post?';
 
 $l['tyl_send_like'] = 'Adding like to this post';
