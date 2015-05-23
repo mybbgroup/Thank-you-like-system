@@ -72,7 +72,7 @@ $l['myalerts_setting_tyl'] = 'Receive an alert when someone add thanks/like to m
 $l['myalerts_setting_tyl_like'] = 'Receive an alert when someone likes my post?';
 $l['myalerts_setting_tyl_thanks'] = 'Receive an alert when someone thanks to my post?';
 
-$l['tyl_send_like'] = 'Add like to this post';
-$l['tyl_send_thanks'] = 'Add thanks to this post';
-$l['tyl_remove_like'] = 'Removing like to this post';
-$l['tyl_remove_thanks'] = 'Removing thanks to this post';
+$l['tyl_send_like'] = 'Adding like to this post';
+$l['tyl_send_thanks'] = 'Adding thanks to this post';
+$l['tyl_remove_like'] = 'Removing like from this post';
+$l['tyl_remove_thanks'] = 'Removing thanks from this post';
