@@ -14,6 +14,8 @@
 
 Thank you/Like plugin - MyBB 1.8.x 
 
+-----------------------------------------------------------------
+
 <strong>FAQ:</strong>
 - How to completely uninstall tyl_system including data from DB?
 
