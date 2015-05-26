@@ -17,7 +17,7 @@ Thank you/Like plugin - MyBB 1.8.x
 <strong>FAQ:</strong>
 - How to completely uninstall tyl_system including data from DB?
 
-****** Copy/move file "tyl_unlock" (located in tyl_extras folder) into your forum root folder. Uninstalling will remove ALL the Thank you/Like data from the database. If you would like to preserve the Thank you/Like data while uninstalling then remove the tyl_unlock file from the forum root folder.
+****** Copy/move file "tyl_unlock" (located in tyl_uninstall folder) into your forum root folder. Uninstalling will remove ALL the Thank you/Like data from the database. If you would like to preserve the Thank you/Like data while uninstalling then remove the tyl_unlock file from the forum root folder.
 - How to update plugin to a newer version without loosing data?
 
 ****** Deactivate -> Copy new files and overwrite the old ones -> Activate 
