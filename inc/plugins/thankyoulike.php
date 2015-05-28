@@ -990,26 +990,14 @@ if(class_exists("MybbStuff_MyAlerts_Formatter_AbstractFormatter")){
 	class ThankyouAlertFormatter extends MybbStuff_MyAlerts_Formatter_AbstractFormatter{
 		public function formatAlert(MybbStuff_MyAlerts_Entity_Alert $alert, array $outputAlert)
 		{
-        $alertContent = $alert->getExtraDetails();
-        $postLink = $this->buildShowLink($alert);
-					if ($mybb->settings[$prefix.'thankslike'] == "like")
-			{
-				return $this->lang->sprintf(
-					$this->lang->tyl_alert_like,
-					$outputAlert['from_user'],
-					htmlspecialchars_uni($alertContent['t_subject']),					
-					$outputAlert['dateline']
-				);				
-			}
-			else if ($mybb->settings[$prefix.'thankslike'] == "thanks")
-			{		
-				return $this->lang->sprintf(
-					$this->lang->tyl_alert_thanks,
-					$outputAlert['from_user'],
-					htmlspecialchars_uni($alertContent['t_subject']),					
-					$outputAlert['dateline']
-				);
-			}
+	        $alertContent = $alert->getExtraDetails();
+	        $postLink = $this->buildShowLink($alert);
+			return $this->lang->sprintf(
+				$this->lang->tyl_alert,
+				$outputAlert['from_user'],
+				htmlspecialchars_uni($alertContent['t_subject']),					
+				$outputAlert['dateline']
+			);				
 		}
 
 		public function init()
