@@ -55,13 +55,13 @@ $url_DN = '<a href="http://community.mybb.com/user-51493.html" target="_blank">D
 $url_S = '<a href="https://github.com/Cu8eR/thankyou-like-plugin" target="_blank">GitHub</a>';
 
     $info = array(
-		"name"			=> $db->escape_string($lang->tyl_info_title),
+		"name"		=> $db->escape_string($lang->tyl_info_title),
 		"description"	=> $db->escape_string($lang->tyl_info_desc) . $lang->sprintf($lang->tyl_info_desc_url,$url_AT,$url_SP,$url_E,$url_DN,$url_S),
-		"website"		=> "http://community.mybb.com/thread-169382.html",
-		"author"		=> "- G33K -",
+		"website"	=> "http://community.mybb.com/thread-169382.html",
+		"author"	=> "- G33K -",
 		"authorsite"	=> "http://community.mybboard.net/user-19236.html",
-		"version"		=> "1.9.3",
-		"codename"		=> "thankyoulikesystem",
+		"version"	=> "1.9.4 Beta",
+		"codename"	=> "thankyoulikesystem",
 		"compatibility"	=> "18*"
     );
 	
@@ -330,32 +330,32 @@ function thankyoulike_activate()
 
 	// Now add
 	$tyl_templates = array(
-		'thankyoulike'					=> "			<div class=\"post_controls tyllist {\$unapproved_shade}\">
-				{\$tyl_expcol} 
-				<span id=\"tyl_title_{\$post['pid']}\" style=\"{\$tyl_title_display}\">{\$lang->tyl_title}</span><span id=\"tyl_title_collapsed_{\$post['pid']}\" style=\"{\$tyl_title_display_collapsed}\">{\$lang->tyl_title_collapsed}</span><br />
-				<span id=\"tyl_data_{\$post['pid']}\" style=\"{\$tyl_data_display}\">&nbsp;&nbsp;• {\$post['thankyoulike']}</span>
-			</div>",
-		'thankyoulike_classic'					=> "	<div class=\"post_controls tyllist_classic {\$unapproved_shade}\">
-		{\$tyl_expcol} 
-		<span id=\"tyl_title_{\$post['pid']}\" style=\"{\$tyl_title_display}\">{\$lang->tyl_title}</span><span id=\"tyl_title_collapsed_{\$post['pid']}\" style=\"{\$tyl_title_display_collapsed}\">{\$lang->tyl_title_collapsed}</span><br />
-		<span id=\"tyl_data_{\$post['pid']}\" style=\"{\$tyl_data_display}\">&nbsp;&nbsp;• {\$post['thankyoulike']}</span>
-	</div>",
-		'thankyoulike_expcollapse'		=> "<a href=\"#\" onclick=\"thankyoulike.tgl({\$post['pid']});return false;\" title=\"{\$tyl_showhide}\" id=\"tyl_a_expcol_{\$post['pid']}\"><img src=\"{\$theme['imgdir']}/{\$tyl_expcolimg}\" alt=\"{\$tyl_showhide}\" id=\"tyl_i_expcol_{\$post['pid']}\" /></a> ",
-		'thankyoulike_button_add'		=> "<div id=\"tyl_btn_{\$post['pid']}\" class=\"postbit_buttons\"><a class=\"add_tyl_button\" href=\"thankyoulike.php?action=add&amp;pid={\$post['pid']}&amp;my_post_key={\$mybb->post_code}\" onclick=\"return thankyoulike.add({\$post['pid']}, {\$post['tid']});\" title=\"{\$lang->add_tyl}\" id=\"tyl_a{\$post['pid']}\"><span id=\"tyl_i{\$post['pid']}\">{\$lang->add_tyl}</span></a></div>",
-		'thankyoulike_button_del'		=> "<div id=\"tyl_btn_{\$post['pid']}\" class=\"postbit_buttons\"><a class=\"del_tyl_button\" href=\"thankyoulike.php?action=del&amp;pid={\$post['pid']}&amp;my_post_key={\$mybb->post_code}\" onclick=\"return thankyoulike.del({\$post['pid']}, {\$post['tid']});\" title=\"{\$lang->del_tyl}\" id=\"tyl_a{\$post['pid']}\"><span id=\"tyl_i{\$post['pid']}\">{\$lang->del_tyl}</span></a></div>",
-		'thankyoulike_users'			=> "<span class=\"smalltext\">{\$comma}</span><a href=\"{\$profile_link}\" class=\"smalltext\" {\$datedisplay_title}>{\$tyl_list}</a>{\$datedisplay_next}",
-		'thankyoulike_postbit'			=> "{\$lang->tyl_rcvd}: {\$post['tyl_unumrtyls']}
+		'thankyoulike'			=> "<div class=\"post_controls tyllist {\$unapproved_shade}\">
+	{\$tyl_expcol} 
+	<span id=\"tyl_title_{\$post['pid']}\" style=\"{\$tyl_title_display}\">{\$lang->tyl_title}</span><span id=\"tyl_title_collapsed_{\$post['pid']}\" style=\"{\$tyl_title_display_collapsed}\">{\$lang->tyl_title_collapsed}</span><br />
+	<span id=\"tyl_data_{\$post['pid']}\" style=\"{\$tyl_data_display}\">&nbsp;&nbsp;• {\$post['thankyoulike']}</span>
+</div>",
+		'thankyoulike_classic'		=> "<div class=\"post_controls tyllist_classic {\$unapproved_shade}\">
+	{\$tyl_expcol} 
+	<span id=\"tyl_title_{\$post['pid']}\" style=\"{\$tyl_title_display}\">{\$lang->tyl_title}</span><span id=\"tyl_title_collapsed_{\$post['pid']}\" style=\"{\$tyl_title_display_collapsed}\">{\$lang->tyl_title_collapsed}</span><br />
+	<span id=\"tyl_data_{\$post['pid']}\" style=\"{\$tyl_data_display}\">&nbsp;&nbsp;• {\$post['thankyoulike']}</span>
+</div>",
+		'thankyoulike_expcollapse'	=> "<a href=\"#\" onclick=\"thankyoulike.tgl({\$post['pid']});return false;\" title=\"{\$tyl_showhide}\" id=\"tyl_a_expcol_{\$post['pid']}\"><img src=\"{\$theme['imgdir']}/{\$tyl_expcolimg}\" alt=\"{\$tyl_showhide}\" id=\"tyl_i_expcol_{\$post['pid']}\" /></a> ",
+		'thankyoulike_button_add'	=> "<div id=\"tyl_btn_{\$post['pid']}\" class=\"postbit_buttons\"><a class=\"add_tyl_button\" href=\"thankyoulike.php?action=add&amp;pid={\$post['pid']}&amp;my_post_key={\$mybb->post_code}\" onclick=\"return thankyoulike.add({\$post['pid']}, {\$post['tid']});\" title=\"{\$lang->add_tyl}\" id=\"tyl_a{\$post['pid']}\"><span id=\"tyl_i{\$post['pid']}\">{\$lang->add_tyl}</span></a></div>",
+		'thankyoulike_button_del'	=> "<div id=\"tyl_btn_{\$post['pid']}\" class=\"postbit_buttons\"><a class=\"del_tyl_button\" href=\"thankyoulike.php?action=del&amp;pid={\$post['pid']}&amp;my_post_key={\$mybb->post_code}\" onclick=\"return thankyoulike.del({\$post['pid']}, {\$post['tid']});\" title=\"{\$lang->del_tyl}\" id=\"tyl_a{\$post['pid']}\"><span id=\"tyl_i{\$post['pid']}\">{\$lang->del_tyl}</span></a></div>",
+		'thankyoulike_users'		=> "<span class=\"smalltext\">{\$comma}</span><a href=\"{\$profile_link}\" class=\"smalltext\" {\$datedisplay_title}>{\$tyl_list}</a>{\$datedisplay_next}",
+		'thankyoulike_postbit'		=> "{\$lang->tyl_rcvd}: {\$post['tyl_unumrtyls']}
 <br />
 {\$lang->tyl_given}: {\$post['tyl_unumtyls']}",
-		'thankyoulike_memprofile'		=> "<tr>
-<td class=\"trow1\"><strong>{\$lang->tyl_total_tyls_rcvd}</strong></td>
-<td class=\"trow1\">{\$memprofile['tyl_unumrcvtyls']} ({\$tylrcvpd_percent_total})<br /><span class=\"smalltext\">(<a href=\"tylsearch.php?action=usertylforthreads&amp;uid={\$uid}\">{\$lang->tyl_find_threads_for}</a> &mdash; <a href=\"tylsearch.php?action=usertylforposts&amp;uid={\$uid}\">{\$lang->tyl_find_posts_for}</a>)</span></td>
+		'thankyoulike_memprofile'	=> "<tr>
+	<td class=\"trow1\"><strong>{\$lang->tyl_total_tyls_rcvd}</strong></td>
+	<td class=\"trow1\">{\$memprofile['tyl_unumrcvtyls']} ({\$tylrcvpd_percent_total})<br /><span class=\"smalltext\">(<a href=\"tylsearch.php?action=usertylforthreads&amp;uid={\$uid}\">{\$lang->tyl_find_threads_for}</a> &mdash; <a href=\"tylsearch.php?action=usertylforposts&amp;uid={\$uid}\">{\$lang->tyl_find_posts_for}</a>)</span></td>
 </tr>
 <tr>
-<td class=\"trow2\"><strong>{\$lang->tyl_total_tyls_given}</strong></td>
-<td class=\"trow2\">{\$memprofile['tyl_unumtyls']} ({\$tylpd_percent_total})<br /><span class=\"smalltext\">(<a href=\"tylsearch.php?action=usertylthreads&amp;uid={\$uid}\">{\$lang->tyl_find_threads}</a> &mdash; <a href=\"tylsearch.php?action=usertylposts&amp;uid={\$uid}\">{\$lang->tyl_find_posts}</a>)</span></td>
+	<td class=\"trow2\"><strong>{\$lang->tyl_total_tyls_given}</strong></td>
+	<td class=\"trow2\">{\$memprofile['tyl_unumtyls']} ({\$tylpd_percent_total})<br /><span class=\"smalltext\">(<a href=\"tylsearch.php?action=usertylthreads&amp;uid={\$uid}\">{\$lang->tyl_find_threads}</a> &mdash; <a href=\"tylsearch.php?action=usertylposts&amp;uid={\$uid}\">{\$lang->tyl_find_posts}</a>)</span></td>
 </tr>"
-					);
+	);
 	
 	foreach($tyl_templates as $template_title => $template_data)
 	{
@@ -385,7 +385,7 @@ function thankyoulike_activate()
 	find_replace_templatesets("postbit","#".preg_quote('<div class="post_controls">')."#i","<div style=\"{\$post['tyl_display']}\" id=\"tyl_{\$post['pid']}\">{\$post['thankyoulike_data']}</div>\n<div class=\"post_controls\">");
 	find_replace_templatesets("postbit", "#".preg_quote('{$post[\'button_edit\']}')."#i", '{$post[\'button_tyl\']}{$post[\'button_edit\']}');
 	find_replace_templatesets("postbit_classic", "#".preg_quote('{$post[\'button_edit\']}')."#i", '{$post[\'button_tyl\']}{$post[\'button_edit\']}');
-	find_replace_templatesets("postbit_author_user", "#".preg_quote('	{$lang->postbit_threads} {$post[\'threadnum\']}<br />')."#i", '	{$lang->postbit_threads} {$post[\'threadnum\']}<br />
+	find_replace_templatesets("postbit_author_user", "#".preg_quote('{$lang->postbit_threads} {$post[\'threadnum\']}<br />')."#i", '{$lang->postbit_threads} {$post[\'threadnum\']}<br />
 	%%TYL_NUMTHANKEDLIKED%%<br />');
 	if(!find_replace_templatesets("member_profile", '#{\$reputation}(\r?)\n#', "{\$tyl_memprofile}\n{\$reputation}\n"))
 	{
@@ -490,9 +490,16 @@ function thankyoulike_deactivate()
 	$db->delete_query("templates", "title='thankyoulike_memprofile'");
 	
 	require_once MYBB_ROOT."/inc/adminfunctions_templates.php";
-	
-	find_replace_templatesets("showthread", "#".preg_quote('<script type="text/javascript" src="{$mybb->settings[\'bburl\']}/jscripts/thankyoulike.js"></script>
-<script type="text/javascript">
+
+	find_replace_templatesets("showthread", "#".preg_quote('<script type="text/javascript" src="{$mybb->settings[\'bburl\']}/jscripts/thankyoulike.js"></script>')."#i", '', 0);
+	find_replace_templatesets("showthread", "#".preg_quote('<script type="text/javascript">
+<!--
+	var tylEnabled = "{$mybb->settings[\'g33k_thankyoulike_enabled\']}";
+	var tylCollapsible = "{$mybb->settings[\'g33k_thankyoulike_collapsible\']}";
+	var tylUser = "{$mybb->user[\'uid\']}";
+-->
+</script>')."#i", '', 0);
+	find_replace_templatesets("showthread", "#".preg_quote('<script type="text/javascript">
 <!--
 	var tylEnabled = "{$mybb->settings[\'g33k_thankyoulike_enabled\']}";
 	var tylCollapsible = "{$mybb->settings[\'g33k_thankyoulike_collapsible\']}";
@@ -500,8 +507,8 @@ function thankyoulike_deactivate()
 	var tylSend = "{$lang->tyl_send}";
 	var tylRemove = "{$lang->tyl_remove}";	
 -->
-</script>
-')."#i", '', 0);
+</script>')."#i", '', 0);
+
 	find_replace_templatesets("postbit", "#".preg_quote('<div style="{$post[\'tyl_display\']}" id="tyl_{$post[\'pid\']}">{$post[\'thankyoulike_data\']}</div>')."(\r?)\n#", '', 0);
 	find_replace_templatesets("postbit_classic", "#".preg_quote('<div style="{$post[\'tyl_display\']}" id="tyl_{$post[\'pid\']}">{$post[\'thankyoulike_data\']}</div>')."(\r?)\n#", '', 0);
 	find_replace_templatesets("postbit", "#".preg_quote('{$post[\'button_tyl\']}')."#i", '', 0);
