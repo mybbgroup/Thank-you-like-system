@@ -60,7 +60,7 @@ $url_S = '<a href="https://github.com/Cu8eR/thankyou-like-plugin" target="_blank
 		"website"	=> "http://community.mybb.com/thread-169382.html",
 		"author"	=> "- G33K -",
 		"authorsite"	=> "http://community.mybboard.net/user-19236.html",
-		"version"	=> "1.9.4 Beta",
+		"version"	=> "1.9.4",
 		"codename"	=> "thankyoulikesystem",
 		"compatibility"	=> "18*"
     );
