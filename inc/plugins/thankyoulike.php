@@ -1002,8 +1002,7 @@ if(class_exists("MybbStuff_MyAlerts_Formatter_AbstractFormatter")){
 			return $this->lang->sprintf(
 				$this->lang->tyl_alert,
 				$outputAlert['from_user'],
-				htmlspecialchars_uni($alertContent['t_subject']),					
-				$outputAlert['dateline']
+				htmlspecialchars_uni($alertContent['t_subject']),
 			);				
 		}
 
