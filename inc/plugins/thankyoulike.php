@@ -979,7 +979,7 @@ function tyl_recordAlertThankyou()
 				array(
 					'tid' 		=> $tid,
 					'pid'		=> $pid,
-					't_subject' => $db->escape_string($subject),
+					't_subject' 	=> $subject,
 					'fid'		=> $fid					
 				)); 
 		MybbStuff_MyAlerts_AlertManager::getInstance()->addAlert($alert);
@@ -1002,7 +1002,7 @@ if(class_exists("MybbStuff_MyAlerts_Formatter_AbstractFormatter")){
 			return $this->lang->sprintf(
 				$this->lang->tyl_alert,
 				$outputAlert['from_user'],
-				htmlspecialchars_uni($alertContent['t_subject'])
+				$alertContent['t_subject']
 			);				
 		}
 
