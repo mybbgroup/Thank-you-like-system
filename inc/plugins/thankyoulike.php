@@ -34,6 +34,7 @@ $plugins->add_hook("class_moderation_delete_post_start","thankyoulike_delete_pos
 $plugins->add_hook("class_moderation_merge_posts","thankyoulike_merge_posts");
 $plugins->add_hook("class_moderation_merge_threads","thankyoulike_merge_threads");
 $plugins->add_hook("class_moderation_split_posts","thankyoulike_split_posts");
+$plugins->add_hook('admin_load', 'thankyoulike_admin_load');
 $plugins->add_hook("admin_user_users_delete_commit","thankyoulike_delete_user");
 $plugins->add_hook("admin_tools_menu","thankyoulike_tools_menu");
 $plugins->add_hook("admin_tools_action_handler","thankyoulike_tools_action");
@@ -42,7 +43,7 @@ $plugins->add_hook("admin_page_output_footer","thankyoulike_settings_peeker");
 
 function thankyoulike_info()
 {
-	global $plugins_cache, $mybb, $db, $lang;
+	global $plugins_cache, $mybb, $db, $lang, $cache;
 	$lang->load('config_thankyoulike');
 	
 	$codename = basename(__FILE__, ".php");
@@ -65,7 +66,26 @@ $url_S = '<a href="https://github.com/Cu8eR/thankyou-like-plugin" target="_blank
 		"compatibility"	=> "18*"
     );
 	
-	$info_desc = '';
+   	$info_desc = '';
+
+   	if(function_exists("myalerts_info")){
+		$my_alerts_info = myalerts_info();
+		$verify = $my_alerts_info['version'];
+		if($verify >= 2.0){
+			// Load cache data and compare if version is the same or don't
+		    	$myalerts_plugins = $cache->read('mybbstuff_myalerts_alert_types');
+		
+			if($myalerts_plugins['thanks']['code'] == 'tyl' && $myalerts_plugins['thanks']['enabled'] == 0){	
+				$info_desc .= '<a href="index.php?module=config-plugins&amp;action=tyl_myalerts_integrate">Integrate with MyAlerts</a>';
+			}
+			else if($myalerts_plugins['thanks']['code'] == 'tyl' && $myalerts_plugins['thanks']['enabled'] == 1){	
+				$info_desc .= 'TYL Integrated with MyAlerts';
+			}
+			else{
+				$info_desc .= 'Unknow error ocurred on TYL and MyAlerts integration';
+			}
+		}
+   	}
 	$result = $db->simple_select('settinggroups', 'gid', "name = '{$prefix}settings'", array('limit' => 1));
 	$group = $db->fetch_array($result);
 	if(!empty($group['gid']))
@@ -96,6 +116,42 @@ $url_S = '<a href="https://github.com/Cu8eR/thankyou-like-plugin" target="_blank
 	}
     
     return $info;
+}
+
+function thankyoulike_admin_load(){
+	global $page, $mybb;
+	if($mybb->input['action'] == 'tyl_myalerts_integrate')
+	{
+		tyl_myalerts_integrate();
+		exit;
+	}
+}
+
+function tyl_myalerts_integrate(){
+	global $db, $cache;
+	// Verify if myalerts exists and if compatible with 1.8.x then add alert type
+	if(function_exists("myalerts_info")){
+		// Load myalerts info into an array
+		$my_alerts_info = myalerts_info();
+		// Set version info to a new var
+		$verify = $my_alerts_info['version'];
+		// If MyAlerts 2.0 or better then do this !!!
+		if($verify >= "2.0.0"){
+			// Load cache data and compare if version is the same or not
+			$myalerts_plugins = $cache->read('mybbstuff_myalerts_alert_types');
+			if($myalerts_plugins['thanks']['code'] != 'tyl'){
+				//Adding alert type to db
+				$alertTypeManager = MybbStuff_MyAlerts_AlertTypeManager::createInstance($db, $cache);
+					$alertType = new MybbStuff_MyAlerts_Entity_AlertType();
+					$alertType->setCode('tyl');
+					$alertType->setEnabled(true);
+				$alertTypeManager->add($alertType);	
+			}
+
+			flash_message("MyAlerts and Thanks System are integrated succesfully", 'success');
+			admin_redirect('index.php?module=config-plugins');			
+		}	
+	}
 }
 
 function thankyoulike_install()
@@ -402,8 +458,8 @@ function thankyoulike_activate()
 		$verify = $my_alerts_info['version'];
 		// If MyAlerts 2.0 or better then do this !!!
 		if($verify >= "2.0.0"){
-			// Load cache data and compare if version is the same or not
-			$myalerts_plugins = $cache->read('mybbstuff_myalerts_alert_types');
+		// Load cache data and compare if version is the same or not
+		$myalerts_plugins = $cache->read('mybbstuff_myalerts_alert_types');
 		if($myalerts_plugins['thanks']['code'] != 'tyl'){
 			//Adding alert type to db
 			$alertTypeManager = MybbStuff_MyAlerts_AlertTypeManager::createInstance($db, $cache);
