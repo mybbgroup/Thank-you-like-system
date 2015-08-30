@@ -72,7 +72,7 @@ $url_S = '<a href="https://github.com/Cu8eR/thankyou-like-plugin" target="_blank
 		$my_alerts_info = myalerts_info();
 		$verify = $my_alerts_info['version'];
 		if($verify >= 2.0){
-			// Load cache data and compare if version is the same or don't
+			// Load cache data and compare if version is the same or not
 		    	$myalerts_plugins = $cache->read('mybbstuff_myalerts_alert_types');
 		
 			if($myalerts_plugins['thanks']['code'] == 'tyl' && $myalerts_plugins['thanks']['enabled'] == 0){	
@@ -82,7 +82,7 @@ $url_S = '<a href="https://github.com/Cu8eR/thankyou-like-plugin" target="_blank
 				$info_desc .= 'TYL Integrated with MyAlerts';
 			}
 			else{
-				$info_desc .= 'Unknow error ocurred on TYL and MyAlerts integration';
+				$info_desc .= 'Unknown error occurred during TYL and MyAlerts integration';
 			}
 		}
    	}
@@ -148,7 +148,7 @@ function tyl_myalerts_integrate(){
 				$alertTypeManager->add($alertType);	
 			}
 
-			flash_message("MyAlerts and Thanks System are integrated succesfully", 'success');
+			flash_message("MyAlerts and TYL System are integrated successfully", 'success');
 			admin_redirect('index.php?module=config-plugins');			
 		}	
 	}
