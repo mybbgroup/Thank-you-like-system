@@ -76,13 +76,13 @@ $url_S = '<a href="https://github.com/Cu8eR/thankyou-like-plugin" target="_blank
 		    	$myalerts_plugins = $cache->read('mybbstuff_myalerts_alert_types');
 		
 			if($myalerts_plugins['tyl']['code'] == 'tyl' && $myalerts_plugins['tyl']['enabled'] == 1){	
-				$info_desc .= '<div style="color: green;">TYL Integrated with MyAlerts</div>';
+				$info_desc .= '<div style="color: green;">TYL System integrated with MyAlerts</div>';
 			}
 			else if(!$myalerts_plugins['tyl']['code'] == 'tyl' && $mybb->settings['g33k_thankyoulike_enabled']){
 				$info_desc .= '<a href="index.php?module=config-plugins&amp;action=tyl_myalerts_integrate"><div style="color: orange;">Integrate with MyAlerts</div></a>';
 			}
 			else{
-				$info_desc .= '<div style="color: red;">TYL ins uninstalled or deactivated</div>';
+				$info_desc .= '<div style="color: red;">TYL System is uninstalled or deactivated</div>';
 			}
 		}
    	}
