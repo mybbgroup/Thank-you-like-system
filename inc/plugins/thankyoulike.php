@@ -75,14 +75,14 @@ $url_S = '<a href="https://github.com/Cu8eR/thankyou-like-plugin" target="_blank
 			// Load cache data and compare if version is the same or not
 		    	$myalerts_plugins = $cache->read('mybbstuff_myalerts_alert_types');
 		
-			if($myalerts_plugins['thanks']['code'] == 'tyl' && $myalerts_plugins['thanks']['enabled'] == 0){	
-				$info_desc .= '<a href="index.php?module=config-plugins&amp;action=tyl_myalerts_integrate">Integrate with MyAlerts</a>';
+			if($myalerts_plugins['tyl']['code'] == 'tyl' && $myalerts_plugins['tyl']['enabled'] == 1){	
+				$info_desc .= '<div style="color: green;">TYL Integrated with MyAlerts</div>';
 			}
-			else if($myalerts_plugins['thanks']['code'] == 'tyl' && $myalerts_plugins['thanks']['enabled'] == 1){	
-				$info_desc .= 'TYL Integrated with MyAlerts';
+			else if(!$myalerts_plugins['tyl']['code'] == 'tyl' && $mybb->settings['g33k_thankyoulike_enabled']){
+				$info_desc .= '<a href="index.php?module=config-plugins&amp;action=tyl_myalerts_integrate"><div style="color: orange;">Integrate with MyAlerts</div></a>';
 			}
 			else{
-				$info_desc .= 'Unknown error occurred during TYL and MyAlerts integration';
+				$info_desc .= '<div style="color: red;">TYL ins uninstalled or deactivated</div>';
 			}
 		}
    	}
@@ -139,7 +139,7 @@ function tyl_myalerts_integrate(){
 		if($verify >= "2.0.0"){
 			// Load cache data and compare if version is the same or not
 			$myalerts_plugins = $cache->read('mybbstuff_myalerts_alert_types');
-			if($myalerts_plugins['thanks']['code'] != 'tyl'){
+			if($myalerts_plugins['tyl']['code'] != 'tyl'){
 				//Adding alert type to db
 				$alertTypeManager = MybbStuff_MyAlerts_AlertTypeManager::createInstance($db, $cache);
 					$alertType = new MybbStuff_MyAlerts_Entity_AlertType();
@@ -460,7 +460,7 @@ function thankyoulike_activate()
 		if($verify >= "2.0.0"){
 		// Load cache data and compare if version is the same or not
 		$myalerts_plugins = $cache->read('mybbstuff_myalerts_alert_types');
-		if($myalerts_plugins['thanks']['code'] != 'tyl'){
+		if($myalerts_plugins['tyl']['code'] != 'tyl'){
 			//Adding alert type to db
 			$alertTypeManager = MybbStuff_MyAlerts_AlertTypeManager::createInstance($db, $cache);
 				$alertType = new MybbStuff_MyAlerts_Entity_AlertType();
