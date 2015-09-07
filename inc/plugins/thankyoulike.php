@@ -112,7 +112,7 @@ $url_S = '<a href="https://github.com/Cu8eR/thankyou-like-plugin" target="_blank
 	if(file_exists(MYBB_ROOT."tyl_unlock"))
 	{
 		// Show warning if tyl_unlock file exists letting user know that uninstalling will remove everything from the database
-		$info['description'] .= "<ul><li style=\"list-style-image: url(styles/default/images/icons/error.png)\">".$db->escape_string($lang->tyl_info_desc_warning)."</li></ul>";
+		$info['description'] .= "<ul><li style=\"list-style-image: url(styles/default/images/icons/error.png)\"><font color=\"red\">".$db->escape_string($lang->tyl_info_desc_warning)."</font></li></ul>";
 	}
     
     return $info;
