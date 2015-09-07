@@ -90,12 +90,12 @@ $url_S = '<a href="https://github.com/Cu8eR/thankyou-like-plugin" target="_blank
 	$group = $db->fetch_array($result);
 	if(!empty($group['gid']))
 	{
-		$info_desc .= "<i><small>[<a href=\"index.php?module=config-settings&action=change&gid=".$group['gid']."\">".$db->escape_string($lang->tyl_info_desc_configsettings)."</a>]</small></i>";
+		$info_desc .= "<ul><li style=\"list-style-image: url(styles/default/images/icons/custom.png)\"><a href=\"index.php?module=config-settings&action=change&gid=".$group['gid']."\">".$db->escape_string($lang->tyl_info_desc_configsettings)."</a></li></ul>";
 	}
     
     if(is_array($plugins_cache) && is_array($plugins_cache['active']) && $plugins_cache['active'][$codename])
     {
-	    $info_desc .= "<i><small>[<a href=\"index.php?module=tools-thankyoulike_recount\">".$db->escape_string($lang->tyl_info_desc_recount)."</a>]</small></i>";
+	    $info_desc .= "<ul><li style=\"list-style-image: url(styles/default/images/icons/default.png)\"><a href=\"index.php?module=tools-thankyoulike_recount\">".$db->escape_string($lang->tyl_info_desc_recount)."</a></li></ul>";
 		$info_desc .= '<form action="https://www.paypal.com/cgi-bin/webscr" method="post" style="float: right;" target="_blank">
 <input type="hidden" name="cmd" value="_s-xclick">
 <input type="hidden" name="hosted_button_id" value="KCNAC5PE828X8">
