@@ -79,7 +79,7 @@ $url_S = '<a href="https://github.com/Cu8eR/thankyou-like-plugin" target="_blank
 				$info_desc .= "<ul><li style=\"list-style-image: url(styles/default/images/icons/success.png)\"><font color=\"green\">".$db->escape_string($lang->tyl_info_desc_alerts_integrated)."</font></li></ul>";
 			}
 			else if(!$myalerts_plugins['tyl']['code'] == 'tyl' && $mybb->settings['g33k_thankyoulike_enabled']){
-				$info_desc .= "<ul><li style=\"list-style-image: url(styles/default/images/icons/warning.png)\"><font color=\"yellow\">".$db->escape_string($lang->tyl_info_desc_alerts_integrate)."</font></li></ul>";
+				$info_desc .= "<ul><li style=\"list-style-image: url(styles/default/images/icons/warning.png)\"><font color=\"red\">".$db->escape_string($lang->tyl_info_desc_alerts_integrate)."</font></li></ul>";
 			}
 			else{
 				$info_desc .= "<ul><li style=\"list-style-image: url(styles/default/images/icons/error.png)\"><font color=\"red\">".$db->escape_string($lang->tyl_info_desc_alerts_error)."</font></li></ul>";
