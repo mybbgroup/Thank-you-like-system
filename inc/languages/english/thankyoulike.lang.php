@@ -65,9 +65,9 @@ $l['tyl_redirect_deleted'] = "Your {1} has been removed from the post";
 $l['tyl_redirect_back'] = "<br />You will now be taken back to the post.";
 
 
-$l['tyl_alert'] = '{1} thanked/liked your post "{2}"';
-$l['tyl_alert_like'] = '{1} liked your post "{2}"';
-$l['tyl_alert_thanks'] = '{1} thanked your post "{2}"';
+$l['tyl_alert'] = '{1} thanked/liked your post <b>"{2}"</b>.';
+$l['tyl_alert_like'] = '{1} liked your post <b>"{2}"</b>.';
+$l['tyl_alert_thanks'] = '{1} thanked your post <b>"{2}"</b>.';
 $l['myalerts_setting_tyl'] = 'Receive an alert when someone add thanks/like to my post?';
 $l['myalerts_setting_tyl_like'] = 'Receive an alert when someone add like to my post?';
 $l['myalerts_setting_tyl_thanks'] = 'Receive an alert when someone add thanks to my post?';
