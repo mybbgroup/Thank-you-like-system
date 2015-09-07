@@ -76,13 +76,13 @@ $url_S = '<a href="https://github.com/Cu8eR/thankyou-like-plugin" target="_blank
 		    	$myalerts_plugins = $cache->read('mybbstuff_myalerts_alert_types');
 		
 			if($myalerts_plugins['tyl']['code'] == 'tyl' && $myalerts_plugins['tyl']['enabled'] == 1){	
-				$info_desc .= '<div style="color: green;">TYL System integrated with MyAlerts</div>';
+				$info_desc .= "<ul><li style=\"list-style-image: url(styles/default/images/icons/success.png)\"><font color=\"green\">".$db->escape_string($lang->tyl_info_desc_alerts_integrated)."</font></li></ul>";
 			}
 			else if(!$myalerts_plugins['tyl']['code'] == 'tyl' && $mybb->settings['g33k_thankyoulike_enabled']){
-				$info_desc .= '<a href="index.php?module=config-plugins&amp;action=tyl_myalerts_integrate"><div style="color: orange;">Integrate with MyAlerts</div></a>';
+				$info_desc .= "<ul><li style=\"list-style-image: url(styles/default/images/icons/warning.png)\"><font color=\"red\">".$db->escape_string($lang->tyl_info_desc_alerts_integrate)."</font></li></ul>";
 			}
 			else{
-				$info_desc .= '<div style="color: red;">TYL System is uninstalled or deactivated</div>';
+				$info_desc .= "<ul><li style=\"list-style-image: url(styles/default/images/icons/error.png)\"><font color=\"red\">".$db->escape_string($lang->tyl_info_desc_alerts_error)."</font></li></ul>";
 			}
 		}
    	}
@@ -90,12 +90,12 @@ $url_S = '<a href="https://github.com/Cu8eR/thankyou-like-plugin" target="_blank
 	$group = $db->fetch_array($result);
 	if(!empty($group['gid']))
 	{
-		$info_desc .= "<i><small>[<a href=\"index.php?module=config-settings&action=change&gid=".$group['gid']."\">".$db->escape_string($lang->tyl_info_desc_configsettings)."</a>]</small></i>";
+		$info_desc .= "<ul><li style=\"list-style-image: url(styles/default/images/icons/custom.png)\"><a href=\"index.php?module=config-settings&action=change&gid=".$group['gid']."\">".$db->escape_string($lang->tyl_info_desc_configsettings)."</a></li></ul>";
 	}
     
     if(is_array($plugins_cache) && is_array($plugins_cache['active']) && $plugins_cache['active'][$codename])
     {
-	    $info_desc .= "<i><small>[<a href=\"index.php?module=tools-thankyoulike_recount\">".$db->escape_string($lang->tyl_info_desc_recount)."</a>]</small></i>";
+	    $info_desc .= "<ul><li style=\"list-style-image: url(styles/default/images/icons/default.png)\"><a href=\"index.php?module=tools-thankyoulike_recount\">".$db->escape_string($lang->tyl_info_desc_recount)."</a></li></ul>";
 		$info_desc .= '<form action="https://www.paypal.com/cgi-bin/webscr" method="post" style="float: right;" target="_blank">
 <input type="hidden" name="cmd" value="_s-xclick">
 <input type="hidden" name="hosted_button_id" value="KCNAC5PE828X8">
@@ -112,7 +112,7 @@ $url_S = '<a href="https://github.com/Cu8eR/thankyou-like-plugin" target="_blank
 	if(file_exists(MYBB_ROOT."tyl_unlock"))
 	{
 		// Show warning if tyl_unlock file exists letting user know that uninstalling will remove everything from the database
-		$info['description'] .= "<ul><li style=\"list-style-image: url(styles/default/images/icons/error.png)\">".$db->escape_string($lang->tyl_info_desc_warning)."</li></ul>";
+		$info['description'] .= "<ul><li style=\"list-style-image: url(styles/default/images/icons/error.png)\"><font color=\"red\">".$db->escape_string($lang->tyl_info_desc_warning)."</font></li></ul>";
 	}
     
     return $info;
