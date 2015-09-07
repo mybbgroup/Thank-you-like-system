@@ -76,13 +76,13 @@ $url_S = '<a href="https://github.com/Cu8eR/thankyou-like-plugin" target="_blank
 		    	$myalerts_plugins = $cache->read('mybbstuff_myalerts_alert_types');
 		
 			if($myalerts_plugins['tyl']['code'] == 'tyl' && $myalerts_plugins['tyl']['enabled'] == 1){	
-				$info_desc .= '<div style="color: green;">TYL System integrated with MyAlerts</div>';
+				$info_desc .= "<ul><li style=\"list-style-image: url(styles/default/images/icons/success.png)\">".$db->escape_string($lang->tyl_info_desc_alerts_integrated)."</li></ul>";
 			}
 			else if(!$myalerts_plugins['tyl']['code'] == 'tyl' && $mybb->settings['g33k_thankyoulike_enabled']){
-				$info_desc .= '<a href="index.php?module=config-plugins&amp;action=tyl_myalerts_integrate"><div style="color: orange;">Integrate with MyAlerts</div></a>';
+				$info_desc .= "<ul><li style=\"list-style-image: url(styles/default/images/icons/warning.png)\">".$db->escape_string($lang->tyl_info_desc_alerts_integrate)."</li></ul>";
 			}
 			else{
-				$info_desc .= '<div style="color: red;">TYL System is uninstalled or deactivated</div>';
+				$info_desc .= "<ul><li style=\"list-style-image: url(styles/default/images/icons/error.png)\">".$db->escape_string($lang->tyl_info_desc_alerts_error)."</li></ul>";
 			}
 		}
    	}
