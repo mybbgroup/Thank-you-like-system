@@ -356,7 +356,11 @@ if($mybb->input['ajax'])
 		$lang->del_tyl = $lang->del_l;
 		$tyl_thankslikes = $lang->tyl_likes;
 		$tyl_data = get_user($post['uid']);
+		if($mybb->settings[$prefix.'unameformat'] == "1"){
 		$tyl_data['username'] = format_name($tyl_data['username'], $tyl_data['usergroup'], $tyl_data['displaygroup']);
+		}else{
+		$tyl_data['username'] = $tyl_data['username'];
+		}
 		$tyl_profilelink = build_profile_link($tyl_data['username'], $tyl_data['uid']);
 		$lang->tyl_title = $lang->sprintf($lang->tyl_title_l, $count, $tyl_user, $tyl_like, $tyl_profilelink);
 		$lang->tyl_title_collapsed = $lang->sprintf($lang->tyl_title_collapsed_l, $count, $tyl_user, $tyl_like, $tyl_profilelink);
@@ -368,7 +372,11 @@ if($mybb->input['ajax'])
 		$lang->del_tyl = $lang->del_ty;
 		$tyl_thankslikes = $lang->tyl_thanks;
 		$tyl_data = get_user($post['uid']);
+		if($mybb->settings[$prefix.'unameformat'] == "1"){
 		$tyl_data['username'] = format_name($tyl_data['username'], $tyl_data['usergroup'], $tyl_data['displaygroup']);
+		}else{
+		$tyl_data['username'] = $tyl_data['username'];
+		}
 		$tyl_profilelink = build_profile_link($tyl_data['username'], $tyl_data['uid']);
 		$lang->tyl_title = $lang->sprintf($lang->tyl_title_ty, $count, $tyl_user, $tyl_say, $tyl_profilelink);
 		$lang->tyl_title_collapsed = $lang->sprintf($lang->tyl_title_collapsed_ty, $count, $tyl_user, $tyl_say, $tyl_profilelink);
