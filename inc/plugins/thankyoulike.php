@@ -76,13 +76,13 @@ $url_S = '<a href="https://github.com/Cu8eR/thankyou-like-plugin" target="_blank
 		    	$myalerts_plugins = $cache->read('mybbstuff_myalerts_alert_types');
 		
 			if($myalerts_plugins['tyl']['code'] == 'tyl' && $myalerts_plugins['tyl']['enabled'] == 1){	
-				$info_desc .= "<ul><li style=\"list-style-image: url(styles/default/images/icons/success.png)\"><font color=\"green\">".$db->escape_string($lang->tyl_info_desc_alerts_integrated)."</font></li></ul>";
+				$info_desc .= "<ul><li style=\"list-style-image: url(styles/default/images/icons/success.png)\"><span color=\"green\">".$db->escape_string($lang->tyl_info_desc_alerts_integrated)."</span></li></ul>";
 			}
 			else if(!$myalerts_plugins['tyl']['code'] == 'tyl' && $mybb->settings['g33k_thankyoulike_enabled']){
-				$info_desc .= "<ul><li style=\"list-style-image: url(styles/default/images/icons/warning.png)\"><font color=\"red\">".$db->escape_string($lang->tyl_info_desc_alerts_integrate)."</font></li></ul>";
+				$info_desc .= "<ul><li style=\"list-style-image: url(styles/default/images/icons/warning.png)\"><span color=\"red\">".$db->escape_string($lang->tyl_info_desc_alerts_integrate)."</span></li></ul>";
 			}
 			else{
-				$info_desc .= "<ul><li style=\"list-style-image: url(styles/default/images/icons/error.png)\"><font color=\"red\">".$db->escape_string($lang->tyl_info_desc_alerts_error)."</font></li></ul>";
+				$info_desc .= "<ul><li style=\"list-style-image: url(styles/default/images/icons/error.png)\"><span color=\"red\">".$db->escape_string($lang->tyl_info_desc_alerts_error)."</span></li></ul>";
 			}
 		}
    	}
