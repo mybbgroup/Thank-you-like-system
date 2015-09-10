@@ -678,8 +678,9 @@ function thankyoulike_templatelist()
 			$lang->myalerts_setting_tyl = $lang->myalerts_setting_tyl_thanks;				
 		}
 		// Registering alert formatter
-		if((function_exists('myalerts_is_activated') && myalerts_is_activated()) && $mybb->user['uid']){
+		if((function_exists('myalerts_is_activated')) && myalerts_is_activated() && $mybb->user['uid']){
 			global $cache, $formatterManager;
+			tyl_myalerts_formatter_load();
 			// Load cache data and compare if version is the same or not
 			$myalerts_plugins = $cache->read('mybbstuff_myalerts_alert_types');
 		
@@ -1030,20 +1031,29 @@ function tyl_recordAlertThankyou()
     $alertType = MybbStuff_MyAlerts_AlertTypeManager::getInstance()->getByCode('tyl');
 	
     if(isset($alertType) && $alertType->getEnabled()){
-		$alert = new MybbStuff_MyAlerts_Entity_Alert($uid, $alertType, $pid, $mybb->user['uid']);
-				$alert->setExtraDetails(
-				array(
-					'tid' 		=> $tid,
-					'pid'		=> $pid,
-					't_subject' 	=> $subject,
-					'fid'		=> $fid					
-				)); 
-		MybbStuff_MyAlerts_AlertManager::getInstance()->addAlert($alert);
+         //check if already alerted
+        $query = $db->simple_select(
+			'alerts',
+			'id',
+			'object_id = ' .$pid . ' AND uid = ' . $uid . ' AND unread = 1 AND alert_type_id = ' . $alertType->getId() . ''
+        );
+
+        if ($db->num_rows($query) == 0) {   	
+			$alert = new MybbStuff_MyAlerts_Entity_Alert($uid, $alertType, $pid, $mybb->user['uid']);
+					$alert->setExtraDetails(
+					array(
+						'tid' 		=> $tid,
+						'pid'		=> $pid,
+						't_subject' 	=> $subject,
+						'fid'		=> $fid					
+					)); 
+			MybbStuff_MyAlerts_AlertManager::getInstance()->addAlert($alert);
+		}
 	}
 }
 
  // Alert formatter for my custom alerts.
-if(class_exists("MybbStuff_MyAlerts_Formatter_AbstractFormatter")){
+function tyl_myalerts_formatter_load(){
 	global $mybb, $codename, $prefix;
 	$codename = basename(__FILE__, ".php");
 	$prefix = 'g33k_'.$codename.'_';
