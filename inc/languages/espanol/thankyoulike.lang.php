@@ -65,9 +65,9 @@ $l['tyl_redirect_tyled'] = "Tu {1} se agregó al mensaje";
 $l['tyl_redirect_deleted'] = "Tu {1} se elimino de el mensaje";
 $l['tyl_redirect_back'] = "<br />Ahoraa regresarás al mensaje original.";
 
-$l['tyl_alert'] = '{1} agradeción/le gustó tu mensaje "{2}" ({3})';
-$l['tyl_alert_like'] = 'A {1} le gustó tu mensaje "{2}" ({3})';
-$l['tyl_alert_thanks'] = '{1} agradeció tu mensaje "{2}" ({3})';
+$l['tyl_alert'] = '{1} agradeción/le gustó tu mensaje "{2}"';
+$l['tyl_alert_like'] = 'A {1} le gustó tu mensaje "{2}"';
+$l['tyl_alert_thanks'] = '{1} agradeció tu mensaje "{2}"';
 $l['myalerts_setting_tyl'] = 'Recibir una alerta cuando alguien use el gracias/me gusta en tus mensajes?';
 $l['myalerts_setting_tyl_like'] = 'Recibir una alerta cuando a alguien le guste uno de mis mensajes?';
 $l['myalerts_setting_tyl_thanks'] = 'Recibir una alerta cuando alguien agradezca uno de mis mensajes?';
