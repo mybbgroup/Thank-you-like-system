@@ -11,6 +11,10 @@ $l['tyl_info_desc_url'] ="<br />*Editado para versiones 1.8.x de MyBB: {1}<br />
 $l['tyl_info_desc_recount'] = "Recontar Agradecimientos/Me gusta";
 $l['tyl_info_desc_configsettings'] = "Configurar Ajustes";
 $l['tyl_info_desc_warning'] = "Advertencia! El archivo tyl_unlock ha sido localizado! Desinstalar el sistema eliminará todo el contenido de gracias/me gusta de la base de datos. Si deseas conservar los datos elimina el archivo tyl_unlock desde tu FTP.";
+$l['tyl_info_desc_alerts_error'] = "<b>El sistema de Gracias/Me gusta no ha sido instalado o activado</b>";
+$l['tyl_info_desc_alerts_integrate'] = "<b>Integrar el sistema de Gracias/Me gusta con MyAlerts</b>";
+$l['tyl_info_desc_alerts_integrated'] = "<b>El sistema de Gracias/Me gusta se ha integrado con MyAlerts correctamente!</b>";
+$l['tyl_info_desc_alerts_registeralerttype'] = "Registrar nuevo tipo de alerta en MyAlerts";
 
 $l['tyl_title'] = "Sistema de Gracias/Me gusta";
 $l['tyl_desc'] = "Ajustar preferencias del Sistema de Gracias/Me gusta";
