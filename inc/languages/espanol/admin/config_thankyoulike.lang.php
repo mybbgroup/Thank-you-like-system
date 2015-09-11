@@ -31,7 +31,7 @@ $l['tyl_firstall_desc'] = "Deseas que este sistema esté habilitado paraa todos 
 $l['tyl_firstalloverwrite_title'] = "Ajustes de mostrar los botones del sistema TYL en todos los mensajes";
 $l['tyl_firstalloverwrite_desc'] = "Sobreescribir el ajuste en algunos foros para todos (Escojer únicamente los foros - no categorías)";
 
-$l['tyl_removing_title'] = "Eliminar mis mensajes";
+$l['tyl_removing_title'] = "Eliminar Gracias/Me gusta";
 $l['tyl_removing_desc'] = "Quiere que los usuarios puedan eliminar los Agradecimientos/Me gusta utilizados en sus mensajes?";
 
 $l['tyl_closedthreads_title'] = "Permitir en temas cerrados";
