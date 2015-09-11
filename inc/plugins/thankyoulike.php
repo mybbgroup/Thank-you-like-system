@@ -76,13 +76,13 @@ $url_S = '<a href="https://github.com/Cu8eR/thankyou-like-plugin" target="_blank
 		    	$myalerts_plugins = $cache->read('mybbstuff_myalerts_alert_types');
 		
 			if($myalerts_plugins['tyl']['code'] == 'tyl' && $myalerts_plugins['tyl']['enabled'] == 1){	
-				$info_desc .= "<ul><li style=\"list-style-image: url(styles/default/images/icons/success.png)\"><span color=\"green\">".$db->escape_string($lang->tyl_info_desc_alerts_integrated)."</span></li></ul>";
+				$info_desc .= "<ul><li style=\"list-style-image: url(styles/default/images/icons/success.png)\"><span style=\"color: green;\">".$db->escape_string($lang->tyl_info_desc_alerts_integrated)."</span></li></ul>";
 			}
 			else if(!$myalerts_plugins['tyl']['code'] == 'tyl' && $mybb->settings['g33k_thankyoulike_enabled']){
-				$info_desc .= "<ul><li style=\"list-style-image: url(styles/default/images/icons/warning.png)\"><span color=\"red\">".$db->escape_string($lang->tyl_info_desc_alerts_integrate)."</span></li></ul>";
+				$info_desc .= "<ul><li style=\"list-style-image: url(styles/default/images/icons/warning.png)\"><span style=\"color: red\">".$db->escape_string($lang->tyl_info_desc_alerts_integrate)."</span></li></ul>";
 			}
 			else{
-				$info_desc .= "<ul><li style=\"list-style-image: url(styles/default/images/icons/error.png)\"><span color=\"red\">".$db->escape_string($lang->tyl_info_desc_alerts_error)."</span></li></ul>";
+				$info_desc .= "<ul><li style=\"list-style-image: url(styles/default/images/icons/error.png)\"><span style=\"color: red\">".$db->escape_string($lang->tyl_info_desc_alerts_error)."</span></li></ul>";
 			}
 		}
    	}
@@ -112,7 +112,7 @@ $url_S = '<a href="https://github.com/Cu8eR/thankyou-like-plugin" target="_blank
 	if(file_exists(MYBB_ROOT."tyl_unlock"))
 	{
 		// Show warning if tyl_unlock file exists letting user know that uninstalling will remove everything from the database
-		$info['description'] .= "<ul><li style=\"list-style-image: url(styles/default/images/icons/error.png)\"><span color=\"red\">".$db->escape_string($lang->tyl_info_desc_warning)."</span></li></ul>";
+		$info['description'] .= "<ul><li style=\"list-style-image: url(styles/default/images/icons/error.png)\"><span style=\"color: red\">".$db->escape_string($lang->tyl_info_desc_warning)."</span></li></ul>";
 	}
     
     return $info;
@@ -824,6 +824,8 @@ function thankyoulike_postbit(&$post)
 			foreach($g33k_pcache[$post['pid']] AS $tyl)
 			{
 				$profile_link = get_profile_link($tyl['uid']);
+				$username = htmlspecialchars_uni($post['username']);
+				$profilelink = build_profile_link($username, $post['uid']);
 				// Format username... or not
 				$tyl_list = $mybb->settings[$prefix.'unameformat'] == "1" ? format_name($tyl['username'], $tyl['usergroup'], $tyl['displaygroup']) : $tyl['username'];
 				$datedisplay_next = $mybb->settings[$prefix.'showdt'] == "nexttoname" ? "<span class='smalltext'> (".my_date($mybb->settings[$prefix.'dtformat'], $tyl['dateline']).")</span>" : "";
@@ -858,16 +860,28 @@ function thankyoulike_postbit(&$post)
 			$pre = "l";
 			$lang->add_tyl = $lang->add_l;
 			$lang->del_tyl = $lang->del_l;
+			if($mybb->settings[$prefix.'unameformat'] == "1"){
 			$lang->tyl_title = $lang->sprintf($lang->tyl_title_l, $count, $tyl_user, $tyl_like, $post['profilelink']);
 			$lang->tyl_title_collapsed = $lang->sprintf($lang->tyl_title_collapsed_l, $count, $tyl_user, $tyl_like, $post['profilelink']);
+			}
+			else{
+			$lang->tyl_title = $lang->sprintf($lang->tyl_title_l, $count, $tyl_user, $tyl_like, $profilelink);
+			$lang->tyl_title_collapsed = $lang->sprintf($lang->tyl_title_collapsed_l, $count, $tyl_user, $tyl_like, $profilelink);
+			}
 		}
 		else if ($mybb->settings[$prefix.'thankslike'] == "thanks")
 		{
 			$pre = "ty";
 			$lang->add_tyl = $lang->add_ty;
 			$lang->del_tyl = $lang->del_ty;
+			if($mybb->settings[$prefix.'unameformat'] == "1"){
 			$lang->tyl_title = $lang->sprintf($lang->tyl_title_ty, $count, $tyl_user, $tyl_say, $post['profilelink']);
 			$lang->tyl_title_collapsed = $lang->sprintf($lang->tyl_title_collapsed_ty, $count, $tyl_user, $tyl_say, $post['profilelink']);
+			}
+			else{
+			$lang->tyl_title = $lang->sprintf($lang->tyl_title_ty, $count, $tyl_user, $tyl_say, $profilelink);
+			$lang->tyl_title_collapsed = $lang->sprintf($lang->tyl_title_collapsed_ty, $count, $tyl_user, $tyl_say, $profilelink);
+			}
 		}
 		// Setup the collapsible elements
 		if ($mybb->settings[$prefix.'collapsible'] == "1" && $mybb->settings[$prefix.'colldefault'] == "closed")
