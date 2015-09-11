@@ -825,7 +825,7 @@ function thankyoulike_postbit(&$post)
 			{
 				$profile_link = get_profile_link($tyl['uid']);
 				$username = htmlspecialchars_uni($post['username']);
-				$profilelink = build_profile_link($username, $post['uid']);
+				$profilelink = $username;
 				// Format username... or not
 				$tyl_list = $mybb->settings[$prefix.'unameformat'] == "1" ? format_name($tyl['username'], $tyl['usergroup'], $tyl['displaygroup']) : $tyl['username'];
 				$datedisplay_next = $mybb->settings[$prefix.'showdt'] == "nexttoname" ? "<span class='smalltext'> (".my_date($mybb->settings[$prefix.'dtformat'], $tyl['dateline']).")</span>" : "";
