@@ -148,7 +148,7 @@ function tyl_myalerts_integrate(){
 				$alertTypeManager->add($alertType);	
 			}
 
-			flash_message("MyAlerts and TYL System are integrated successfully", 'success');
+			flash_message("MyAlerts and TYL System were integrated successfully!", 'success');
 			admin_redirect('index.php?module=config-plugins');			
 		}	
 	}
