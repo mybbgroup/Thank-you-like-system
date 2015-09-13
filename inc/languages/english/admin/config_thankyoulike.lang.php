@@ -12,7 +12,7 @@ $l['tyl_info_desc_configsettings'] = "Configure Settings";
 $l['tyl_info_desc_warning'] = "<b>Warning! tyl_unlock file located! Uninstalling will remove ALL the Thank you/Like data from the database. If you would like to preserve the Thank you/Like data while uninstalling then remove the tyl_unlock file from the forum root folder.</b>";
 $l['tyl_info_desc_alerts_error'] = "<b>TYL System is uninstalled or deactivated</b>";
 $l['tyl_info_desc_alerts_integrate'] = "<b>Click <u>HERE</u> to integrate TYL System with MyAlerts</b>";
-$l['tyl_info_desc_alerts_integrated'] = "<b>TYL System was integrated with MyAlerts successfully!</b>";
+$l['tyl_info_desc_alerts_integrated'] = "<b>TYL System and MyAlerts were integrated successfully!</b>";
 $l['tyl_info_desc_alerts_registeralerttype'] = "Register a new alert type into MyAlerts";
 
 $l['tyl_title'] = "Thank You/Like System";
