@@ -21,15 +21,15 @@
  * $Id: tylsearch.php 53 2011-10-26 08:17:45Z - G33K - $
  */
 
-
 define("IN_MYBB", 1);
 define("IGNORE_CLEAN_VARS", "sid");
 define('THIS_SCRIPT', 'tylsearch.php');
 
-$templatelist = "search,forumdisplay_thread_gotounread,search_results_threads_thread,search_results_threads,search_results_posts,search_results_posts_post";
-$templatelist .= ",multipage_nextpage,multipage_page_current,multipage_page,multipage_start,multipage_end,multipage,forumdisplay_thread_multipage_more,forumdisplay_thread_multipage_page,forumdisplay_thread_multipage";
-$templatelist .= ",search_results_posts_inlinecheck,search_results_posts_nocheck,search_results_threads_inlinecheck,search_results_threads_nocheck,search_results_inlinemodcol,search_results_posts_inlinemoderation_custom_tool,search_results_posts_inlinemoderation_custom,search_results_posts_inlinemoderation,search_results_threads_inlinemoderation_custom_tool,search_results_threads_inlinemoderation_custom,search_results_threads_inlinemoderation,search_orderarrow,search_moderator_options";
-$templatelist .= ",forumdisplay_thread_attachment_count,forumdisplay_threadlist_inlineedit_js,search_threads_inlinemoderation_selectall";
+$templatelist = "search,forumdisplay_thread_gotounread,search_results_threads_thread,search_results_threads,search_results_posts,search_results_posts_post,search_results_icon,search_forumlist_forum,search_forumlist";
+$templatelist .= ",multipage,multipage_breadcrumb,multipage_end,multipage_jump_page,multipage_nextpage,multipage_page,multipage_page_current,multipage_page_link_current,multipage_prevpage,multipage_start,forumdisplay_thread_multipage_more,forumdisplay_thread_multipage_page,forumdisplay_thread_multipage";
+$templatelist .= ",search_results_posts_inlinecheck,search_results_posts_nocheck,search_results_threads_inlinecheck,search_results_threads_nocheck,search_results_inlinemodcol,search_results_posts_inlinemoderation_custom_tool";
+$templatelist .= ",search_results_posts_inlinemoderation_custom,search_results_posts_inlinemoderation,search_results_threads_inlinemoderation_custom_tool,search_results_threads_inlinemoderation_custom,search_results_threads_inlinemoderation,search_orderarrow,search_moderator_options";
+$templatelist .= ",forumdisplay_thread_attachment_count,search_threads_inlinemoderation_selectall,search_posts_inlinemoderation_selectall,post_prefixselect_prefix,post_prefixselect_multiple";
 
 require_once "./global.php";
 require_once MYBB_ROOT."inc/functions_post.php";
@@ -38,6 +38,7 @@ require_once MYBB_ROOT."inc/class_parser.php";
 $parser = new postParser;
 
 $prefix = "g33k_thankyoulike_";
+$headerinclude .= '<link type="text/css" rel="stylesheet" href="'. $mybb->settings['bburl'] .'/cache/themes/theme1/thread_status.min.css" />';
 
 // Load global language phrases
 $lang->load("search");
@@ -51,6 +52,7 @@ if (!$mybb->settings[$prefix.'enabled'])
 
 add_breadcrumb($lang->nav_search, "search.php");
 
+$mybb->input['action'] = $mybb->get_input('action');
 switch($mybb->input['action'])
 {
 	case "results":
@@ -84,16 +86,17 @@ if($mybb->settings[$prefix.'enabled'] != "1")
 $tyl_uid = 	intval($mybb->input['uid']);
 
 $now = TIME_NOW;
+$mybb->input['keywords'] = trim($mybb->get_input('keywords'));
 
 $limitsql = "";
-if(intval($mybb->settings['searchhardlimit']) > 0)
+if((int)$mybb->settings['searchhardlimit'] > 0)
 {
-	$limitsql = "LIMIT ".intval($mybb->settings['searchhardlimit']);
+	$limitsql = "LIMIT ".(int)$mybb->settings['searchhardlimit'];
 }
 
 if($mybb->input['action'] == "results")
 {
-	$sid = $db->escape_string($mybb->input['sid']);
+	$sid = $db->escape_string($mybb->get_input('sid'));
 	$query = $db->simple_select("searchlog", "*", "sid='$sid'");
 	$search = $db->fetch_array($query);
 
@@ -103,8 +106,8 @@ if($mybb->input['action'] == "results")
 	}
 
 	// Decide on our sorting fields and sorting order.
-	$order = my_strtolower(htmlspecialchars($mybb->input['order']));
-	$sortby = my_strtolower(htmlspecialchars($mybb->input['sortby']));
+	$order = my_strtolower(htmlspecialchars_uni($mybb->get_input('order')));
+	$sortby = my_strtolower(htmlspecialchars_uni($mybb->get_input('sortby')));
 
 	switch($sortby)
 	{
@@ -137,7 +140,7 @@ if($mybb->input['action'] == "results")
 				$sortfield = "p.username";
 			}
 			break;
-		case "dateline":
+		case "lastpost":
 		default:
 			if($search['resulttype'] == "threads")
 			{
@@ -146,12 +149,12 @@ if($mybb->input['action'] == "results")
 			}
 			else
 			{
-				$sortfield = "tyl.dateline";
+				$sortfield = "p.dateline";
 				$sortby = "dateline";
 			}
 			break;
 	}
-	
+
 	if($order != "asc")
 	{
 		$order = "desc";
@@ -161,17 +164,17 @@ if($mybb->input['action'] == "results")
 	else
 	{
 		$oppsortnext = "desc";
-		$oppsort = $lang->desc;		
+		$oppsort = $lang->desc;
 	}
-	
-	if(!$mybb->settings['threadsperpage'])
+
+	if(!$mybb->settings['threadsperpage'] || (int)$mybb->settings['threadsperpage'] < 1)
 	{
 		$mybb->settings['threadsperpage'] = 20;
 	}
 
 	// Work out pagination, which page we're at, as well as the limits.
 	$perpage = $mybb->settings['threadsperpage'];
-	$page = intval($mybb->input['page']);
+	$page = $mybb->get_input('page');
 	if($page > 0)
 	{
 		$start = ($page-1) * $perpage;
@@ -184,14 +187,27 @@ if($mybb->input['action'] == "results")
 	$end = $start + $perpage;
 	$lower = $start+1;
 	$upper = $end;
-	
+
 	// Work out if we have terms to highlight
 	$highlight = "";
-	
+	if($search['keywords'])
+	{
+		if($mybb->seo_support == true)
+		{
+			$highlight = "?highlight=".urlencode($search['keywords']);
+		}
+		else
+		{
+			$highlight = "&amp;highlight=".urlencode($search['keywords']);
+		}
+	}
+
 	$sorturl = "tylsearch.php?action=results&amp;sid={$sid}&amp;uid={$tyl_uid}";
 	$thread_url = "";
 	$post_url = "";
 	
+	$orderarrow = array('replies' => '', 'views' => '', 'subject' => '', 'forum' => '', 'starter' => '', 'lastpost' => '', 'dateline' => '');
+
 	eval("\$orderarrow['$sortby'] = \"".$templates->get("search_orderarrow")."\";");
 
 	// Read some caches we will be using
@@ -209,8 +225,8 @@ if($mybb->input['action'] == "results")
 			WHERE active != 0
 			ORDER BY pid, disporder
 		");
-		
-		$forumsread = unserialize($mybb->cookies['mybb']['forumread']);
+
+		$forumsread = my_unserialize($mybb->cookies['mybb']['forumread']);
 	}
 	else
 	{
@@ -223,6 +239,7 @@ if($mybb->input['action'] == "results")
 			ORDER BY pid, disporder
 		");
 	}
+
 	while($forum = $db->fetch_array($query))
 	{
 		if($mybb->user['uid'] == 0)
@@ -235,7 +252,7 @@ if($mybb->input['action'] == "results")
 		$readforums[$forum['fid']] = $forum['lastread'];
 	}
 	$fpermissions = forum_permissions();
-	
+
 	// Inline Mod Column for moderators
 	$inlinemodcol = $inlinecookie = '';
 	$is_mod = $is_supermod = false;
@@ -256,20 +273,13 @@ if($mybb->input['action'] == "results")
 	if($search['resulttype'] == "threads")
 	{
 		$threadcount = 0;
-		
+
 		// Moderators can view unapproved threads
-		if($mybb->version_code < 1600)
-		{
-			$query = $db->simple_select("moderators", "fid", "uid='{$mybb->user['uid']}'");
-		}
-		else
-		{
-			$query = $db->simple_select("moderators", "fid", "(id='{$mybb->user['uid']}' AND isgroup='0') OR (id='{$mybb->user['usergroup']}' AND isgroup='1')");
-		}
+		$query = $db->simple_select("moderators", "fid", "(id='{$mybb->user['uid']}' AND isgroup='0') OR (id='{$mybb->user['usergroup']}' AND isgroup='1')");
 		if($mybb->usergroup['issupermod'] == 1)
 		{
 			// Super moderators (and admins)
-			$unapproved_where = "t.visible>-1";
+			$unapproved_where = "t.visible>=-1";
 		}
 		elseif($db->num_rows($query))
 		{
@@ -279,19 +289,19 @@ if($mybb->input['action'] == "results")
 			{
 				$moderated_forums .= ','.$forum['fid'];
 			}
-			$unapproved_where = "(t.visible>0 OR (t.visible=0 AND t.fid IN ({$moderated_forums})))";
+			$unapproved_where = "(t.visible>0 OR (t.visible IN (-1,0) AND t.fid IN ({$moderated_forums})))";
 		}
 		else
 		{
 			// Normal users
 			$unapproved_where = 't.visible>0';
 		}
-		
+
 		// If we have saved WHERE conditions, execute them
 		if($search['querycache'] != "")
 		{
 			$where_conditions = $search['querycache'];
-			$query = $db->simple_select("threads t", "t.tid", $where_conditions. " AND {$unapproved_where} AND t.closed NOT LIKE 'moved|%' {$limitsql}");
+			$query = $db->simple_select("threads t", "t.tid", $where_conditions. " AND {$unapproved_where} AND t.closed NOT LIKE 'moved|%' ORDER BY t.lastpost DESC {$limitsql}");
 			while($thread = $db->fetch_array($query))
 			{
 				$threads[$thread['tid']] = $thread['tid'];
@@ -322,7 +332,35 @@ if($mybb->input['action'] == "results")
 			}
 			$threadcount = $count['resultcount'];
 		}
-		
+
+		$permsql = "";
+		$onlyusfids = array();
+
+		// Check group permissions if we can't view threads not started by us
+		$group_permissions = forum_permissions();
+		foreach($group_permissions as $fid => $forum_permissions)
+		{
+			if(isset($forum_permissions['canonlyviewownthreads']) && $forum_permissions['canonlyviewownthreads'] == 1)
+			{
+				$onlyusfids[] = $fid;
+			}
+		}
+		if(!empty($onlyusfids))
+		{
+			$permsql .= "AND ((t.fid IN(".implode(',', $onlyusfids).") AND t.uid='{$mybb->user['uid']}') OR t.fid NOT IN(".implode(',', $onlyusfids)."))";
+		}
+
+		$unsearchforums = get_unsearchable_forums();
+		if($unsearchforums)
+		{
+			$permsql .= " AND t.fid NOT IN ($unsearchforums)";
+		}
+		$inactiveforums = get_inactive_forums();
+		if($inactiveforums)
+		{
+			$permsql .= " AND t.fid NOT IN ($inactiveforums)";
+		}
+
 		// Begin selecting matching threads, cache them.
 		$sqlarray = array(
 			'order_by' => $sortfield,
@@ -330,48 +368,38 @@ if($mybb->input['action'] == "results")
 			'limit_start' => $start,
 			'limit' => $perpage
 		);
-		if($mybb->version_code < 1600)
-		{
-			$query = $db->query("
-				SELECT t.*, u.username AS userusername
-				FROM ".TABLE_PREFIX."threads t
-				LEFT JOIN ".TABLE_PREFIX."users u ON (u.uid=t.uid)
-				WHERE $where_conditions AND {$unapproved_where} AND t.closed NOT LIKE 'moved|%'
-				ORDER BY $sortfield $order
-				LIMIT $start, $perpage
-			");
-		}
-		else
-		{
-			$query = $db->query("
-				SELECT t.*, u.username AS userusername, p.displaystyle AS threadprefix
-				FROM ".TABLE_PREFIX."threads t
-				LEFT JOIN ".TABLE_PREFIX."users u ON (u.uid=t.uid)
-				LEFT JOIN ".TABLE_PREFIX."threadprefixes p ON (p.pid=t.prefix)
-				WHERE $where_conditions AND {$unapproved_where} AND t.closed NOT LIKE 'moved|%'
-				ORDER BY $sortfield $order
-				LIMIT $start, $perpage
-			");
-		}
+		$query = $db->query("
+			SELECT t.*, u.username AS userusername
+			FROM ".TABLE_PREFIX."threads t
+			LEFT JOIN ".TABLE_PREFIX."users u ON (u.uid=t.uid)
+			WHERE $where_conditions AND {$unapproved_where} {$permsql} AND t.closed NOT LIKE 'moved|%'
+			ORDER BY $sortfield $order
+			LIMIT $start, $perpage
+		");
+
+		$threadprefixes = build_prefixes();
 		$thread_cache = array();
 		while($thread = $db->fetch_array($query))
 		{
+			$thread['threadprefix'] = '';
+			if($thread['prefix'] && !empty($threadprefixes[$thread['prefix']]))
+			{
+				$thread['threadprefix'] = $threadprefixes[$thread['prefix']]['displaystyle'];
+			}
 			$thread_cache[$thread['tid']] = $thread;
 		}
 		$thread_ids = implode(",", array_keys($thread_cache));
-		
-		if($mybb->version_code >= 1600)
+
+		if(empty($thread_ids))
 		{
-			if(empty($thread_ids))
-			{
-				error($lang->error_nosearchresults);
-			}
+			error($lang->error_nosearchresults);
 		}
 
 		// Fetch dot icons if enabled
 		if($mybb->settings['dotfolders'] != 0 && $mybb->user['uid'] && $thread_cache)
 		{
-			$query = $db->simple_select("posts", "DISTINCT tid,uid", "uid='".$mybb->user['uid']."' AND tid IN(".$thread_ids.")");
+			$p_unapproved_where = str_replace('t.', '', $unapproved_where);
+			$query = $db->simple_select("posts", "DISTINCT tid,uid", "uid='{$mybb->user['uid']}' AND tid IN({$thread_ids}) AND {$p_unapproved_where}");
 			while($thread = $db->fetch_array($query))
 			{
 				$thread_cache[$thread['tid']]['dot_icon'] = 1;
@@ -418,10 +446,13 @@ if($mybb->input['action'] == "results")
 			$thread['subject'] = $parser->parse_badwords($thread['subject']);
 			$thread['subject'] = htmlspecialchars_uni($thread['subject']);
 
-			if($icon_cache[$thread['icon']])
+			if(isset($icon_cache[$thread['icon']]))
 			{
 				$posticon = $icon_cache[$thread['icon']];
-				$icon = "<img src=\"".$posticon['path']."\" alt=\"".$posticon['name']."\" />";
+				$posticon['path'] = str_replace("{theme}", $theme['imgdir'], $posticon['path']);
+				$posticon['path'] = htmlspecialchars_uni($posticon['path']);
+				$posticon['name'] = htmlspecialchars_uni($posticon['name']);
+				eval("\$icon = \"".$templates->get("search_results_icon")."\";");
 			}
 			else
 			{
@@ -435,7 +466,7 @@ if($mybb->input['action'] == "results")
 			// Determine the folder
 			$folder = '';
 			$folder_label = '';
-			if($thread['dot_icon'])
+			if(isset($thread['dot_icon']))
 			{
 				$folder = "dot_";
 				$folder_label .= $lang->icon_dot;
@@ -444,11 +475,11 @@ if($mybb->input['action'] == "results")
 			$isnew = 0;
 			$donenew = 0;
 			$last_read = 0;
-			
+
 			if($mybb->settings['threadreadcut'] > 0 && $mybb->user['uid'])
 			{
 				$forum_read = $readforums[$thread['fid']];
-			
+
 				$read_cutoff = TIME_NOW-$mybb->settings['threadreadcut']*60*60*24;
 				if($forum_read == 0 || $forum_read < $read_cutoff)
 				{
@@ -459,7 +490,7 @@ if($mybb->input['action'] == "results")
 			{
 				$forum_read = $forumsread[$thread['fid']];
 			}
-			
+
 			if($mybb->settings['threadreadcut'] > 0 && $mybb->user['uid'] && $thread['lastpost'] > $forum_read)
 			{
 				if($thread['lastread'])
@@ -475,7 +506,7 @@ if($mybb->input['action'] == "results")
 			{
 				$last_read = my_get_array_cookie("threadread", $thread['tid']);
 			}
-	
+
 			if($forum_read > $last_read)
 			{
 				$last_read = $forum_read;
@@ -492,11 +523,7 @@ if($mybb->input['action'] == "results")
 			}
 			else
 			{
-				$new_class = '';
-				if($mybb->version_code >= 1600)
-				{
-					$new_class = 'subject_old';
-				}
+				$new_class = 'subject_old';
 				$folder_label .= $lang->icon_no_new;
 			}
 
@@ -511,7 +538,7 @@ if($mybb->input['action'] == "results")
 				$folder_label .= $lang->icon_lock;
 			}
 			$folder .= "folder";
-			
+
 			if(!$mybb->settings['postsperpage'])
 			{
 				$mybb->settings['postperpage'] = 20;
@@ -829,7 +856,7 @@ if($mybb->input['action'] == "results")
 		$dot_icon = array();
 		if($mybb->settings['dotfolders'] != 0 && $mybb->user['uid'] != 0)
 		{
-			$query = $db->simple_select("posts", "DISTINCT tid,uid", "uid='".$mybb->user['uid']."' AND tid IN(".$db->escape_string($tids).")");
+			$query = $db->simple_select("posts", "DISTINCT tid,uid", "uid='{$mybb->user['uid']}' AND tid IN({$db->escape_string($tids)}) AND {$p_unapproved_where}");
 			while($post = $db->fetch_array($query))
 			{
 				$dot_icon[$post['tid']] = true;
@@ -845,22 +872,24 @@ if($mybb->input['action'] == "results")
 			$tyl_puid = "tyl.uid=".$tyl_uid;
 		}
 		$query = $db->query("
-			SELECT p.*, u.username AS userusername, t.subject AS thread_subject, t.replies AS thread_replies, t.views AS thread_views, t.lastpost AS thread_lastpost, t.closed AS thread_closed, t.uid AS thread_uid, tyl.dateline AS tyl_dateline
+			SELECT p.*, u.username AS userusername, t.subject AS thread_subject, t.replies AS thread_replies, t.views AS thread_views, t.lastpost AS thread_lastpost, t.closed AS thread_closed, t.uid as thread_uid
 			FROM ".TABLE_PREFIX."posts p
 			LEFT JOIN ".TABLE_PREFIX."threads t ON (t.tid=p.tid)
 			LEFT JOIN ".TABLE_PREFIX."users u ON (u.uid=p.uid)
-			LEFT JOIN ".TABLE_PREFIX.$prefix."thankyoulike tyl ON (tyl.pid=p.pid AND $tyl_puid)
 			WHERE p.pid IN (".$db->escape_string($search['posts']).")
 			ORDER BY $sortfield $order
 			LIMIT $start, $perpage
 		");
-
 		while($post = $db->fetch_array($query))
 		{
 			$bgcolor = alt_trow();
-			if(!$post['visible'])
+			if($post['visible'] == 0)
 			{
 				$bgcolor = 'trow_shaded';
+			}
+			elseif($post['visible'] == -1)
+			{
+				$bgcolor = 'trow_shaded trow_deleted';
 			}
 			if($post['userusername'])
 			{
@@ -871,17 +900,20 @@ if($mybb->input['action'] == "results")
 			$post['thread_subject'] = $parser->parse_badwords($post['thread_subject']);
 			$post['thread_subject'] = htmlspecialchars_uni($post['thread_subject']);
 
-			if($icon_cache[$post['icon']])
+			if(isset($icon_cache[$post['icon']]))
 			{
 				$posticon = $icon_cache[$post['icon']];
-				$icon = "<img src=\"".$posticon['path']."\" alt=\"".$posticon['name']."\" />";
+				$posticon['path'] = str_replace("{theme}", $theme['imgdir'], $posticon['path']);
+				$posticon['path'] = htmlspecialchars_uni($posticon['path']);
+				$posticon['name'] = htmlspecialchars_uni($posticon['name']);
+				eval("\$icon = \"".$templates->get("search_results_icon")."\";");
 			}
 			else
 			{
 				$icon = "&nbsp;";
 			}
 
-			if($forumcache[$thread['fid']])
+			if(!empty($forumcache[$thread['fid']]))
 			{
 				$post['forumlink'] = "<a href=\"".get_forum_link($post['fid'])."\">".$forumcache[$post['fid']]['name']."</a>";
 			}
@@ -897,7 +929,23 @@ if($mybb->input['action'] == "results")
 			$donenew = 0;
 			$last_read = 0;
 			$post['thread_lastread'] = $readthreads[$post['tid']];
-			if($mybb->settings['threadreadcut'] > 0 && $mybb->user['uid'] && $post['thread_lastpost'] > $forumread)
+
+			if($mybb->settings['threadreadcut'] > 0 && $mybb->user['uid'])
+			{
+				$forum_read = $readforums[$post['fid']];
+
+				$read_cutoff = TIME_NOW-$mybb->settings['threadreadcut']*60*60*24;
+				if($forum_read == 0 || $forum_read < $read_cutoff)
+				{
+					$forum_read = $read_cutoff;
+				}
+			}
+			else
+			{
+				$forum_read = $forumsread[$post['fid']];
+			}
+
+			if($mybb->settings['threadreadcut'] > 0 && $mybb->user['uid'] && $post['thread_lastpost'] > $forum_read)
 			{
 				$cutoff = TIME_NOW-$mybb->settings['threadreadcut']*60*60*24;
 				if($post['thread_lastpost'] > $cutoff)
@@ -913,7 +961,7 @@ if($mybb->input['action'] == "results")
 				}
 			}
 
-			if($dot_icon[$post['tid']])
+			if(isset($dot_icon[$post['tid']]))
 			{
 				$folder = "dot_";
 				$folder_label .= $lang->icon_dot;
@@ -953,7 +1001,7 @@ if($mybb->input['action'] == "results")
 				$folder .= "hot";
 				$folder_label .= $lang->icon_hot;
 			}
-			if($thread['thread_closed'] == 1)
+			if($post['thread_closed'] == 1)
 			{
 				$folder .= "lock";
 				$folder_label .= $lang->icon_lock;
