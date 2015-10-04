@@ -61,6 +61,6 @@ $l['tyl_collapsible_desc'] = "Deseas habiitar la lista colapsable (Mostrar/escon
 $l['tyl_colldefault_title'] = "Estado de la lista colapsable";
 $l['tyl_colldefault_desc'] = "Como aparecerá la lista de los aagradecimientos/me gusta recibidos en los mensajes, abierta o cerrada(oculta)?";
 
-$l['tyl_hidelistforgoups_title'] = "";
-$l['tyl_hidelistforgoups_desc'] = "";
+$l['tyl_hidelistforgroups_desc'] = "";
+$l['tyl_hidelistforgroups_desc'] = "";
 ?>

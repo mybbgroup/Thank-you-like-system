@@ -60,6 +60,6 @@ $l['tyl_collapsible_desc'] = "Do you want the Thanks/Like list to be collapsible
 $l['tyl_colldefault_title'] = "Default Collapsible State";
 $l['tyl_colldefault_desc'] = "If you want the list to be collapsible, what is the default state you want it in when the page loads, open or closed (hidden)?";
 
-$l['tyl_hidelistforgoups_title'] = "Hide ThankYou/Like List";
-$l['tyl_hidelistforgoups_desc'] = "Select User Groups which cannot see Thanks/Like list.";
+$l['tyl_hidelistforgroups_title'] = "Hide ThankYou/Like List";
+$l['tyl_hidelistforgroups_desc'] = "Select User Groups which cannot see Thanks/Like list.";
 ?>
