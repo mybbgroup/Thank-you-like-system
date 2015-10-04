@@ -330,7 +330,12 @@ dtdesc=Date/Time Added Descending',
 				'optionscode'		=> 'radio
 open=List Shown
 closed=List Hidden (Collapsed)',
-				'value'				=> 'open')
+				'value'				=> 'open'),
+		'hidelistforgoups' 		=> array(
+				'title'				=> $lang->tyl_hidelistforgoups_title,
+				'description'		=> $lang->tyl_hidelistforgoups_desc,
+				'optionscode'		=> 'groupselect',
+				'value'				=> '')
 	);
 	
 	$x = 1;
@@ -942,7 +947,7 @@ function thankyoulike_postbit(&$post)
 			}
 		} 
 		
-		if($count>0 && (($mybb->settings[$prefix.'firstall'] == "first" && $thread['firstpost'] == $post['pid']) || $mybb->settings[$prefix.'firstall'] == "all"))
+		if($count>0 && ((($mybb->settings[$prefix.'firstall'] == "first" && $thread['firstpost'] == $post['pid']) || $mybb->settings[$prefix.'firstall'] == "all") && !is_member($mybb->settings[$prefix.'hidelistforgoups']) && $mybb->settings[$prefix.'hidelistforgoups'] != "-1"))
 		{
 			// We have thanks/likes to show
 			$post['thankyoulike'] = $tyls;
