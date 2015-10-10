@@ -61,7 +61,7 @@ $url_S = '<a href="https://github.com/Cu8eR/thankyou-like-plugin" target="_blank
 		"website"	=> "http://community.mybb.com/thread-169382.html",
 		"author"	=> "- G33K -",
 		"authorsite"	=> "http://community.mybboard.net/user-19236.html",
-		"version"	=> "1.9.7",
+		"version"	=> "1.9.8",
 		"codename"	=> "thankyoulikesystem",
 		"compatibility"	=> "18*"
     );
@@ -99,7 +99,7 @@ $url_S = '<a href="https://github.com/Cu8eR/thankyou-like-plugin" target="_blank
 		$info_desc .= '<form action="https://www.paypal.com/cgi-bin/webscr" method="post" style="float: right;" target="_blank">
 <input type="hidden" name="cmd" value="_s-xclick">
 <input type="hidden" name="hosted_button_id" value="KCNAC5PE828X8">
-<input type="image" src="https://www.paypalobjects.com/en_US/i/btn/btn_donate_SM.gif" border="0" name="submit" alt="PayPal - The safer, easier way to pay online!">
+<input type="image" src="https://www.paypalobjects.com/webstatic/en_US/btn/btn_donate_pp_142x27.png" border="0" name="submit" alt="PayPal - The safer, easier way to pay online!">
 <img alt="" border="0" src="https://www.paypalobjects.com/en_US/i/scr/pixel.gif" width="1" height="1">
 </form>';
 	}
@@ -118,7 +118,8 @@ $url_S = '<a href="https://github.com/Cu8eR/thankyou-like-plugin" target="_blank
     return $info;
 }
 
-function thankyoulike_admin_load(){
+function thankyoulike_admin_load()
+{
 	global $page, $mybb;
 	if($mybb->input['action'] == 'tyl_myalerts_integrate')
 	{
@@ -127,7 +128,8 @@ function thankyoulike_admin_load(){
 	}
 }
 
-function tyl_myalerts_integrate(){
+function tyl_myalerts_integrate()
+{
 	global $db, $cache;
 	// Verify if myalerts exists and if compatible with 1.8.x then add alert type
 	if(function_exists("myalerts_info")){
@@ -156,11 +158,14 @@ function tyl_myalerts_integrate(){
 
 function thankyoulike_install()
 {
-	global $mybb, $db, $lang;
-	$lang->load('config_thankyoulike');
+	global $mybb, $db;
 	
 	$codename = basename(__FILE__, ".php");
 	$prefix = 'g33k_'.$codename.'_';
+	$info = thankyoulike_info();
+	
+	// Remove first to clean up any template edits left from previous installs
+	thankyoulike_uninstall();
 	
 	if(!$db->field_exists('tyl_pnumtyls', 'posts'))
 	{
@@ -232,6 +237,132 @@ function thankyoulike_install()
 
 		$db->insert_query($prefix."stats", $total_data);
 	}
+	
+	// Insert Template elements
+	$templateset = array(
+	    "prefix" => "thankyoulike",
+	    "title" => "ThankYou/Like",
+    );
+	$db->insert_query("templategroups", $templateset);
+	
+	$tyl_templates = array(
+		'thankyoulike'			=> "<div class=\"post_controls tyllist {\$unapproved_shade}\">
+	{\$tyl_expcol} 
+	<span id=\"tyl_title_{\$post['pid']}\" style=\"{\$tyl_title_display}\">{\$lang->tyl_title}</span><span id=\"tyl_title_collapsed_{\$post['pid']}\" style=\"{\$tyl_title_display_collapsed}\">{\$lang->tyl_title_collapsed}</span><br />
+	<span id=\"tyl_data_{\$post['pid']}\" style=\"{\$tyl_data_display}\">&nbsp;&nbsp;• {\$post['thankyoulike']}</span>
+</div>",
+		'thankyoulike_classic'		=> "<div class=\"post_controls tyllist_classic {\$unapproved_shade}\">
+	{\$tyl_expcol} 
+	<span id=\"tyl_title_{\$post['pid']}\" style=\"{\$tyl_title_display}\">{\$lang->tyl_title}</span><span id=\"tyl_title_collapsed_{\$post['pid']}\" style=\"{\$tyl_title_display_collapsed}\">{\$lang->tyl_title_collapsed}</span><br />
+	<span id=\"tyl_data_{\$post['pid']}\" style=\"{\$tyl_data_display}\">&nbsp;&nbsp;• {\$post['thankyoulike']}</span>
+</div>",
+		'thankyoulike_expcollapse'	=> "<a href=\"#\" onclick=\"thankyoulike.tgl({\$post['pid']});return false;\" title=\"{\$tyl_showhide}\" id=\"tyl_a_expcol_{\$post['pid']}\"><img src=\"{\$theme['imgdir']}/{\$tyl_expcolimg}\" alt=\"{\$tyl_showhide}\" id=\"tyl_i_expcol_{\$post['pid']}\" /></a> ",
+		'thankyoulike_button_add'	=> "<div id=\"tyl_btn_{\$post['pid']}\" class=\"postbit_buttons\"><a class=\"add_tyl_button\" href=\"thankyoulike.php?action=add&amp;pid={\$post['pid']}&amp;my_post_key={\$mybb->post_code}\" onclick=\"return thankyoulike.add({\$post['pid']}, {\$post['tid']});\" title=\"{\$lang->add_tyl}\" id=\"tyl_a{\$post['pid']}\"><span id=\"tyl_i{\$post['pid']}\">{\$lang->add_tyl}</span></a></div>",
+		'thankyoulike_button_del'	=> "<div id=\"tyl_btn_{\$post['pid']}\" class=\"postbit_buttons\"><a class=\"del_tyl_button\" href=\"thankyoulike.php?action=del&amp;pid={\$post['pid']}&amp;my_post_key={\$mybb->post_code}\" onclick=\"return thankyoulike.del({\$post['pid']}, {\$post['tid']});\" title=\"{\$lang->del_tyl}\" id=\"tyl_a{\$post['pid']}\"><span id=\"tyl_i{\$post['pid']}\">{\$lang->del_tyl}</span></a></div>",
+		'thankyoulike_users'		=> "<span class=\"smalltext\">{\$comma}</span><a href=\"{\$profile_link}\" class=\"smalltext\" {\$datedisplay_title}>{\$tyl_list}</a>{\$datedisplay_next}",
+		'thankyoulike_postbit'		=> "{\$lang->tyl_rcvd}: {\$post['tyl_unumrtyls']}
+<br />
+{\$lang->tyl_given}: {\$post['tyl_unumtyls']}",
+		'thankyoulike_memprofile'	=> "<tr>
+	<td class=\"trow1\"><strong>{\$lang->tyl_total_tyls_rcvd}</strong></td>
+	<td class=\"trow1\">{\$memprofile['tyl_unumrcvtyls']} ({\$tylrcvpd_percent_total})<br /><span class=\"smalltext\">(<a href=\"tylsearch.php?action=usertylforthreads&amp;uid={\$uid}\">{\$lang->tyl_find_threads_for}</a> &mdash; <a href=\"tylsearch.php?action=usertylforposts&amp;uid={\$uid}\">{\$lang->tyl_find_posts_for}</a>)</span></td>
+</tr>
+<tr>
+	<td class=\"trow2\"><strong>{\$lang->tyl_total_tyls_given}</strong></td>
+	<td class=\"trow2\">{\$memprofile['tyl_unumtyls']} ({\$tylpd_percent_total})<br /><span class=\"smalltext\">(<a href=\"tylsearch.php?action=usertylthreads&amp;uid={\$uid}\">{\$lang->tyl_find_threads}</a> &mdash; <a href=\"tylsearch.php?action=usertylposts&amp;uid={\$uid}\">{\$lang->tyl_find_posts}</a>)</span></td>
+</tr>"
+	);
+	
+	foreach($tyl_templates as $template_title => $template_data)
+	{
+		$insert_templates = array(
+			'title' => $db->escape_string($template_title),
+			'template' => $db->escape_string($template_data),
+			'sid' => "-2",
+			'version' => $info['intver'],
+			'dateline' => TIME_NOW
+			);
+		$db->insert_query('templates', $insert_templates);
+	}
+	
+	// css-class for g33k_thankyoulike	
+	$css = array(
+	"name" => "g33k_thankyoulike.css",
+	"tid" => 1,
+	"attachedto" => "showthread.php",
+	"stylesheet" => "div[id^=tyl_btn_] {
+	display: inline-block;
+}
+
+a.add_tyl_button span{
+	background-image: url(images/thankyoulike/tyl_add.png);
+	background-repeat: no-repeat;
+	font-weight: bold;
+}
+
+a.del_tyl_button span{
+	background-image: url(images/thankyoulike/tyl_del.png);
+	background-repeat: no-repeat;
+	font-weight: normal;
+}
+
+.tyllist{
+	background-color: #f5f5f5;
+	border-top: 1px dotted #ccc;
+	border-bottom: 1px dotted #ccc;
+	padding: 2px 5px;
+}
+
+.tyllist_classic{
+	background-color: #f5f5f5;
+	border-top: 1px dotted #ccc;
+	border-bottom: 1px dotted #ccc;
+	padding: 2px 5px;
+}
+
+img[id^=tyl_i_expcol_]{
+	vertical-align: bottom;
+}",
+    "cachefile" => $db->escape_string(str_replace('/', '', g33k_thankyoulike.css)),
+	"lastmodified" => TIME_NOW
+	);
+
+	require_once MYBB_ADMIN_DIR."inc/functions_themes.php";
+
+	$sid = $db->insert_query("themestylesheets", $css);
+	$db->update_query("themestylesheets", array("cachefile" => "css.php?stylesheet=".$sid), "sid = '".$sid."'", 1);
+
+	$tids = $db->simple_select("themes", "tid");
+	while($theme = $db->fetch_array($tids))
+	{
+		update_theme_stylesheet_list($theme['tid']);
+	}
+}
+
+function thankyoulike_is_installed()
+{
+	global $mybb, $db;
+	
+	$codename = basename(__FILE__, ".php");
+	$prefix = 'g33k_'.$codename.'_';
+	
+	$result = $db->simple_select('templategroups', 'gid', "prefix in ('thankyoulike')", array('limit' => 1));
+	$templategroup = $db->fetch_array($result);
+	
+	if($db->table_exists($prefix.'thankyoulike') && $db->table_exists($prefix.'stats') && $db->field_exists('tyl_pnumtyls', 'posts') && $db->field_exists('tyl_tnumtyls', 'threads') && $db->field_exists('tyl_unumtyls', 'users') && $db->field_exists('tyl_unumrcvtyls', 'users') && $db->field_exists('tyl_unumptyls', 'users') && !empty($templategroup['gid']))
+	{
+		return true;
+	}
+	return false;
+}
+
+function thankyoulike_activate()
+{
+	global $mybb, $db, $cache, $lang;
+	$lang->load('config_thankyoulike');
+	
+	$codename = basename(__FILE__, ".php");
+	$prefix = 'g33k_'.$codename.'_';
 	
 	// Insert settings in to the database
 	$query = $db->query("SELECT disporder FROM ".TABLE_PREFIX."settinggroups ORDER BY `disporder` DESC LIMIT 1");
@@ -354,81 +485,10 @@ closed=List Hidden (Collapsed)',
 		$db->insert_query('settings', $insert_settings);
 		$x++;
 	}
-}
-
-function thankyoulike_is_installed()
-{
-	global $mybb, $db;
 	
-	$codename = basename(__FILE__, ".php");
-	$prefix = 'g33k_'.$codename.'_';
-	
-	$result = $db->simple_select('settinggroups', 'gid', "name = '{$prefix}settings'", array('limit' => 1));
-	$group = $db->fetch_array($result);
-	
-	if($db->table_exists($prefix.'thankyoulike') && $db->table_exists($prefix.'stats') && $db->field_exists('tyl_pnumtyls', 'posts') && $db->field_exists('tyl_tnumtyls', 'threads') && $db->field_exists('tyl_unumtyls', 'users') && $db->field_exists('tyl_unumrcvtyls', 'users') && $db->field_exists('tyl_unumptyls', 'users') && !empty($group['gid']))
-	{
-		return true;
-	}
-	return false;
-
-}
-
-function thankyoulike_activate()
-{
-	global $mybb, $db, $cache;
-	
-	$codename = basename(__FILE__, ".php");
-	$prefix = 'g33k_'.$codename.'_';
-	
-	$info = thankyoulike_info();
+	rebuild_settings();
 	
 	require_once MYBB_ROOT."/inc/adminfunctions_templates.php";
-
-	// Insert Template elements
-	// Remove first to clean up any template edits left from previous installs
-	thankyoulike_deactivate();
-
-	// Now add
-	$tyl_templates = array(
-		'thankyoulike'			=> "<div class=\"post_controls tyllist {\$unapproved_shade}\">
-	{\$tyl_expcol} 
-	<span id=\"tyl_title_{\$post['pid']}\" style=\"{\$tyl_title_display}\">{\$lang->tyl_title}</span><span id=\"tyl_title_collapsed_{\$post['pid']}\" style=\"{\$tyl_title_display_collapsed}\">{\$lang->tyl_title_collapsed}</span><br />
-	<span id=\"tyl_data_{\$post['pid']}\" style=\"{\$tyl_data_display}\">&nbsp;&nbsp;• {\$post['thankyoulike']}</span>
-</div>",
-		'thankyoulike_classic'		=> "<div class=\"post_controls tyllist_classic {\$unapproved_shade}\">
-	{\$tyl_expcol} 
-	<span id=\"tyl_title_{\$post['pid']}\" style=\"{\$tyl_title_display}\">{\$lang->tyl_title}</span><span id=\"tyl_title_collapsed_{\$post['pid']}\" style=\"{\$tyl_title_display_collapsed}\">{\$lang->tyl_title_collapsed}</span><br />
-	<span id=\"tyl_data_{\$post['pid']}\" style=\"{\$tyl_data_display}\">&nbsp;&nbsp;• {\$post['thankyoulike']}</span>
-</div>",
-		'thankyoulike_expcollapse'	=> "<a href=\"#\" onclick=\"thankyoulike.tgl({\$post['pid']});return false;\" title=\"{\$tyl_showhide}\" id=\"tyl_a_expcol_{\$post['pid']}\"><img src=\"{\$theme['imgdir']}/{\$tyl_expcolimg}\" alt=\"{\$tyl_showhide}\" id=\"tyl_i_expcol_{\$post['pid']}\" /></a> ",
-		'thankyoulike_button_add'	=> "<div id=\"tyl_btn_{\$post['pid']}\" class=\"postbit_buttons\"><a class=\"add_tyl_button\" href=\"thankyoulike.php?action=add&amp;pid={\$post['pid']}&amp;my_post_key={\$mybb->post_code}\" onclick=\"return thankyoulike.add({\$post['pid']}, {\$post['tid']});\" title=\"{\$lang->add_tyl}\" id=\"tyl_a{\$post['pid']}\"><span id=\"tyl_i{\$post['pid']}\">{\$lang->add_tyl}</span></a></div>",
-		'thankyoulike_button_del'	=> "<div id=\"tyl_btn_{\$post['pid']}\" class=\"postbit_buttons\"><a class=\"del_tyl_button\" href=\"thankyoulike.php?action=del&amp;pid={\$post['pid']}&amp;my_post_key={\$mybb->post_code}\" onclick=\"return thankyoulike.del({\$post['pid']}, {\$post['tid']});\" title=\"{\$lang->del_tyl}\" id=\"tyl_a{\$post['pid']}\"><span id=\"tyl_i{\$post['pid']}\">{\$lang->del_tyl}</span></a></div>",
-		'thankyoulike_users'		=> "<span class=\"smalltext\">{\$comma}</span><a href=\"{\$profile_link}\" class=\"smalltext\" {\$datedisplay_title}>{\$tyl_list}</a>{\$datedisplay_next}",
-		'thankyoulike_postbit'		=> "{\$lang->tyl_rcvd}: {\$post['tyl_unumrtyls']}
-<br />
-{\$lang->tyl_given}: {\$post['tyl_unumtyls']}",
-		'thankyoulike_memprofile'	=> "<tr>
-	<td class=\"trow1\"><strong>{\$lang->tyl_total_tyls_rcvd}</strong></td>
-	<td class=\"trow1\">{\$memprofile['tyl_unumrcvtyls']} ({\$tylrcvpd_percent_total})<br /><span class=\"smalltext\">(<a href=\"tylsearch.php?action=usertylforthreads&amp;uid={\$uid}\">{\$lang->tyl_find_threads_for}</a> &mdash; <a href=\"tylsearch.php?action=usertylforposts&amp;uid={\$uid}\">{\$lang->tyl_find_posts_for}</a>)</span></td>
-</tr>
-<tr>
-	<td class=\"trow2\"><strong>{\$lang->tyl_total_tyls_given}</strong></td>
-	<td class=\"trow2\">{\$memprofile['tyl_unumtyls']} ({\$tylpd_percent_total})<br /><span class=\"smalltext\">(<a href=\"tylsearch.php?action=usertylthreads&amp;uid={\$uid}\">{\$lang->tyl_find_threads}</a> &mdash; <a href=\"tylsearch.php?action=usertylposts&amp;uid={\$uid}\">{\$lang->tyl_find_posts}</a>)</span></td>
-</tr>"
-	);
-	
-	foreach($tyl_templates as $template_title => $template_data)
-	{
-		$insert_templates = array(
-			'title' => $db->escape_string($template_title),
-			'template' => $db->escape_string($template_data),
-			'sid' => "-1",
-			'version' => $info['intver'],
-			'dateline' => TIME_NOW
-			);
-		$db->insert_query('templates', $insert_templates);
-	}
 	
 	find_replace_templatesets("showthread", "#".preg_quote('</head>')."#i", '<script type="text/javascript" src="{$mybb->settings[\'bburl\']}/jscripts/thankyoulike.js"></script>
 <script type="text/javascript">
@@ -438,7 +498,7 @@ function thankyoulike_activate()
 	var tylUser = "{$mybb->user[\'uid\']}";
 	var tylSend = "{$lang->tyl_send}";
 	var tylRemove = "{$lang->tyl_remove}";
--->
+// -->
 </script>
 </head>');
 
@@ -452,8 +512,6 @@ function thankyoulike_activate()
 	{
 		find_replace_templatesets("member_profile", '#{\$reputation}(\r?)\n#', "{\$tyl_memprofile}\n{\$reputation}\n");
 	} 
-
-	rebuild_settings();
 
 	// Verify if myalerts exists and if it is compatible with 1.8.x, then add alert type
 	if(function_exists("myalerts_info")){
@@ -475,60 +533,6 @@ function thankyoulike_activate()
 			}
 		}
 	}
-	
-	// css-class for g33k_thankyoulike	
-	$css = array(
-	"name" => "g33k_thankyoulike.css",
-	"tid" => 1,
-	"attachedto" => "showthread.php",
-	"stylesheet" => "div[id^=tyl_btn_] {
-	display: inline-block;
-}
-
-a.add_tyl_button span{
-	background-image: url(images/thankyoulike/tyl_add.png);
-	background-repeat: no-repeat;
-	font-weight: bold;
-}
-
-a.del_tyl_button span{
-	background-image: url(images/thankyoulike/tyl_del.png);
-	background-repeat: no-repeat;
-	font-weight: normal;
-}
-
-.tyllist{
-	background-color: #f5f5f5;
-	border-top: 1px dotted #ccc;
-	border-bottom: 1px dotted #ccc;
-	padding: 2px 5px;
-}
-
-.tyllist_classic{
-	background-color: #f5f5f5;
-	border-top: 1px dotted #ccc;
-	border-bottom: 1px dotted #ccc;
-	padding: 2px 5px;
-}
-
-img[id^=tyl_i_expcol_]{
-	vertical-align: bottom;
-}",
-    "cachefile" => $db->escape_string(str_replace('/', '', g33k_thankyoulike.css)),
-	"lastmodified" => TIME_NOW
-	);
-
-	require_once MYBB_ADMIN_DIR."inc/functions_themes.php";
-
-	$sid = $db->insert_query("themestylesheets", $css);
-	$db->update_query("themestylesheets", array("cachefile" => "css.php?stylesheet=".$sid), "sid = '".$sid."'", 1);
-
-	$tids = $db->simple_select("themes", "tid");
-	while($theme = $db->fetch_array($tids))
-	{
-		update_theme_stylesheet_list($theme['tid']);
-	}
-
 }
 
 function thankyoulike_deactivate()
@@ -538,37 +542,30 @@ function thankyoulike_deactivate()
 	$codename = basename(__FILE__, ".php");
 	$prefix = 'g33k_'.$codename.'_';
 	
-	$info = thankyoulike_info();
-
-	// Remove templates
-	$db->delete_query("templates", "title='thankyoulike'");
-	$db->delete_query("templates", "title='thankyoulike_classic'");
-	$db->delete_query("templates", "title='thankyoulike_expcollapse'");
-	$db->delete_query("templates", "title='thankyoulike_button_add'");
-	$db->delete_query("templates", "title='thankyoulike_button_del'");
-	$db->delete_query("templates", "title='thankyoulike_users'");
-	$db->delete_query("templates", "title='thankyoulike_postbit'");
-	$db->delete_query("templates", "title='thankyoulike_memprofile'");
+	// Remove settings
+	$result = $db->simple_select('settinggroups', 'gid', "name = '{$prefix}settings'", array('limit' => 1));
+	$group = $db->fetch_array($result);
+	
+	if(!empty($group['gid']))
+	{
+		$db->delete_query('settinggroups', "gid='{$group['gid']}'");
+		$db->delete_query('settings', "gid='{$group['gid']}'");
+		rebuild_settings();
+	}
 	
 	require_once MYBB_ROOT."/inc/adminfunctions_templates.php";
 
-	find_replace_templatesets("showthread", "#".preg_quote('<script type="text/javascript" src="{$mybb->settings[\'bburl\']}/jscripts/thankyoulike.js"></script>')."#i", '', 0);
-	find_replace_templatesets("showthread", "#".preg_quote('<script type="text/javascript">
-<!--
-	var tylEnabled = "{$mybb->settings[\'g33k_thankyoulike_enabled\']}";
-	var tylCollapsible = "{$mybb->settings[\'g33k_thankyoulike_collapsible\']}";
-	var tylUser = "{$mybb->user[\'uid\']}";
--->
-</script>')."#i", '', 0);
-	find_replace_templatesets("showthread", "#".preg_quote('<script type="text/javascript">
+	find_replace_templatesets("showthread", "#".preg_quote('<script type="text/javascript" src="{$mybb->settings[\'bburl\']}/jscripts/thankyoulike.js"></script>
+<script type="text/javascript">
 <!--
 	var tylEnabled = "{$mybb->settings[\'g33k_thankyoulike_enabled\']}";
 	var tylCollapsible = "{$mybb->settings[\'g33k_thankyoulike_collapsible\']}";
 	var tylUser = "{$mybb->user[\'uid\']}";
 	var tylSend = "{$lang->tyl_send}";
-	var tylRemove = "{$lang->tyl_remove}";	
--->
-</script>')."#i", '', 0);
+	var tylRemove = "{$lang->tyl_remove}";
+// -->
+</script>
+</head>')."#i", '</head>', 0);
 
 	find_replace_templatesets("postbit", "#".preg_quote('<div style="{$post[\'tyl_display\']}" id="tyl_{$post[\'pid\']}">{$post[\'thankyoulike_data\']}</div>')."(\r?)\n#", '', 0);
 	find_replace_templatesets("postbit_classic", "#".preg_quote('<div style="{$post[\'tyl_display\']}" id="tyl_{$post[\'pid\']}">{$post[\'thankyoulike_data\']}</div>')."(\r?)\n#", '', 0);
@@ -590,18 +587,7 @@ function thankyoulike_deactivate()
 				$alertTypeManager->deleteByCode('tyl');
 			}
 		}
-	}
-
-	require_once MYBB_ADMIN_DIR."inc/functions_themes.php";
-
-	$db->delete_query("themestylesheets", "name = 'g33k_thankyoulike.css'");
-
-	$query = $db->simple_select("themes", "tid");
-	while($theme = $db->fetch_array($query))
-	{
-		update_theme_stylesheet_list($theme['tid']);
-	}
-	
+	}	
 }
 
 function thankyoulike_uninstall()
@@ -611,15 +597,21 @@ function thankyoulike_uninstall()
 	$codename = basename(__FILE__, ".php");
 	$prefix = 'g33k_'.$codename.'_';
 	
-	// Remove settings
-	$result = $db->simple_select('settinggroups', 'gid', "name = '{$prefix}settings'", array('limit' => 1));
-	$group = $db->fetch_array($result);
+	// Remove templates
+	$templatearray = array("thankyoulike","thankyoulike_classic","thankyoulike_expcollapse","thankyoulike_button_add","thankyoulike_button_del","thankyoulike_users","thankyoulike_postbit","thankyoulike_memprofile");
+	$deltemplates = implode("','", $templatearray);
+	$db->delete_query("templates", "title in ('{$deltemplates}')");	
+	$db->delete_query("templategroups", "prefix in ('thankyoulike')");
 	
-	if(!empty($group['gid']))
+	// Remove CSS rules for g33k_thankyoulike	
+	require_once MYBB_ADMIN_DIR."inc/functions_themes.php";
+
+	$db->delete_query("themestylesheets", "name = 'g33k_thankyoulike.css'");
+
+	$query = $db->simple_select("themes", "tid");
+	while($theme = $db->fetch_array($query))
 	{
-		$db->delete_query('settinggroups', "gid='{$group['gid']}'");
-		$db->delete_query('settings', "gid='{$group['gid']}'");
-		rebuild_settings();
+		update_theme_stylesheet_list($theme['tid']);
 	}
 	
 	// This part will remove the database tables
@@ -1691,6 +1683,7 @@ function thankyoulike_settings_peeker()
 		new Peeker($$(".setting_'.$prefix.'enabled"), $("row_setting_'.$prefix.'sortorder"), /1/, true);
 		new Peeker($$(".setting_'.$prefix.'enabled"), $("row_setting_'.$prefix.'collapsible"), /1/, true);
 		new Peeker($$(".setting_'.$prefix.'enabled"), $("row_setting_'.$prefix.'colldefault"), /1/, true);
+		new Peeker($$(".setting_'.$prefix.'enabled"), $("row_setting_'.$prefix.'hidelistforgroups"), /1/, true);
 	}
 </script>';
 }
