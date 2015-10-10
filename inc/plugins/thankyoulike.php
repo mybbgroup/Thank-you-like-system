@@ -490,7 +490,7 @@ closed=List Hidden (Collapsed)',
 	
 	require_once MYBB_ROOT."/inc/adminfunctions_templates.php";
 	
-	find_replace_templatesets("showthread", "#".preg_quote('</head>')."#i", '<script type="text/javascript" src="{$mybb->settings[\'bburl\']}/jscripts/thankyoulike.js"></script>
+	find_replace_templatesets("showthread", "#".preg_quote('</head>')."#i", '<script type="text/javascript" src="{$mybb->settings[\'bburl\']}/jscripts/thankyoulike.min.js"></script>
 <script type="text/javascript">
 <!--
 	var tylEnabled = "{$mybb->settings[\'g33k_thankyoulike_enabled\']}";
@@ -555,7 +555,7 @@ function thankyoulike_deactivate()
 	
 	require_once MYBB_ROOT."/inc/adminfunctions_templates.php";
 
-	find_replace_templatesets("showthread", "#".preg_quote('<script type="text/javascript" src="{$mybb->settings[\'bburl\']}/jscripts/thankyoulike.js"></script>
+	find_replace_templatesets("showthread", "#".preg_quote('<script type="text/javascript" src="{$mybb->settings[\'bburl\']}/jscripts/thankyoulike.min.js"></script>
 <script type="text/javascript">
 <!--
 	var tylEnabled = "{$mybb->settings[\'g33k_thankyoulike_enabled\']}";
