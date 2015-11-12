@@ -31,8 +31,12 @@ function acp_tyl_recount()
 {
 	global $db, $mybb, $lang, $prefix;
 	
-	$page = intval($mybb->input['page']);
-	$per_page = intval($mybb->input['tyls']);
+	$page = $mybb->get_input('page', MyBB::INPUT_INT);
+	$per_page = $mybb->get_input('tyls', MyBB::INPUT_INT);
+	if($per_page <= 0)
+	{
+		$per_page = 500;
+	}
 	$start = ($page-1) * $per_page;
 	$end = $start + $per_page;
 	
@@ -201,10 +205,10 @@ function check_proceed($current, $finish, $next_page, $per_page, $name, $name2, 
 }
 
 if(!$mybb->input['action'])
-{
+{	
 	if($mybb->request_method == "post")
 	{	
-		if(!isset($mybb->input['page']) || intval($mybb->input['page']) < 1)
+		if(!isset($mybb->input['page']) || $mybb->get_input('page', MyBB::INPUT_INT) < 1)
 		{
 			$mybb->input['page'] = 1;
 		}
@@ -213,9 +217,9 @@ if(!$mybb->input['action'])
 			if($mybb->input['page'] == 1)
 			{
 				// Log admin action
-				//log_admin_action("userposts");
+				log_admin_action("Recounted ThankYou/Likes");
 			}
-			if(!intval($mybb->input['tyls']))
+			if(!$mybb->get_input('tyls', MyBB::INPUT_INT))
 			{
 				$mybb->input['tyls'] = 500;
 			}
