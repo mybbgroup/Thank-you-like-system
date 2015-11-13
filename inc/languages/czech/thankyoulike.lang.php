@@ -72,7 +72,7 @@ $l['myalerts_setting_tyl'] = 'Dostávat upozornění, pokud někdo přidá podě
 $l['myalerts_setting_tyl_like'] = 'Dostávat upozornění, pokud někdo přidá to se mi líbí k vašemu příspěvku?';
 $l['myalerts_setting_tyl_thanks'] = 'Dostávat upozornění, pokud někdo přidá poděkování k vašemu příspěvku?';
 
-$l['tyl_send_like'] = 'To se mi líbí úspěšně přidáno';
-$l['tyl_send_thanks'] = 'Poděkování úspěšně přidáno';
+$l['tyl_send_like'] = 'To se mi líbí přidáno k příspěvku';
+$l['tyl_send_thanks'] = 'Poděkování přidáno k přípěvku';
 $l['tyl_remove_like'] = 'To se mi líbí odebráno z příspěvku';
 $l['tyl_remove_thanks'] = 'Poděkování odebráno z příspěvku';
