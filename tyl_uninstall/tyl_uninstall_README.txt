@@ -1,1 +1,0 @@
-Copy/move file "tyl_unlock" into your forum root folder. Uninstalling will remove ALL the Thank you/Like data from the database. If you would like to preserve the Thank you/Like data while uninstalling then remove the tyl_unlock file from the forum root folder.
