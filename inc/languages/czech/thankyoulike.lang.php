@@ -65,9 +65,9 @@ $l['tyl_redirect_deleted'] = "Vaše {1} bylo odebráno z příspěvku";
 $l['tyl_redirect_back'] = "<br />Nyní budete přesměrování zpět na příspěvek.";
 
 
-$l['tyl_alert'] = '{1} přidal poděkování/to se mi líbí k vašemu příspěvku <b>"{2}"</b>';
-$l['tyl_alert_like'] = '{1} přidal to se mi líbí k vašemu příspěvku <b>"{2}"</b>';
-$l['tyl_alert_thanks'] = '{1} přidal poděkování k vašemu příspěvku <b>"{2}"</b>';
+$l['tyl_alert'] = '{1} přidal poděkování/to se mi líbí k vašemu příspěvku <strong>"{2}"</strong>';
+$l['tyl_alert_like'] = '{1} přidal to se mi líbí k vašemu příspěvku <strong>"{2}"</strong>';
+$l['tyl_alert_thanks'] = '{1} přidal poděkování k vašemu příspěvku <strong>"{2}"</strong>';
 $l['myalerts_setting_tyl'] = 'Dostávat upozornění, pokud někdo přidá poděkování/to se mi líbí k vašemu příspěvku?';
 $l['myalerts_setting_tyl_like'] = 'Dostávat upozornění, pokud někdo přidá to se mi líbí k vašemu příspěvku?';
 $l['myalerts_setting_tyl_thanks'] = 'Dostávat upozornění, pokud někdo přidá poděkování k vašemu příspěvku?';
