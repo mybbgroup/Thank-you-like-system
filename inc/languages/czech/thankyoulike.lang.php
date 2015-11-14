@@ -23,7 +23,7 @@ $l['tyl_says'] = "udelili";
 $l['tyl_say'] = "udělil";
 
 $l['tyl_title_ty'] = "<strong>Následující {1} {2} {3} poděkovali {4} za tento příspěvek:</strong>";
-$l['tyl_title_l'] = "<strong><strong>Celkem {1} {2} {3}, kteří udělili to se mi líbí {4} za tento příspěvek:</strong>";
+$l['tyl_title_l'] = "<strong>Celkem {1} {2} {3}, kteří udělili to se mi líbí {4} za tento příspěvek:</strong>";
 $l['tyl_title_collapsed_ty'] = "<strong>Následující {1} {2} {3} autorovi {4} za tento příspěvek</strong>";
 $l['tyl_title_collapsed_l'] = "<strong>Následující {1} {2} {3} autorovi {4} za tento příspěvek</strong>";
 
