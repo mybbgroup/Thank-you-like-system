@@ -62,4 +62,7 @@ $l['tyl_colldefault_desc'] = "If you want the list to be collapsible, what is th
 
 $l['tyl_hidelistforgroups_title'] = "Hide ThankYou/Like List";
 $l['tyl_hidelistforgroups_desc'] = "Select User Groups which cannot see Thanks/Like list.";
+
+$l['tyl_displaygrowl_title'] = "Display Add/Remove Notification Popup";
+$l['tyl_displaygrowl_desc'] = "Choose ON to enable the Ajax notification popup window.";
 ?>

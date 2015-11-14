@@ -46,8 +46,11 @@ var thankyoulike = {
 			{
 				type: 'post',
 				beforeSend:function(){
-					$.jGrowl(tylSend);			
-				}				
+					if(tylDisplayGrowl == 1)
+					{
+						$.jGrowl(tylSend);			
+					}
+				}
 			}).done(function(data)
 			{
 				thankyoulike.addDone(data, pid);
@@ -96,8 +99,11 @@ var thankyoulike = {
 			{
 				type: 'post',
 				beforeSend:function(){
-					$.jGrowl(tylRemove);			
-				}				
+					if(tylDisplayGrowl == 1)
+					{
+						$.jGrowl(tylRemove);			
+					}
+				}			
 			}).done(function(data)
 			{
 				thankyoulike.delDone(data, pid);

@@ -466,7 +466,12 @@ closed=List Hidden (Collapsed)',
 				'title'				=> $lang->tyl_hidelistforgroups_title,
 				'description'		=> $lang->tyl_hidelistforgroups_desc,
 				'optionscode'		=> 'groupselect',
-				'value'				=> '')
+				'value'				=> ''),
+		'displaygrowl' 		=> array(
+				'title'				=> $lang->tyl_displaygrowl_title,
+				'description'		=> $lang->tyl_displaygrowl_desc,
+				'optionscode'		=> 'onoff',
+				'value'				=> '1')
 	);
 	
 	$x = 1;
@@ -494,6 +499,7 @@ closed=List Hidden (Collapsed)',
 <script type="text/javascript">
 <!--
 	var tylEnabled = "{$mybb->settings[\'g33k_thankyoulike_enabled\']}";
+	var tylDisplayGrowl = "{$mybb->settings[\'g33k_thankyoulike_displaygrowl\']}";
 	var tylCollapsible = "{$mybb->settings[\'g33k_thankyoulike_collapsible\']}";
 	var tylUser = "{$mybb->user[\'uid\']}";
 	var tylSend = "{$lang->tyl_send}";
@@ -559,6 +565,7 @@ function thankyoulike_deactivate()
 <script type="text/javascript">
 <!--
 	var tylEnabled = "{$mybb->settings[\'g33k_thankyoulike_enabled\']}";
+	var tylDisplayGrowl = "{$mybb->settings[\'g33k_thankyoulike_displaygrowl\']}";
 	var tylCollapsible = "{$mybb->settings[\'g33k_thankyoulike_collapsible\']}";
 	var tylUser = "{$mybb->user[\'uid\']}";
 	var tylSend = "{$lang->tyl_send}";
