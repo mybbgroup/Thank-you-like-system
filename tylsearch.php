@@ -149,7 +149,7 @@ if($mybb->input['action'] == "results")
 			}
 			else
 			{
-				$sortfield = "p.dateline";
+				$sortfield = "tyl.dateline";
 				$sortby = "dateline";
 			}
 			break;
