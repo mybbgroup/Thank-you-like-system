@@ -7,8 +7,8 @@
 $l['tyl_thankyou'] = "Poděkovat";
 $l['tyl_thanked'] = "Poděkováno";
 $l['tyl_thanks'] = "Poděkování";
-$l['tyl_thanks_given'] = "Poděkování udělil";
-$l['tyl_thanks_rcvd'] = "Poděkování obdržel";
+$l['tyl_thanks_given'] = "Poděkování uděleno";
+$l['tyl_thanks_rcvd'] = "Poděkování obdrženo";
 $l['tyl_thanks_rcvd_bit'] = "{1} v {2} příspěvcích";
 $l['tyl_like'] = "Líbí";
 $l['tyl_likes'] = "Líbí";
@@ -19,13 +19,13 @@ $l['tyl_liked'] = "Líbí";
 
 $l['tyl_users'] = "uživatelé";
 $l['tyl_user'] = "uživatel";
-$l['tyl_says'] = "udelili";
-$l['tyl_say'] = "udělil";
+$l['tyl_says'] = "udělil";
+$l['tyl_say'] = "udělili";
 
-$l['tyl_title_ty'] = "<strong>Následující {1} {2} {3} poděkovali {4} za tento příspěvek:</strong>";
-$l['tyl_title_l'] = "<strong>Celkem {1} {2} {3}, kteří udělili to se mi líbí {4} za tento příspěvek:</strong>";
-$l['tyl_title_collapsed_ty'] = "<strong>Následující {1} {2} {3} autorovi {4} za tento příspěvek</strong>";
-$l['tyl_title_collapsed_l'] = "<strong>Následující {1} {2} {3} autorovi {4} za tento příspěvek</strong>";
+$l['tyl_title_ty'] = "<strong>Následující {1} {2} {3} poděkování autorovi </strong>{4}<strong> za tento příspěvek:</strong>";
+$l['tyl_title_l'] = "<strong>Následující {1} {2} udělili {3} autorovi {4} za tento příspěvek:</strong>";
+$l['tyl_title_collapsed_ty'] = "<strong>Celkem {1} {2} {3} poděkování autorovi </strong>{4}<strong> za tento příspěvek</strong>";
+$l['tyl_title_collapsed_l'] = "<strong>Celkem {1} {2} udělili {3} autorovi {4} za tento příspěvek</strong>";
 
 $l['add_ty'] = "Přidat poděkování";
 $l['del_ty'] = "Odebrat poděkování";
