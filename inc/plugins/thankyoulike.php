@@ -850,14 +850,14 @@ function thankyoulike_postbit(&$post)
 		if($count == 1)
 		{
 			$tyl_user = $lang->tyl_user;
-			$tyl_say = $lang->tyl_says;
-			$tyl_like = $lang->tyl_likes;
+			$tyl_say = $lang->tyl_say;
+			$tyl_like = $lang->tyl_like;
 		}
 		else
 		{
 			$tyl_user = $lang->tyl_users;
-			$tyl_say = $lang->tyl_say;
-			$tyl_like = $lang->tyl_like;
+			$tyl_say = $lang->tyl_says;
+			$tyl_like = $lang->tyl_likes;
 		}
 		if ($mybb->settings[$prefix.'thankslike'] == "like")
 		{
