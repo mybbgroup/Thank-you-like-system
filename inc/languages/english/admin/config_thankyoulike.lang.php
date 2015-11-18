@@ -9,7 +9,6 @@ $l['tyl_info_desc'] = "Adds option for users to Thank the user for the post or L
 $l['tyl_info_desc_url'] ="<br />*Edited for MyBB 1.8 by: {1}<br />*Maintained by: {2}, {3} and {4}<br />*Sources: {5}";
 $l['tyl_info_desc_recount'] = "Recount Thank You/Likes";
 $l['tyl_info_desc_configsettings'] = "Configure Settings";
-$l['tyl_info_desc_warning'] = "<b>Warning! tyl_unlock file located! Uninstalling will remove ALL the Thank you/Like data from the database. If you would like to preserve the Thank you/Like data while uninstalling then remove the tyl_unlock file from the forum root folder.</b>";
 $l['tyl_info_desc_alerts_error'] = "<b>TYL System is uninstalled or deactivated</b>";
 $l['tyl_info_desc_alerts_integrate'] = "<b>Click <u>HERE</u> to integrate TYL System with MyAlerts</b>";
 $l['tyl_info_desc_alerts_integrated'] = "<b>TYL System and MyAlerts were integrated successfully!</b>";
@@ -65,4 +64,7 @@ $l['tyl_hidelistforgroups_desc'] = "Select User Groups which cannot see Thanks/L
 
 $l['tyl_displaygrowl_title'] = "Display Add/Remove Notification Popup";
 $l['tyl_displaygrowl_desc'] = "Choose ON to enable the Ajax notification popup window.";
+
+$l['tyl_uninstall'] = 'Thank You/Like System - Uninstallation';
+$l['tyl_uninstall_message'] = 'Do you wish to drop all plugin data entries from the database?';
 ?>

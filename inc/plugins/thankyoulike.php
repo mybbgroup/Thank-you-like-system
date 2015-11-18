@@ -109,13 +109,7 @@ $url_S = '<a href="https://github.com/Cu8eR/thankyou-like-plugin" target="_blank
 		$info['description'] = $info_desc.'<br />'.$info['description'];
 	}
 	
-	if(file_exists(MYBB_ROOT."tyl_unlock"))
-	{
-		// Show warning if tyl_unlock file exists letting user know that uninstalling will remove everything from the database
-		$info['description'] .= "<ul><li style=\"list-style-image: url(styles/default/images/icons/error.png)\"><span style=\"color: red\">".$db->escape_string($lang->tyl_info_desc_warning)."</span></li></ul>";
-	}
-    
-    return $info;
+	return $info;
 }
 
 function thankyoulike_admin_load()
@@ -163,9 +157,6 @@ function thankyoulike_install()
 	$codename = basename(__FILE__, ".php");
 	$prefix = 'g33k_'.$codename.'_';
 	$info = thankyoulike_info();
-	
-	// Remove first to clean up any template edits left from previous installs
-	thankyoulike_uninstall();
 	
 	if(!$db->field_exists('tyl_pnumtyls', 'posts'))
 	{
@@ -604,6 +595,13 @@ function thankyoulike_uninstall()
 	$codename = basename(__FILE__, ".php");
 	$prefix = 'g33k_'.$codename.'_';
 	
+	if($mybb->request_method != 'post')
+	{
+		global $page, $lang;
+		$lang->load('config_thankyoulike');
+		$page->output_confirm_action('index.php?module=config-plugins&action=deactivate&uninstall=1&plugin=thankyoulike', $lang->tyl_uninstall_message, $lang->tyl_uninstall);
+	}
+	
 	// Remove templates
 	$templatearray = array("thankyoulike","thankyoulike_classic","thankyoulike_expcollapse","thankyoulike_button_add","thankyoulike_button_del","thankyoulike_users","thankyoulike_postbit","thankyoulike_memprofile");
 	$deltemplates = implode("','", $templatearray);
@@ -621,11 +619,8 @@ function thankyoulike_uninstall()
 		update_theme_stylesheet_list($theme['tid']);
 	}
 	
-	// This part will remove the database tables
-	// To avoid 'accidentally' uninstalling and loosing all your thanks/likes, this part only runs if there is a blank tyl_unlock file
-	// This completely uninstall including removing all the thanks from the database, 
-	
-	if(file_exists(MYBB_ROOT."tyl_unlock"))
+	// This part will remove the database tables	
+	if(!isset($mybb->input['no']))
 	{
 		if($db->field_exists('tyl_unumtyls', 'users'))
 		{
