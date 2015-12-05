@@ -67,4 +67,6 @@ $l['tyl_displaygrowl_desc'] = "Choose ON to enable the Ajax notification popup w
 
 $l['tyl_uninstall'] = 'Thank You/Like System - Uninstallation';
 $l['tyl_uninstall_message'] = 'Do you wish to drop all plugin data entries from the database?';
-?>
+
+$l['setting_thankyoulike_promotion'] = 'ThankYou/Like Count';
+$l['setting_thankyoulike_promotion_desc'] = 'Enter the number of thankyou/likes required. ThankYou/Like count must be selected as a required value for this to be included. Select the type of comparison for thankyou/likes.';

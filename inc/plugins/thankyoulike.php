@@ -41,6 +41,16 @@ $plugins->add_hook("admin_tools_action_handler","thankyoulike_tools_action");
 $plugins->add_hook("admin_config_settings_change","thankyoulike_settings_page");
 $plugins->add_hook("admin_page_output_footer","thankyoulike_settings_peeker");
 
+// Start ThankYou/Like Promotions Hooks
+if(defined("IN_ADMINCP"))
+{
+	$plugins->add_hook('admin_formcontainer_output_row', 'thankyoulike_promotion_formcontainer_output_row');
+	$plugins->add_hook('admin_user_group_promotions_edit_commit', 'thankyoulike_promotion_commit');
+	$plugins->add_hook('admin_user_group_promotions_add_commit', 'thankyoulike_promotion_commit');
+}
+$plugins->add_hook('task_promotions', 'thankyoulike_promotion_task');
+// End ThankYou/Like Promotions Hooks
+
 function thankyoulike_info()
 {
 	global $plugins_cache, $mybb, $db, $lang, $cache;
@@ -227,6 +237,15 @@ function thankyoulike_install()
 		);
 
 		$db->insert_query($prefix."stats", $total_data);
+	}
+	// Add ThankYou/Like Promotions Tables Fields
+	if(!$db->field_exists("thankyoulike", "promotions"))
+	{
+		$db->add_column("promotions", "thankyoulike", "int NOT NULL default '0'");
+	}
+	if(!$db->field_exists("thankyouliketype", "promotions"))
+	{
+		$db->add_column("promotions", "thankyouliketype", "char(2) NOT NULL default ''");
 	}
 	
 	// Insert Template elements
@@ -649,6 +668,15 @@ function thankyoulike_uninstall()
 		if($db->table_exists($prefix.'stats'))
 		{
 			$db->drop_table($prefix.'stats');
+		}
+		// Remove ThankYou/Like Promotions Tables Fields
+		if($db->field_exists("thankyoulike", "promotions"))
+		{
+			$db->drop_column("promotions", "thankyoulike");
+		}
+		if($db->field_exists("thankyouliketype", "promotions"))
+		{
+			$db->drop_column("promotions", "thankyouliketype");
 		}
 	}
 }
@@ -1688,4 +1716,63 @@ function thankyoulike_settings_peeker()
 		new Peeker($$(".setting_'.$prefix.'enabled"), $("row_setting_'.$prefix.'hidelistforgroups"), /1/, true);
 	}
 </script>';
+}
+
+// Start ThankYou/Like Promotions Functions
+function thankyoulike_promotion_formcontainer_output_row(&$args)
+{
+	global $run_module, $form_container, $mybb, $db, $lang, $form, $options, $options_type, $promotion;
+
+	if(!($run_module == 'user' && !empty($form_container->_title) && $mybb->get_input('module') == 'user-group_promotions' && in_array($mybb->get_input('action'), array('add', 'edit'))))
+	{
+		return;
+	}
+	
+	$lang->load('config_thankyoulike');
+
+	if($args['label_for'] == 'requirements')
+	{
+		$options['thankyoulike'] = $lang->setting_thankyoulike_promotion;
+		$args['content'] = $form->generate_select_box('requirements[]', $options, $mybb->input['requirements'], array('id' => 'requirements', 'multiple' => true, 'size' => 5));
+	}
+
+	if($args['label_for'] == 'timeregistered')
+	{
+		if($mybb->get_input('pid', 1) && !isset($mybb->input['thankyoulike']))
+		{
+			$thankyoulike = $promotion['thankyoulike'];
+			$thankyouliketype = $promotion['thankyouliketype'];
+		}
+		else
+		{
+			$thankyoulike = $mybb->get_input('thankyoulike');
+			$thankyouliketype = $mybb->get_input('thankyouliketype');
+		}
+
+		$form_container->output_row($lang->setting_thankyoulike_promotion, $lang->setting_thankyoulike_promotion_desc, $form->generate_numeric_field('thankyoulike', (int)$thankyoulike, array('id' => 'thankyoulike'))." ".$form->generate_select_box("thankyouliketype", $options_type, $thankyouliketype, array('id' => 'thankyouliketype')), 'thankyoulike');
+	}
+}
+
+function thankyoulike_promotion_commit()
+{
+	global $db, $mybb, $pid, $update_promotion, $pid;
+
+	is_array($update_promotion) or $update_promotion = array();
+
+	$update_promotion['thankyoulike'] = $mybb->get_input('thankyoulike', 1);
+	$update_promotion['thankyouliketype'] = $db->escape_string($mybb->get_input('thankyouliketype'));
+
+	if($mybb->get_input('action') == 'add')
+	{
+		$db->update_query('promotions', $update_promotion, "pid='{$pid}'");
+	}
+}
+
+function thankyoulike_promotion_task(&$args)
+{
+	if(in_array('thankyoulike', explode(',', $args['promotion']['requirements'])) && (int)$args['promotion']['thankyoulike'] >= 0 && !empty($args['promotion']['thankyouliketype']))
+	{
+		$args['sql_where'] .= "{$args['and']}tyl_unumrcvtyls{$args['promotion']['thankyouliketype']}'{$args['promotion']['thankyoulike']}'";
+		$args['and'] = ' AND ';
+	}
 }
