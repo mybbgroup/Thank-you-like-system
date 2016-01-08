@@ -32,10 +32,10 @@ $l['del_ty'] = "Remove Thank You";
 $l['add_l'] = "Like Post";
 $l['del_l'] = "Unlike Post";
 
-$l['tyl_total_thanks_given'] = "Total Thanks Given";
-$l['tyl_total_likes_given'] = "Total Likes Given";
-$l['tyl_total_thanks_rcvd'] = "Total Thanks Received";
-$l['tyl_total_likes_rcvd'] = "Total Likes Received";
+$l['tyl_total_thanks_given'] = "Total Thanks Given:";
+$l['tyl_total_likes_given'] = "Total Likes Given:";
+$l['tyl_total_thanks_rcvd'] = "Total Thanks Received:";
+$l['tyl_total_likes_rcvd'] = "Total Likes Received:";
 $l['tyl_tylpd_percent_total'] = "{1} {2} per day | {3} percent of total {2}";
 $l['tyl_find_ty_threads'] = "Find All Thanked Threads";
 $l['tyl_find_ty_posts'] = "Find All Thanked Posts";
