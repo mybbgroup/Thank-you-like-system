@@ -1360,7 +1360,7 @@ elseif($mybb->input['action'] == "usertylforposts" && $tyl_uid)
 		}
 		if(!empty($onlyusfids))
 		{
-			$where_sql .= "AND ((fid IN(".implode(',', $onlyusfids).") AND t.uid='{$mybb->user['uid']}') OR t.fid NOT IN(".implode(',', $onlyusfids)."))";
+			$where_sql .= " AND ((fid IN(".implode(',', $onlyusfids).") AND uid='{$mybb->user['uid']}') OR fid NOT IN(".implode(',', $onlyusfids)."))";
 		}
 	}
 	
