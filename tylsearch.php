@@ -18,7 +18,6 @@
  * This is a modified search.php file 
  * to use for thank you/like system
  ****************************************************
- * $Id: tylsearch.php 53 2011-10-26 08:17:45Z - G33K - $
  */
 
 define("IN_MYBB", 1);
