@@ -13,9 +13,8 @@
  * You should have received a copy of the GNU General Public License 
  * along with this program.  
  * If not, see <http://www.gnu.org/licenses/>.
- *
- * $Id: thankyoulike.php 55 2011-10-26 08:55:00Z - G33K - $
  */
+ 
 if(!defined("IN_MYBB"))
 {
 	die("Direct initialization of this file is not allowed.<br /><br />Please make sure IN_MYBB is defined.");
@@ -71,7 +70,7 @@ $url_S = '<a href="https://github.com/Cu8eR/thankyou-like-plugin" target="_blank
 		"website"	=> "http://community.mybb.com/thread-169382.html",
 		"author"	=> "- G33K -",
 		"authorsite"	=> "http://community.mybboard.net/user-19236.html",
-		"version"	=> "1.9.10",
+		"version"	=> "1.9.11",
 		"codename"	=> "thankyoulikesystem",
 		"compatibility"	=> "18*"
     );
