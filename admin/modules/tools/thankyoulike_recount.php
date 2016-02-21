@@ -13,8 +13,6 @@
  * You should have received a copy of the GNU General Public License 
  * along with this program.  
  * If not, see <http://www.gnu.org/licenses/>.
- *
- * $Id: thankyoulike_recount.php 20 2010-10-10 22:28:55Z - G33K - $
  */
 
 // Disallow direct access to this file for security reasons
