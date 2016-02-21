@@ -13,8 +13,6 @@
  * You should have received a copy of the GNU General Public License 
  * along with this program.  
  * If not, see <http://www.gnu.org/licenses/>.
- *
- * $Id: thankyoulike.php 53 2011-10-26 08:17:45Z - G33K - $
  */
 
 
