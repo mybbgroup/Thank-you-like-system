@@ -95,7 +95,10 @@ if((int)$mybb->settings['searchhardlimit'] > 0)
 
 if($mybb->input['action'] == "results")
 {
-	$sid = $db->escape_string($mybb->get_input('sid'));
+	if(is_array($mybb->get_input('sid')))
+    	$sid = $db->escape_string(implode($mybb->get_input('sid')));
+	else
+    	$sid = $db->escape_string($mybb->get_input('sid'));
 	$query = $db->simple_select("searchlog", "*", "sid='$sid'");
 	$search = $db->fetch_array($query);
 
