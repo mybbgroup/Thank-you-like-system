@@ -22,9 +22,13 @@ $l['tyl_enabled_desc'] = "Enable/Disable the Thank You/Like System";
 
 $l['tyl_thankslike_title'] = "Thank You or Like";
 $l['tyl_thankslike_desc'] = "Choose if you want to use the Thank You system or the Like System.";
+$l['tyl_thankslike_op_1'] = "Use Thank You";
+$l['tyl_thankslike_op_2'] = "Use Like";
 
 $l['tyl_firstall_title'] = "First Post only or All";
 $l['tyl_firstall_desc'] = "Do you want the Thanks or Like to be given on the first post of a thread only or on all the posts of a thread?";
+$l['tyl_firstall_op_1'] = "First Post Only";
+$l['tyl_firstall_op_2'] = "All Posts";
 
 $l['tyl_firstalloverwrite_title'] = "Special option for Display Thank You/Like buttons in ALL Posts";
 $l['tyl_firstalloverwrite_desc'] = "Overwrite the above selected option All in certain forums (choose only forums - no categories!)";
@@ -46,18 +50,27 @@ $l['tyl_hideforgroups_desc'] = "Select User Groups which cannot see Thanks/Like 
 
 $l['tyl_showdt_title'] = "Show Date/Time";
 $l['tyl_showdt_desc'] = "Do you want to show the Date/Time the Thanks/Like was received in the Thanks/Like list?";
+$l['tyl_showdt_op_1'] = "Not Display";
+$l['tyl_showdt_op_2'] = "Display next to user name";
+$l['tyl_showdt_op_3'] = "Display on mouse over username";
 
 $l['tyl_dtformat_title'] = "Date/Time Format";
 $l['tyl_dtformat_desc'] = "Set the format you want to use to show the Date/Time in the thank/like list.<br />Format is same as the one used by PHP\'s date() function.<br />Example format: m-d-Y h:i A &lt;&lt;will show&gt;&gt; 12-31-2009 12:01 PM";
 
 $l['tyl_sortorder_title'] = "Sort Order";
 $l['tyl_sortorder_desc'] = "Select the sort order for the Thanks/Like list.";
+$l['tyl_sortorder_op_1'] = "Username Ascending";
+$l['tyl_sortorder_op_2'] = "Username Descending";
+$l['tyl_sortorder_op_3'] = "Date/Time Added Ascending";
+$l['tyl_sortorder_op_4'] = "Date/Time Added Descending";
 
 $l['tyl_collapsible_title'] = "Thanks/Like List Collapsible";
 $l['tyl_collapsible_desc'] = "Do you want the Thanks/Like list to be collapsible (Show/Hide ability)?";
 
 $l['tyl_colldefault_title'] = "Default Collapsible State";
 $l['tyl_colldefault_desc'] = "If you want the list to be collapsible, what is the default state you want it in when the page loads, open or closed (hidden)?";
+$l['tyl_colldefault_op_1'] = "List Shown";
+$l['tyl_colldefault_op_2'] = "List Hidden (Collapsed)";
 
 $l['tyl_hidelistforgroups_title'] = "Hide ThankYou/Like List";
 $l['tyl_hidelistforgroups_desc'] = "Select User Groups which cannot see Thanks/Like list.";
