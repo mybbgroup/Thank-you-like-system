@@ -35,8 +35,8 @@ $plugins->add_hook("class_moderation_merge_threads","thankyoulike_merge_threads"
 $plugins->add_hook("class_moderation_split_posts","thankyoulike_split_posts");
 $plugins->add_hook('admin_load', 'thankyoulike_admin_load');
 $plugins->add_hook("admin_user_users_delete_commit","thankyoulike_delete_user");
-$plugins->add_hook("admin_tools_menu","thankyoulike_tools_menu");
-$plugins->add_hook("admin_tools_action_handler","thankyoulike_tools_action");
+$plugins->add_hook("admin_tools_recount_rebuild", "acp_tyl_do_recounting");
+$plugins->add_hook("admin_tools_recount_rebuild_output_list", "acp_tyl_recount_form");
 $plugins->add_hook("admin_config_settings_change","thankyoulike_settings_page");
 $plugins->add_hook("admin_page_output_footer","thankyoulike_settings_peeker");
 
@@ -1638,43 +1638,6 @@ function thankyoulike_friendly_wol_activity($plugin_array)
 	return $plugin_array;
 }
 
-function thankyoulike_tools_menu($sub_menu)
-{
-	global $lang;
-	
-	$codename = basename(__FILE__, ".php");
-	$prefix = 'g33k_'.$codename.'_';
-	
-	$lang->load("tools_thankyoulike_recount");
-	// Make sure the submenu is not taken, then set it
-	$set = 0;
-	$item = 41;
-	while ($set == 0)
-	{
-		if (!isset($sub_menu[$item]))
-		{
-			$sub_menu[$item] = array("id" => "thankyoulike_recount", "title" => $lang->tyl_recount, "link" => "index.php?module=tools-thankyoulike_recount");
-			$set = 1;
-		}
-		else
-		{
-			$item++;
-		}
-	}
-	ksort($sub_menu);
-	return $sub_menu;
-}
-
-function thankyoulike_tools_action($actions)
-{	
-	$codename = basename(__FILE__, ".php");
-	$prefix = 'g33k_'.$codename.'_';
-	
-	$actions['thankyoulike_recount'] = array('active' => 'thankyoulike_recount', 'file' => 'thankyoulike_recount.php');
-	
-	return $actions;
-}
-
 function thankyoulike_settings_page()
 {
 	global $db, $mybb, $g33k_settings_peeker;
@@ -1774,4 +1737,183 @@ function thankyoulike_promotion_task(&$args)
 		$args['sql_where'] .= "{$args['and']}tyl_unumrcvtyls{$args['promotion']['thankyouliketype']}'{$args['promotion']['thankyoulike']}'";
 		$args['and'] = ' AND ';
 	}
+}
+
+// Start ThankYou/Like Counter Functions
+function acp_tyl_do_recounting()
+{
+	global $db, $mybb, $lang;
+	$lang->load("config_thankyoulike");
+	
+	$prefix = "g33k_thankyoulike_";
+
+	if($mybb->request_method == "post")
+	{
+		if(!isset($mybb->input['page']) || $mybb->get_input('page', MyBB::INPUT_INT) < 1)
+		{
+			$mybb->input['page'] = 1;
+		}
+
+		if(isset($mybb->input['do_recounttyls']))
+		{
+			if($mybb->input['page'] == 1)
+			{
+				// Log admin action
+				log_admin_action($lang->tyl_admin_log_action);
+			}
+
+			if(!$mybb->get_input('tyls', MyBB::INPUT_INT))
+			{
+				$mybb->input['tyls'] = 500;
+			}
+
+			$page = $mybb->get_input('page', MyBB::INPUT_INT);
+			$per_page = $mybb->get_input('tyls', MyBB::INPUT_INT);
+			if($per_page <= 0)
+			{
+				$per_page = 500;
+			}
+			$start = ($page-1) * $per_page;
+			$end = $start + $per_page;
+
+			if ($page == 1)
+			{
+				$db->write_query("UPDATE ".TABLE_PREFIX.$prefix."stats SET value=0 WHERE title='total'");
+				$db->write_query("UPDATE ".TABLE_PREFIX."posts SET tyl_pnumtyls=0");
+				$db->write_query("UPDATE ".TABLE_PREFIX."threads SET tyl_tnumtyls=0");
+				$db->write_query("UPDATE ".TABLE_PREFIX."users SET tyl_unumtyls=0, tyl_unumptyls=0, tyl_unumrcvtyls=0");
+				
+				$query = $db->query("
+						SELECT tyl.tlid
+						FROM ".TABLE_PREFIX.$prefix."thankyoulike tyl
+						LEFT JOIN ".TABLE_PREFIX."posts p ON ( p.pid = tyl.pid )
+						LEFT JOIN ".TABLE_PREFIX."users u ON ( u.uid = tyl.uid )
+						WHERE p.pid IS NULL OR u.uid IS NULL
+					");
+				$tlids_remove = array();
+				while($orphan = $db->fetch_array($query))
+				{
+					$tlids_remove[] = $orphan['tlid'];
+				}
+				if($tlids_remove)
+				{
+					$tlids_remove = implode(',', $tlids_remove);
+					// Delete the tyls
+					$db->delete_query($prefix."thankyoulike", "tlid IN ($tlids_remove)");
+				}	
+				// Lets also update the puid field in the db with uid values from the posts table
+				// This is done to sync up the db with the puids of post tyled, since this feature wasn't there in v1.0 so data needs to be generated.
+				$db->write_query("UPDATE ".TABLE_PREFIX.$prefix."thankyoulike tyl 
+							LEFT JOIN ".TABLE_PREFIX."posts p ON ( p.pid=tyl.pid )  
+							SET tyl.puid=p.uid");
+				// Update the number of tyled posts for the post owners, we do this here because this needs to be done in one swoop and will break if done in parts
+				$db->write_query("UPDATE ".TABLE_PREFIX."users u 
+							JOIN (SELECT puid, COUNT(DISTINCT(pid)) AS pidcount 
+							FROM ".TABLE_PREFIX.$prefix."thankyoulike
+							GROUP BY puid) tyl
+							ON ( u.uid=tyl.puid )
+							SET u.tyl_unumptyls=tyl.pidcount");
+			}
+			
+			$query1 = $db->simple_select($prefix."thankyoulike", "COUNT(tlid) AS num_tyls");
+			$num_tyls = $db->fetch_field($query1, 'num_tyls');
+			
+			$query2 = $db->query("
+					SELECT tyl.*, p.tid
+					FROM ".TABLE_PREFIX.$prefix."thankyoulike tyl
+					LEFT JOIN ".TABLE_PREFIX."posts p ON (p.pid=tyl.pid)
+					ORDER BY tyl.dateline ASC
+					LIMIT $start, $per_page
+				");
+			$tlids = array();
+			$post_tyls = array();
+			$thread_tyls = array();
+			$user_tyls = array();
+			$user_rcvtyls = array();
+			while($tyl = $db->fetch_array($query2))
+			{
+				// Total tyls
+				$tlids[] = $tyl['tlid'];
+				// Count the tyl for each post, thread and user
+				if($post_tyls[$tyl['pid']])
+				{
+					$post_tyls[$tyl['pid']]++;
+				}
+				else
+				{
+					$post_tyls[$tyl['pid']] = 1;
+				}
+				if($thread_tyls[$tyl['tid']])
+				{
+					$thread_tyls[$tyl['tid']]++;
+				}
+				else
+				{
+					$thread_tyls[$tyl['tid']] = 1;
+				}
+				if($user_tyls[$tyl['uid']])
+				{
+					$user_tyls[$tyl['uid']]++;
+				}
+				else
+				{
+					$user_tyls[$tyl['uid']] = 1;
+				}
+				if($user_rcvtyls[$tyl['puid']])
+				{
+					$user_rcvtyls[$tyl['puid']]++;
+				}
+				else
+				{
+					$user_rcvtyls[$tyl['puid']] = 1;
+				}
+			}
+			// Update the counts
+			if(is_array($post_tyls))
+			{
+				foreach($post_tyls as $pid => $add)
+				{
+					$db->write_query("UPDATE ".TABLE_PREFIX."posts SET tyl_pnumtyls=tyl_pnumtyls+$add WHERE pid='$pid'");
+				}
+			}
+			if(is_array($thread_tyls))
+			{
+				foreach($thread_tyls as $tid => $add)
+				{
+					$db->write_query("UPDATE ".TABLE_PREFIX."threads SET tyl_tnumtyls=tyl_tnumtyls+$add WHERE tid='$tid'");
+				}
+			}
+			if(is_array($user_tyls))
+			{
+				foreach($user_tyls as $uid => $add)
+				{
+					$db->write_query("UPDATE ".TABLE_PREFIX."users SET tyl_unumtyls=tyl_unumtyls+$add WHERE uid='$uid'");
+				}
+			}
+			if(is_array($user_rcvtyls))
+			{
+				foreach($user_rcvtyls as $puid => $add)
+				{
+					$db->write_query("UPDATE ".TABLE_PREFIX."users SET tyl_unumrcvtyls=tyl_unumrcvtyls+$add WHERE uid='$puid'");
+				}
+			}
+			if($tlids)
+			{
+				$tlids_count = count($tlids);
+				$db->write_query("UPDATE ".TABLE_PREFIX.$prefix."stats SET value=value+$tlids_count WHERE title='total'");
+			}
+			check_proceed($num_tyls, $end, ++$page, $per_page, "tyls", "do_recounttyls", $lang->tyl_success_thankyoulike_rebuilt);
+		}
+	}
+}
+
+function acp_tyl_recount_form()
+{
+	global $lang, $form_container, $form;
+	$lang->load("config_thankyoulike");
+	
+	$form_container->output_cell("<label>{$lang->tyl_recount}</label><div class=\"description\">{$lang->tyl_recount_do_desc}</div>");
+	$form_container->output_cell($form->generate_numeric_field("tyls", 500, array('style' => 'width: 150px;', 'min' => 0)));
+	$form_container->output_cell($form->generate_submit_button($lang->go, array("name" => "do_recounttyls")));
+	$form_container->construct_row();
 }

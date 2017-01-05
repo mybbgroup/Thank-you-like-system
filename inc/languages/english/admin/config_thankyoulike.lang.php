@@ -83,3 +83,9 @@ $l['tyl_uninstall_message'] = 'Do you wish to drop all plugin data entries from 
 
 $l['setting_thankyoulike_promotion'] = 'ThankYou/Like Count';
 $l['setting_thankyoulike_promotion_desc'] = 'Enter the number of thankyou/likes required. ThankYou/Like count must be selected as a required value for this to be included. Select the type of comparison for thankyou/likes.';
+
+$l['tyl_recount'] = "Thank You/Like Counters";
+$l['tyl_recount_do_desc'] = "When this is run, the Thank You/Like count for each user and post will be updated to reflect its current live value based on the data in the database.";
+$l['tyl_success_thankyoulike_rebuilt'] = "The Thank You/Likes have been recounted successfully.";
+
+$l['tyl_admin_log_action'] = "ThankYou/Likes recounted";
