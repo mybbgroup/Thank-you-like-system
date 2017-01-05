@@ -48,7 +48,7 @@ var thankyoulike = {
 				beforeSend:function(){
 					if(tylDisplayGrowl == 1)
 					{
-						$.jGrowl(tylSend);			
+						$.jGrowl(tylSend, {theme:'jgrowl_success'});			
 					}
 				}
 			}).done(function(data)
@@ -101,7 +101,7 @@ var thankyoulike = {
 				beforeSend:function(){
 					if(tylDisplayGrowl == 1)
 					{
-						$.jGrowl(tylRemove);			
+						$.jGrowl(tylRemove, {theme:'jgrowl_success'});			
 					}
 				}			
 			}).done(function(data)
