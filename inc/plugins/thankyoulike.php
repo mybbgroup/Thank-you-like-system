@@ -59,9 +59,9 @@ function thankyoulike_info()
 	$prefix = 'g33k_'.$codename.'_';
 
 $url_AT= '<a href="http://my-bb.ir" target="_blank">AliReza_Tofighi</a>';
-$url_SP = '<a href="http://community.mybb.com/user-91011.html" target="_blank">SvePu</a>';
-$url_E = '<a href="http://community.mybb.com/user-84065.html" target="_blank">Eldenroot</a>';
-$url_DN = '<a href="http://community.mybb.com/user-51493.html" target="_blank">Dark Neo</a>';
+$url_SP = '<a href="https://community.mybb.com/user-91011.html" target="_blank">SvePu</a>';
+$url_E = '<a href="https://community.mybb.com/user-84065.html" target="_blank">Eldenroot</a>';
+$url_DN = '<a href="https://community.mybb.com/user-51493.html" target="_blank">Dark Neo</a>';
 $url_S = '<a href="https://github.com/Cu8eR/thankyou-like-plugin" target="_blank">GitHub</a>';
 
     $info = array(
