@@ -67,7 +67,7 @@ $url_S = '<a href="https://github.com/Cu8eR/thankyou-like-plugin" target="_blank
     $info = array(
 		"name"		=> $db->escape_string($lang->tyl_info_title),
 		"description"	=> $db->escape_string($lang->tyl_info_desc) . $lang->sprintf($lang->tyl_info_desc_url,$url_AT,$url_SP,$url_E,$url_DN,$url_S),
-		"website"	=> "http://community.mybb.com/thread-169382.html",
+		"website"	=> "https://community.mybb.com/thread-169382.html",
 		"author"	=> "- G33K -",
 		"authorsite"	=> "https://community.mybb.com/user-19236.html",
 		"version"	=> "1.9.11",
