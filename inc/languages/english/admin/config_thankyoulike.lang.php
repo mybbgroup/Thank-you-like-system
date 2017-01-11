@@ -36,8 +36,8 @@ $l['tyl_firstalloverwrite_desc'] = "Overwrite the above selected option All in c
 $l['tyl_removing_title'] = "Allow Removing";
 $l['tyl_removing_desc'] = "Do you want to allow the removing of Thank/Like from a post already Thanked/Liked?";
 
-$l['tyl_tylownposts_title'] = "Allow ThankYou/Likes own Posts";
-$l['tyl_tylownposts_desc'] = "Do you want to allow that user can thanking or liking own posts?";
+$l['tyl_tylownposts_title'] = "Allow Giving Thanks/Likes to own Posts";
+$l['tyl_tylownposts_desc'] = "Do you want to allow users to give Thanks/Likes to own posts?";
 
 $l['tyl_closedthreads_title'] = "Allow in Closed Threads";
 $l['tyl_closedthreads_desc'] = "Do you want to allow to give Thank/Like in closed threads?";
