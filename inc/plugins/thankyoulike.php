@@ -673,7 +673,8 @@ function thankyoulike_uninstall()
 		{
 			$db->drop_table($prefix.'stats');
 		}
-		// Remove ThankYou/Like Promotions Tables Fields
+	}
+	// Remove ThankYou/Like Promotions Tables Fields
 		if($db->field_exists("thankyoulike", "promotions"))
 		{
 			$query = $db->simple_select("promotions", "pid", "thankyoulike>'0'");
@@ -688,7 +689,6 @@ function thankyoulike_uninstall()
 		{
 			$db->drop_column("promotions", "thankyouliketype");
 		}
-	}
 }
 
 function thankyoulike_templatelist()
