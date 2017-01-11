@@ -150,7 +150,7 @@ if ($excluded)
 if($mybb->input['action'] == "add")
 {	
 	// Can't thank/like own post
-	if($post['uid'] == $mybb->user['uid'])
+	if($post['uid'] == $mybb->user['uid'] && $mybb->settings[$prefix.'tylownposts'] != "1")
 	{
 		error($lang->sprintf($lang->tyl_error_own_post, $pre));
 	}
@@ -406,7 +406,9 @@ if($mybb->input['ajax'])
 		$lang->tyl_title_collapsed = "";
 	}
 	$button_tyl = '';
-	if(($tyled && $mybb->settings[$prefix.'removing'] != "1") || (!is_moderator($post['fid'], "caneditposts") && $thread['closed'] == 1 && $mybb->settings[$prefix.'closedthreads'] != "1") || $post['uid'] == $mybb->user['uid'] || is_member($mybb->settings[$prefix.'hideforgroups']) || $mybb->settings[$prefix.'hideforgroups'] == "-1")
+	$tyluserid = $mybb->settings[$prefix.'tylownposts'] == "1" ? "-1" : $mybb->user['uid'];
+	
+	if(($tyled && $mybb->settings[$prefix.'removing'] != "1") || (!is_moderator($post['fid'], "caneditposts") && $thread['closed'] == 1 && $mybb->settings[$prefix.'closedthreads'] != "1") || $post['uid'] == $tyluserid || is_member($mybb->settings[$prefix.'hideforgroups']) || $mybb->settings[$prefix.'hideforgroups'] == "-1")
 	{
 		// Show no button for poster or user who has already thanked/liked or removing is disabled.
 		$button_tyl = '';

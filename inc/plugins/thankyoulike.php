@@ -417,6 +417,11 @@ all='.$lang->tyl_firstall_op_2.'',
 				'description'		=> $lang->tyl_removing_desc,
 				'optionscode'		=> 'yesno',
 				'value'				=> '0'),
+		'tylownposts'			=> array(
+				'title'				=> $lang->tyl_tylownposts_title,
+				'description'		=> $lang->tyl_tylownposts_desc,
+				'optionscode'		=> 'yesno',
+				'value'				=> '0'),
 		'closedthreads'			=> array(
 				'title'				=> $lang->tyl_closedthreads_title,
 				'description'		=> $lang->tyl_closedthreads_desc,
@@ -944,7 +949,9 @@ function thankyoulike_postbit(&$post)
 		
 		// Determine whether we're showing tyl for this post:
 		$thread = get_thread($post['tid']);
-		if(($tyled && $mybb->settings[$prefix.'removing'] != "1") || (!is_moderator($post['fid'], "caneditposts") && $thread['closed'] == 1 && $mybb->settings[$prefix.'closedthreads'] != "1") || $post['uid'] == $mybb->user['uid'] || is_member($mybb->settings[$prefix.'hideforgroups']) || $mybb->settings[$prefix.'hideforgroups'] == "-1")
+		$tyluserid = $mybb->settings[$prefix.'tylownposts'] == "1" ? "-1" : $mybb->user['uid'];		
+		
+		if(($tyled && $mybb->settings[$prefix.'removing'] != "1") || (!is_moderator($post['fid'], "caneditposts") && $thread['closed'] == 1 && $mybb->settings[$prefix.'closedthreads'] != "1") || $post['uid'] == $tyluserid || is_member($mybb->settings[$prefix.'hideforgroups']) || $mybb->settings[$prefix.'hideforgroups'] == "-1")
 		{
 			// Show no button for poster or user who has already thanked/liked and disabled removing. 
 			$post['button_tyl'] = '';
@@ -1665,7 +1672,9 @@ function thankyoulike_settings_peeker()
 	function load'.$prefix.'Peekers(){
 		new Peeker($$(".setting_'.$prefix.'enabled"), $("row_setting_'.$prefix.'thankslike"), /1/, true);
 		new Peeker($$(".setting_'.$prefix.'enabled"), $("row_setting_'.$prefix.'firstall"), /1/, true);
+		new Peeker($$(".setting_'.$prefix.'enabled"), $("row_setting_'.$prefix.'firstalloverwrite"), /1/, true);
 		new Peeker($$(".setting_'.$prefix.'enabled"), $("row_setting_'.$prefix.'removing"), /1/, true);
+		new Peeker($$(".setting_'.$prefix.'enabled"), $("row_setting_'.$prefix.'tylownposts"), /1/, true);
 		new Peeker($$(".setting_'.$prefix.'enabled"), $("row_setting_'.$prefix.'closedthreads"), /1/, true);
 		new Peeker($$(".setting_'.$prefix.'enabled"), $("row_setting_'.$prefix.'exclude"), /1/, true);		
 		new Peeker($$(".setting_'.$prefix.'enabled"), $("row_setting_'.$prefix.'unameformat"), /1/, true);
@@ -1676,6 +1685,7 @@ function thankyoulike_settings_peeker()
 		new Peeker($$(".setting_'.$prefix.'enabled"), $("row_setting_'.$prefix.'collapsible"), /1/, true);
 		new Peeker($$(".setting_'.$prefix.'enabled"), $("row_setting_'.$prefix.'colldefault"), /1/, true);
 		new Peeker($$(".setting_'.$prefix.'enabled"), $("row_setting_'.$prefix.'hidelistforgroups"), /1/, true);
+		new Peeker($$(".setting_'.$prefix.'enabled"), $("row_setting_'.$prefix.'displaygrowl"), /1/, true);
 	}
 </script>';
 }
