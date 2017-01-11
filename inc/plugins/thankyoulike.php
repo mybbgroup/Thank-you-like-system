@@ -676,6 +676,12 @@ function thankyoulike_uninstall()
 		// Remove ThankYou/Like Promotions Tables Fields
 		if($db->field_exists("thankyoulike", "promotions"))
 		{
+			$query = $db->simple_select("promotions", "pid", "thankyoulike>'0'");
+			$pid = $db->fetch_array($query);
+			if(!empty($pid['pid']))
+			{
+				$db->delete_query("promotions", "pid='{$pid['pid']}'");
+			}
 			$db->drop_column("promotions", "thankyoulike");
 		}
 		if($db->field_exists("thankyouliketype", "promotions"))
