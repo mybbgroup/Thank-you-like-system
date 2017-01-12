@@ -296,7 +296,7 @@ function thankyoulike_install()
 	
 	// css-class for g33k_thankyoulike	
 	$css = array(
-	"name" => "g33k_thankyoulike.css",
+	"name" => "thankyoulike.css",
 	"tid" => 1,
 	"attachedto" => "showthread.php",
 	"stylesheet" => "div[id^=tyl_btn_] {
@@ -332,7 +332,7 @@ a.del_tyl_button span{
 img[id^=tyl_i_expcol_]{
 	vertical-align: bottom;
 }",
-    "cachefile" => $db->escape_string(str_replace('/', '', g33k_thankyoulike.css)),
+    "cachefile" => $db->escape_string(str_replace('/', '', thankyoulike.css)),
 	"lastmodified" => TIME_NOW
 	);
 
@@ -634,7 +634,7 @@ function thankyoulike_uninstall()
 	// Remove CSS rules for g33k_thankyoulike	
 	require_once MYBB_ADMIN_DIR."inc/functions_themes.php";
 
-	$db->delete_query("themestylesheets", "name = 'g33k_thankyoulike.css'");
+	$db->delete_query("themestylesheets", "name = 'thankyoulike.css'");
 
 	$query = $db->simple_select("themes", "tid");
 	while($theme = $db->fetch_array($query))
