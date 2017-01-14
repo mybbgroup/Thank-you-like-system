@@ -167,6 +167,12 @@ function thankyoulike_install()
 	$prefix = 'g33k_'.$codename.'_';
 	$info = thankyoulike_info();
 	
+	//delete old unnecessary files
+	if(file_exists(MYBB_ROOT."/admin/modules/tools/thankyoulike_recount.php"))
+	{
+		@unlink(MYBB_ROOT."/admin/modules/tools/thankyoulike_recount.php");
+	}
+	
 	if(!$db->field_exists('tyl_pnumtyls', 'posts'))
 	{
 		$db->query("ALTER TABLE ".TABLE_PREFIX."posts ADD `tyl_pnumtyls` int(100) NOT NULL default '0'");
