@@ -149,6 +149,20 @@ if ($excluded)
 
 if($mybb->input['action'] == "add")
 {	
+	// Check if this user has reached their "maximum thanks/likes per day" quota
+	if($mybb->usergroup['tyl_limits_max'] != 0 && $mybb->settings[$prefix.'limits'] == "1")
+	{
+		$timesearch = TIME_NOW - (60 * 60 * 24);
+		$query = $db->simple_select($prefix."thankyoulike", "*", "uid='{$mybb->user['uid']}' AND dateline>'$timesearch'");
+		$numtoday = $db->num_rows($query);
+
+		// Reached the quota - error.
+		if($numtoday >= $mybb->usergroup['tyl_limits_max'])
+		{
+			error($lang->sprintf($lang->tyl_error_reached_max_per_hour));
+		}
+	}
+
 	// Can't thank/like own post
 	if($post['uid'] == $mybb->user['uid'] && $mybb->settings[$prefix.'tylownposts'] != "1")
 	{

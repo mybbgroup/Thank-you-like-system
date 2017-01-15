@@ -81,6 +81,12 @@ $l['tyl_hidelistforgroups_desc'] = "Select User Groups which cannot see Thank Yo
 $l['tyl_displaygrowl_title'] = "Display Add/Remove Notification Popup";
 $l['tyl_displaygrowl_desc'] = "Choose ON to enable the Ajax notification popup window.";
 
+$l['tyl_limits_title'] = "Enable Usergroup based Thanks/Likes Limits?";
+$l['tyl_limits_desc'] = "Choose Yes to enable this feature and check the usergroup settings.";
+$l['tyl_limits_permissions_system'] = "Thanks/Likes Limits";
+$l['tyl_limits_permissions_title'] = "Maximum Thanks/Likes Allowed Per 24 Hours:";
+$l['tyl_limits_permissions_desc'] = "Here you can enter the maximum number of thanks/likes that users in this group can give per day (24 hours). To allow unlimited reputations per hour, enter 0.";
+
 $l['tyl_uninstall'] = 'Thank You/Like System - Uninstallation';
 $l['tyl_uninstall_message'] = 'Do you wish to drop all plugin data entries from the database?';
 

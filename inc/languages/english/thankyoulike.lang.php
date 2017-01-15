@@ -52,6 +52,7 @@ $l['tyl_error_invalid_action'] = "You are trying to perform an invalid action.";
 $l['tyl_error_disabled'] = "{1} Feature has been disabled.";
 $l['tyl_error_not_allowed'] = "Not allowed for this post.";
 $l['tyl_error_excluded'] = "Not allowed for this post because this forum has been excluded.";
+$l['tyl_error_reached_max_per_hour'] = "You reached the maximum thanks/likes per 24 hours!";
 $l['tyl_error_own_post'] = "You can not {1} your own post.";
 $l['tyl_error_already_tyled'] = "You have already {1} this post.";
 $l['tyl_error_unknown'] = "There was an unknown error and your {1} was not added.";

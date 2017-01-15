@@ -50,6 +50,10 @@ if(defined("IN_ADMINCP"))
 $plugins->add_hook('task_promotions', 'thankyoulike_promotion_task');
 // End ThankYou/Like Promotions Hooks
 
+$plugins->add_hook("admin_user_groups_edit_graph_tabs", "tyl_limits_usergroup_permission_tabs");
+$plugins->add_hook("admin_formcontainer_end", "tyl_limits_usergroup_permission");
+$plugins->add_hook("admin_user_groups_edit_commit", "tyl_limits_usergroup_permission_commit");
+
 function thankyoulike_info()
 {
 	global $plugins_cache, $mybb, $db, $lang, $cache;
@@ -161,7 +165,7 @@ function tyl_myalerts_integrate()
 
 function thankyoulike_install()
 {
-	global $mybb, $db;
+	global $mybb, $db, $cache;
 	
 	$codename = basename(__FILE__, ".php");
 	$prefix = 'g33k_'.$codename.'_';
@@ -252,6 +256,13 @@ function thankyoulike_install()
 	{
 		$db->add_column("promotions", "thankyouliketype", "char(2) NOT NULL default ''");
 	}
+	
+	// Add ThankYou/Like Limits Tables Fields
+	if(!$db->field_exists("tyl_limits_max", "usergroups"))
+	{
+		$db->add_column("usergroups", "tyl_limits_max", "int(10) NOT NULL DEFAULT '10'");
+	}
+	
 	
 	// Insert Template elements
 	$templateset = array(
@@ -352,6 +363,10 @@ img[id^=tyl_i_expcol_]{
 	{
 		update_theme_stylesheet_list($theme['tid']);
 	}
+	
+	$cache->update_usergroups();
+	$cache->update_forums();
+	$cache->update_tasks();	
 }
 
 function thankyoulike_is_installed()
@@ -491,7 +506,12 @@ closed='.$lang->tyl_colldefault_op_2.'',
 				'title'				=> $lang->tyl_displaygrowl_title,
 				'description'		=> $lang->tyl_displaygrowl_desc,
 				'optionscode'		=> 'onoff',
-				'value'				=> '1')
+				'value'				=> '1'),
+		'limits' 		=> array(
+				'title'				=> $lang->tyl_limits_title,
+				'description'		=> $lang->tyl_limits_desc,
+				'optionscode'		=> 'yesno',
+				'value'				=> '0')
 	);
 	
 	$x = 1;
@@ -619,7 +639,7 @@ function thankyoulike_deactivate()
 
 function thankyoulike_uninstall()
 {
-	global $mybb, $db;
+	global $mybb, $db, $cache;
 	
 	$codename = basename(__FILE__, ".php");
 	$prefix = 'g33k_'.$codename.'_';
@@ -695,6 +715,16 @@ function thankyoulike_uninstall()
 		{
 			$db->drop_column("promotions", "thankyouliketype");
 		}
+		
+		if($db->field_exists("tyl_limits_max", "usergroups"))
+		{
+			$db->drop_column("usergroups", "tyl_limits_max");
+		}
+		
+		
+	$cache->update_usergroups();
+	$cache->update_forums();
+	$cache->update_tasks();	
 }
 
 function thankyoulike_templatelist()
@@ -1938,4 +1968,43 @@ function acp_tyl_recount_form()
 	$form_container->output_cell($form->generate_numeric_field("tyls", 500, array('style' => 'width: 150px;', 'min' => 0)));
 	$form_container->output_cell($form->generate_submit_button($lang->go, array("name" => "do_recounttyls")));
 	$form_container->construct_row();
+}
+
+
+function tyl_limits_usergroup_permission_tabs(&$tabs)
+{
+	global $lang;
+	$codename = basename(__FILE__, ".php");
+	$prefix = 'g33k_'.$codename.'_';
+	
+	$lang->load("config_thankyoulike", true);
+
+	$tabs['tyl_limits'] = $lang->tyl_limits_tab;
+	return $tabs;
+}
+
+function tyl_limits_usergroup_permission()
+{
+	global $mybb, $lang, $form, $form_container;
+	$codename = basename(__FILE__, ".php");
+	$prefix = 'g33k_'.$codename.'_';
+
+	$lang->load("config_thankyoulike", true);	
+	
+	if($mybb->settings[$prefix.'limits'] == 1)
+	{
+		if(!empty($form_container->_title) & !empty($lang->users_permissions) & $form_container->_title == $lang->users_permissions)
+		{
+			$tyl_limits_options = array(
+			"{$lang->tyl_limits_permissions_title}<br /><small class=\"input\">{$lang->tyl_limits_permissions_desc}</small><br />".$form->generate_numeric_field('tyl_limits_max', $mybb->input['tyl_limits_max'], array('id' => 'max_tyl_limits', 'class' => 'field50', 'min' => 0))
+			);
+			$form_container->output_row($lang->tyl_limits_permissions_system, "", "<div class=\"group_settings_bit\">".implode("</div><div class=\"group_settings_bit\">", $tyl_limits_options)."</div>");
+		}
+	}
+}
+
+function tyl_limits_usergroup_permission_commit()
+{
+	global $db, $mybb, $updated_group;
+	$updated_group['tyl_limits_max'] = $db->escape_string((int)$mybb->input['tyl_limits_max']);
 }
