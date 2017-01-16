@@ -44,11 +44,13 @@ if ($mybb->settings[$prefix.'thankslike'] == "like")
 {
 	$pre = $lang->tyl_like;
 	$pre1 = $lang->tyl_liked;
+	$pre2 = $lang->tyl_likes;
 }
 else
 {
 	$pre = $lang->tyl_thankyou;
 	$pre1 = $lang->tyl_thanked;
+	$pre2 = $lang->tyl_thanks;
 }
 
 if($mybb->settings[$prefix.'enabled'] != "1")
@@ -159,7 +161,7 @@ if($mybb->input['action'] == "add")
 		// Reached the quota - error.
 		if($numtoday >= $mybb->usergroup['tyl_limits_max'])
 		{
-			error($lang->sprintf($lang->tyl_error_reached_max_per_hour));
+			error($lang->sprintf($lang->tyl_error_reached_max_per_hour, $pre2));
 		}
 	}
 
