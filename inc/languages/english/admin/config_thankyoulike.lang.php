@@ -90,8 +90,11 @@ $l['tyl_limits_permissions_desc'] = "Here you can enter the maximum number of th
 $l['tyl_uninstall'] = 'Thank You/Like System - Uninstallation';
 $l['tyl_uninstall_message'] = 'Do you wish to drop all plugin data entries from the database?';
 
-$l['setting_thankyoulike_promotion'] = 'Thank You/Like Count';
-$l['setting_thankyoulike_promotion_desc'] = 'Enter the number of Thanks/Likes required. Thanks/Likes count must be selected as a required value for this to be included. Select the type of comparison for Thanks/Likes.';
+$l['setting_thankyoulike_promotion_rcv'] = 'Thank You/Like Received';
+$l['setting_thankyoulike_promotion_rcv_desc'] = 'Enter the number of received Thanks/Likes required. Thanks/Likes count must be selected as a required value for this to be included. Select the type of comparison for Thanks/Likes.';
+
+$l['setting_thankyoulike_promotion_gvn'] = 'Thank You/Like Given';
+$l['setting_thankyoulike_promotion_gvn_desc'] = 'Enter the number of given Thanks/Likes required. Thanks/Likes count must be selected as a required value for this to be included. Select the type of comparison for Thanks/Likes.';
 
 $l['tyl_recount'] = "Thank/Like Counters";
 $l['tyl_recount_do_desc'] = "When this is run, the Thanks/Likes count for each user and post will be updated to reflect its current live value based on the data in the database.";

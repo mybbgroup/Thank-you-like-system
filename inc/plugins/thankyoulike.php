@@ -248,13 +248,21 @@ function thankyoulike_install()
 		$db->insert_query($prefix."stats", $total_data);
 	}
 	// Add ThankYou/Like Promotions Tables Fields
-	if(!$db->field_exists("thankyoulike", "promotions"))
+	if(!$db->field_exists("tylreceived", "promotions"))
 	{
-		$db->add_column("promotions", "thankyoulike", "int NOT NULL default '0'");
+		$db->add_column("promotions", "tylreceived", "int NOT NULL default '0'");
 	}
-	if(!$db->field_exists("thankyouliketype", "promotions"))
+	if(!$db->field_exists("tylreceivedtype", "promotions"))
 	{
-		$db->add_column("promotions", "thankyouliketype", "char(2) NOT NULL default ''");
+		$db->add_column("promotions", "tylreceivedtype", "char(2) NOT NULL default ''");
+	}
+	if(!$db->field_exists("tylgiven", "promotions"))
+	{
+		$db->add_column("promotions", "tylgiven", "int NOT NULL default '0'");
+	}
+	if(!$db->field_exists("tylgiventype", "promotions"))
+	{
+		$db->add_column("promotions", "tylgiventype", "char(2) NOT NULL default ''");
 	}
 	
 	// Add ThankYou/Like Limits Tables Fields
@@ -701,19 +709,33 @@ function thankyoulike_uninstall()
 		}
 	}
 	// Remove ThankYou/Like Promotions Tables Fields
-		if($db->field_exists("thankyoulike", "promotions"))
+		if($db->field_exists("tylreceived", "promotions"))
 		{
-			$query = $db->simple_select("promotions", "pid", "thankyoulike>'0'");
+			$query = $db->simple_select("promotions", "pid", "tylreceived>'0'");
 			$pid = $db->fetch_array($query);
 			if(!empty($pid['pid']))
 			{
 				$db->delete_query("promotions", "pid='{$pid['pid']}'");
 			}
-			$db->drop_column("promotions", "thankyoulike");
+			$db->drop_column("promotions", "tylreceived");
 		}
-		if($db->field_exists("thankyouliketype", "promotions"))
+		if($db->field_exists("tylreceivedtype", "promotions"))
 		{
-			$db->drop_column("promotions", "thankyouliketype");
+			$db->drop_column("promotions", "tylreceivedtype");
+		}
+		if($db->field_exists("tylgiven", "promotions"))
+		{
+			$query = $db->simple_select("promotions", "pid", "tylgiven>'0'");
+			$pid = $db->fetch_array($query);
+			if(!empty($pid['pid']))
+			{
+				$db->delete_query("promotions", "pid='{$pid['pid']}'");
+			}
+			$db->drop_column("promotions", "tylgiven");
+		}
+		if($db->field_exists("tylgiventype", "promotions"))
+		{
+			$db->drop_column("promotions", "tylgiventype");
 		}
 		
 		if($db->field_exists("tyl_limits_max", "usergroups"))
@@ -1746,35 +1768,59 @@ function thankyoulike_promotion_formcontainer_output_row(&$args)
 
 	if($args['label_for'] == 'requirements')
 	{
-		$options['thankyoulike'] = $lang->setting_thankyoulike_promotion;
+		$options['tylreceived'] = $lang->setting_thankyoulike_promotion_rcv;
 		$args['content'] = $form->generate_select_box('requirements[]', $options, $mybb->input['requirements'], array('id' => 'requirements', 'multiple' => true, 'size' => 5));
 	}
 
 	if($args['label_for'] == 'timeregistered')
 	{
-		if($mybb->get_input('pid', 1) && !isset($mybb->input['thankyoulike']))
+		if($mybb->get_input('pid', 1) && !isset($mybb->input['tylreceived']))
 		{
-			$thankyoulike = $promotion['thankyoulike'];
-			$thankyouliketype = $promotion['thankyouliketype'];
+			$tylreceived = $promotion['tylreceived'];
+			$tylreceivedtype = $promotion['tylreceivedtype'];
 		}
 		else
 		{
-			$thankyoulike = $mybb->get_input('thankyoulike');
-			$thankyouliketype = $mybb->get_input('thankyouliketype');
+			$tylreceived = $mybb->get_input('tylreceived');
+			$tylreceivedtype = $mybb->get_input('tylreceivedtype');
 		}
 
-		$form_container->output_row($lang->setting_thankyoulike_promotion, $lang->setting_thankyoulike_promotion_desc, $form->generate_numeric_field('thankyoulike', (int)$thankyoulike, array('id' => 'thankyoulike'))." ".$form->generate_select_box("thankyouliketype", $options_type, $thankyouliketype, array('id' => 'thankyouliketype')), 'thankyoulike');
+		$form_container->output_row($lang->setting_thankyoulike_promotion_rcv, $lang->setting_thankyoulike_promotion_rcv_desc, $form->generate_numeric_field('tylreceived', (int)$tylreceived, array('id' => 'tylreceived'))." ".$form->generate_select_box("tylreceivedtype", $options_type, $tylreceivedtype, array('id' => 'tylreceivedtype')), 'tylreceived');
+	}
+	
+	if($args['label_for'] == 'requirements')
+	{
+		$options['tylgiven'] = $lang->setting_thankyoulike_promotion_gvn;
+		$args['content'] = $form->generate_select_box('requirements[]', $options, $mybb->input['requirements'], array('id' => 'requirements', 'multiple' => true, 'size' => 5));
+	}
+
+	if($args['label_for'] == 'timeregistered')
+	{
+		if($mybb->get_input('pid', 1) && !isset($mybb->input['tylgiven']))
+		{
+			$tylgiven = $promotion['tylgiven'];
+			$tylgiventype = $promotion['tylgiventype'];
+		}
+		else
+		{
+			$tylgiven = $mybb->get_input('tylgiven');
+			$tylgiventype = $mybb->get_input('tylgiventype');
+		}
+
+		$form_container->output_row($lang->setting_thankyoulike_promotion_gvn, $lang->setting_thankyoulike_promotion_gvn_desc, $form->generate_numeric_field('tylgiven', (int)$tylgiven, array('id' => 'tylgiven'))." ".$form->generate_select_box("tylgiventype", $options_type, $tylgiventype, array('id' => 'tylgiventype')), 'tylgiven');
 	}
 }
 
 function thankyoulike_promotion_commit()
 {
-	global $db, $mybb, $pid, $update_promotion, $pid;
+	global $db, $mybb, $pid, $update_promotion;
 
 	is_array($update_promotion) or $update_promotion = array();
 
-	$update_promotion['thankyoulike'] = $mybb->get_input('thankyoulike', 1);
-	$update_promotion['thankyouliketype'] = $db->escape_string($mybb->get_input('thankyouliketype'));
+	$update_promotion['tylreceived'] = $mybb->get_input('tylreceived', 1);
+	$update_promotion['tylreceivedtype'] = $db->escape_string($mybb->get_input('tylreceivedtype'));
+	$update_promotion['tylgiven'] = $mybb->get_input('tylgiven', 1);
+	$update_promotion['tylgiventype'] = $db->escape_string($mybb->get_input('tylgiventype'));
 
 	if($mybb->get_input('action') == 'add')
 	{
@@ -1784,9 +1830,14 @@ function thankyoulike_promotion_commit()
 
 function thankyoulike_promotion_task(&$args)
 {
-	if(in_array('thankyoulike', explode(',', $args['promotion']['requirements'])) && (int)$args['promotion']['thankyoulike'] >= 0 && !empty($args['promotion']['thankyouliketype']))
+	if(in_array('tylreceived', explode(',', $args['promotion']['requirements'])) && (int)$args['promotion']['tylreceived'] >= 0 && !empty($args['promotion']['tylreceivedtype']))
 	{
-		$args['sql_where'] .= "{$args['and']}tyl_unumrcvtyls{$args['promotion']['thankyouliketype']}'{$args['promotion']['thankyoulike']}'";
+		$args['sql_where'] .= "{$args['and']}tyl_unumrcvtyls{$args['promotion']['tylreceivedtype']}'{$args['promotion']['tylreceived']}'";
+		$args['and'] = ' AND ';
+	}
+	if(in_array('tylgiven', explode(',', $args['promotion']['requirements'])) && (int)$args['promotion']['tylgiven'] >= 0 && !empty($args['promotion']['tylgiventype']))
+	{
+		$args['sql_where'] .= "{$args['and']}tyl_unumtyls{$args['promotion']['tylgiventype']}'{$args['promotion']['tylgiven']}'";
 		$args['and'] = ' AND ';
 	}
 }
