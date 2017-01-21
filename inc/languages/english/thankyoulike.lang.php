@@ -48,6 +48,7 @@ $l['tyl_find_l_posts_for'] = "Find All Posts Liked For";
 
 $l['tyl_wol_searching'] = "<a href=\"{1}\">Searching {2}</a>";
 
+$l['tyl_error'] = "Thankyoulike System Error Message";
 $l['tyl_error_invalid_action'] = "You are trying to perform an invalid action.";
 $l['tyl_error_disabled'] = "{1} Feature has been disabled.";
 $l['tyl_error_not_allowed'] = "Not allowed for this post.";
@@ -73,7 +74,5 @@ $l['myalerts_setting_tyl'] = 'Receive an alert when someone add thanks/like to m
 $l['myalerts_setting_tyl_like'] = 'Receive an alert when someone add like to my post?';
 $l['myalerts_setting_tyl_thanks'] = 'Receive an alert when someone add thanks to my post?';
 
-$l['tyl_send_like'] = 'Adding like to this post';
-$l['tyl_send_thanks'] = 'Adding thanks to this post';
-$l['tyl_remove_like'] = 'Removing like from this post';
-$l['tyl_remove_thanks'] = 'Removing thanks from this post';
+$l['tyl_send'] = 'Adding {1} to this post';
+$l['tyl_remove'] = 'Removing {1} from this post';

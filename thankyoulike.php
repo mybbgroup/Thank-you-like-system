@@ -151,6 +151,8 @@ if ($excluded)
 
 if($mybb->input['action'] == "add")
 {	
+	$message = '';
+	
 	// Check if this user has reached their "maximum thanks/likes per day" quota
 	if($mybb->usergroup['tyl_limits_max'] != 0 && $mybb->settings[$prefix.'limits'] == "1")
 	{
@@ -160,15 +162,30 @@ if($mybb->input['action'] == "add")
 
 		// Reached the quota - error.
 		if($numtoday >= $mybb->usergroup['tyl_limits_max'])
-		{
-			error($lang->sprintf($lang->tyl_error_reached_max_per_hour, $pre2));
+		{			
+			$message = $lang->sprintf($lang->tyl_error_reached_max_per_hour, $pre2);
 		}
 	}
 
 	// Can't thank/like own post
 	if($post['uid'] == $mybb->user['uid'] && $mybb->settings[$prefix.'tylownposts'] != "1")
 	{
-		error($lang->sprintf($lang->tyl_error_own_post, $pre));
+		$message = $lang->sprintf($lang->tyl_error_own_post, $pre);
+	}
+	
+	if($message)
+	{
+		if($mybb->get_input('ajax', MyBB::INPUT_INT))
+		{
+			echo json_encode($message);
+			exit;
+		}
+		else
+		{
+			$url = get_post_link($pid, $tid)."#pid{$pid}";
+			redirect($url, $message, $lang->tyl_error, true);
+		}
+		
 	}
 
 	// Check if user has already thanked/liked this post.
@@ -238,7 +255,7 @@ if($mybb->input['action'] == "add")
 	else
 	{
 		error($lang->sprintf($lang->tyl_error_unknown, $pre));
-	}
+	}	
 }
 
 if($mybb->input['action'] == "del")

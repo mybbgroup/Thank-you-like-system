@@ -45,15 +45,10 @@ var thankyoulike = {
 			$.ajax('thankyoulike.php?ajax=1&action=add&pid='+pid+'&my_post_key='+my_post_key,
 			{
 				type: 'post',
-				beforeSend:function(){
-					if(tylDisplayGrowl == 1)
-					{
-						$.jGrowl(tylSend, {theme:'jgrowl_success'});			
-					}
+				success: function (data)
+				{
+					thankyoulike.addDone(data, pid);	
 				}
-			}).done(function(data)
-			{
-				thankyoulike.addDone(data, pid);
 			});
 			document.body.style.cursor = 'wait';
 			return false;
@@ -66,20 +61,21 @@ var thankyoulike = {
 	
 	addDone: function(data, pid)
 	{
-		if(typeof data == 'string' && data.match(/<error>([^<]*)<\/error>/))
+		if(typeof data === 'string')
 		{
-			message = data.match(/<error>([^<]*)<\/error>/);
-
-			if(!message[1])
+			var result = $.parseJSON(data);
+			if(result && tylDisplayGrowl == 1)
 			{
-				message[1] = "An unknown error occurred.";
+				$.jGrowl(result, {theme:'jgrowl_error'});
 			}
-
 			document.body.style.cursor = 'default';
-			alert(message[1]);
 		}
 		else
 		{
+			if(tylDisplayGrowl == 1)
+			{
+				$.jGrowl(tylSend, {theme:'jgrowl_success'});			
+			}
 			$("#tyl_"+pid).html(data.tylData);
 			$("#tyl_"+pid).css('display', "");
 			$("#tyl_btn_"+pid).html(data.tylButton);
@@ -98,15 +94,10 @@ var thankyoulike = {
 			$.ajax('thankyoulike.php?ajax=1&action=del&pid='+pid+'&my_post_key='+my_post_key,
 			{
 				type: 'post',
-				beforeSend:function(){
-					if(tylDisplayGrowl == 1)
-					{
-						$.jGrowl(tylRemove, {theme:'jgrowl_success'});			
-					}
-				}			
-			}).done(function(data)
-			{
-				thankyoulike.delDone(data, pid);
+				success: function (data)
+				{
+					thankyoulike.delDone(data, pid);	
+				}
 			});
 			document.body.style.cursor = 'wait';
 			return false;
@@ -119,19 +110,21 @@ var thankyoulike = {
 	
 	delDone: function(data, pid)
 	{
-		if(typeof data == 'string' && data.match(/<error>([^<]*)<\/error>/))
+		if(typeof data === 'string')
 		{
-			message = data.match(/<error>([^<]*)<\/error>/);
-
-			if(!message[1])
+			var result = $.parseJSON(data);
+			if(result && tylDisplayGrowl == 1)
 			{
-				message[1] = "An unknown error occurred.";
+				$.jGrowl(result, {theme:'jgrowl_error'});
 			}
 			document.body.style.cursor = 'default';
-			alert(message[1]);
 		}
 		else
 		{
+			if(tylDisplayGrowl == 1)
+			{
+				$.jGrowl(tylRemove, {theme:'jgrowl_success'});			
+			}
 			$("#tyl_"+pid).html(data.tylData);
 			$("#tyl_"+pid).css('display', "");
 			$("#tyl_btn_"+pid).html(data.tylButton);

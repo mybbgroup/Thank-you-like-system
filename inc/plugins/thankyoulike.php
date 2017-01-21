@@ -760,18 +760,25 @@ function thankyoulike_templatelist()
 		$lang->load('thankyoulike', false, true);
 		if ($mybb->settings[$prefix.'thankslike'] == "like")
 		{	
-			$lang->tyl_send = $lang->tyl_send_like;	
-			$lang->tyl_remove = $lang->tyl_remove_like;	
+			$prelang = $lang->tyl_like;
+			$prelang1 = $lang->tyl_likes;
+			
 			$lang->tyl_alert = $lang->tyl_alert_like;			
 			$lang->myalerts_setting_tyl = $lang->myalerts_setting_tyl_like;	
 		}
 		else if ($mybb->settings[$prefix.'thankslike'] == "thanks")
 		{
-			$lang->tyl_send = $lang->tyl_send_thanks;	
-			$lang->tyl_remove = $lang->tyl_remove_thanks;		
+
+			$prelang = $lang->tyl_thankyou;
+			$prelang1 = $lang->tyl_thanks;
+			
 			$lang->tyl_alert = $lang->tyl_alert_thanks;
-			$lang->myalerts_setting_tyl = $lang->myalerts_setting_tyl_thanks;				
+			$lang->myalerts_setting_tyl = $lang->myalerts_setting_tyl_thanks;
 		}
+		
+		$lang->tyl_send = $lang->sprintf($lang->tyl_send, $prelang);
+		$lang->tyl_remove = $lang->sprintf($lang->tyl_remove, $prelang);				
+		
 		// Registering alert formatter
 		if((function_exists('myalerts_is_activated')) && myalerts_is_activated() && $mybb->user['uid']){
 			global $cache, $formatterManager;
