@@ -280,12 +280,12 @@ function thankyoulike_install()
 	$db->insert_query("templategroups", $templateset);
 	
 	$tyl_templates = array(
-		'thankyoulike'			=> "<div class=\"post_controls tyllist {\$unapproved_shade}\">
+		'thankyoulike_postbit'			=> "<div class=\"post_controls tyllist {\$unapproved_shade}\">
 	{\$tyl_expcol} 
 	<span id=\"tyl_title_{\$post['pid']}\" style=\"{\$tyl_title_display}\">{\$lang->tyl_title}</span><span id=\"tyl_title_collapsed_{\$post['pid']}\" style=\"{\$tyl_title_display_collapsed}\">{\$lang->tyl_title_collapsed}</span><br />
 	<span id=\"tyl_data_{\$post['pid']}\" style=\"{\$tyl_data_display}\">&nbsp;&nbsp;• {\$post['thankyoulike']}</span>
 </div>",
-		'thankyoulike_classic'		=> "<div class=\"post_controls tyllist_classic {\$unapproved_shade}\">
+		'thankyoulike_postbit_classic'		=> "<div class=\"post_controls tyllist_classic {\$unapproved_shade}\">
 	{\$tyl_expcol} 
 	<span id=\"tyl_title_{\$post['pid']}\" style=\"{\$tyl_title_display}\">{\$lang->tyl_title}</span><span id=\"tyl_title_collapsed_{\$post['pid']}\" style=\"{\$tyl_title_display_collapsed}\">{\$lang->tyl_title_collapsed}</span><br />
 	<span id=\"tyl_data_{\$post['pid']}\" style=\"{\$tyl_data_display}\">&nbsp;&nbsp;• {\$post['thankyoulike']}</span>
@@ -294,10 +294,10 @@ function thankyoulike_install()
 		'thankyoulike_button_add'	=> "<div id=\"tyl_btn_{\$post['pid']}\" class=\"postbit_buttons\"><a class=\"add_tyl_button\" href=\"thankyoulike.php?action=add&amp;pid={\$post['pid']}&amp;my_post_key={\$mybb->post_code}\" onclick=\"return thankyoulike.add({\$post['pid']}, {\$post['tid']});\" title=\"{\$lang->add_tyl}\" id=\"tyl_a{\$post['pid']}\"><span id=\"tyl_i{\$post['pid']}\">{\$lang->add_tyl}</span></a></div>",
 		'thankyoulike_button_del'	=> "<div id=\"tyl_btn_{\$post['pid']}\" class=\"postbit_buttons\"><a class=\"del_tyl_button\" href=\"thankyoulike.php?action=del&amp;pid={\$post['pid']}&amp;my_post_key={\$mybb->post_code}\" onclick=\"return thankyoulike.del({\$post['pid']}, {\$post['tid']});\" title=\"{\$lang->del_tyl}\" id=\"tyl_a{\$post['pid']}\"><span id=\"tyl_i{\$post['pid']}\">{\$lang->del_tyl}</span></a></div>",
 		'thankyoulike_users'		=> "<span class=\"smalltext\">{\$comma}</span><a href=\"{\$profile_link}\" class=\"smalltext\" {\$datedisplay_title}>{\$tyl_list}</a>{\$datedisplay_next}",
-		'thankyoulike_postbit'		=> "{\$lang->tyl_rcvd}: {\$post['tyl_unumrtyls']}
+		'thankyoulike_postbit_author_user'		=> "{\$lang->tyl_rcvd}: {\$post['tyl_unumrtyls']}
 <br />
 {\$lang->tyl_given}: {\$post['tyl_unumtyls']}",
-		'thankyoulike_memprofile'	=> "<tr>
+		'thankyoulike_member_profile'	=> "<tr>
 	<td class=\"trow1\"><strong>{\$lang->tyl_total_tyls_rcvd}</strong></td>
 	<td class=\"trow1\">{\$memprofile['tyl_unumrcvtyls']} ({\$tylrcvpd_percent_total})<br /><span class=\"smalltext\">(<a href=\"tylsearch.php?action=usertylforthreads&amp;uid={\$uid}\">{\$lang->tyl_find_threads_for}</a> &mdash; <a href=\"tylsearch.php?action=usertylforposts&amp;uid={\$uid}\">{\$lang->tyl_find_posts_for}</a>)</span></td>
 </tr>
@@ -660,7 +660,7 @@ function thankyoulike_uninstall()
 	}
 	
 	// Remove templates
-	$templatearray = array("thankyoulike","thankyoulike_classic","thankyoulike_expcollapse","thankyoulike_button_add","thankyoulike_button_del","thankyoulike_users","thankyoulike_postbit","thankyoulike_memprofile");
+	$templatearray = array("thankyoulike_postbit","thankyoulike_postbit_classic","thankyoulike_expcollapse","thankyoulike_button_add","thankyoulike_button_del","thankyoulike_users","thankyoulike_postbit_author_user","thankyoulike_member_profile");
 	$deltemplates = implode("','", $templatearray);
 	$db->delete_query("templates", "title in ('{$deltemplates}')");	
 	$db->delete_query("templategroups", "prefix in ('thankyoulike')");
@@ -790,19 +790,19 @@ function thankyoulike_templatelist()
 		$template_list = '';
 		if (THIS_SCRIPT == 'showthread.php')
 		{
-			$template_list = "thankyoulike_users,thankyoulike_postbit,thankyoulike,thankyoulike_classic,thankyoulike_expcollapse,thankyoulike_button_add,thankyoulike_button_del";
+			$template_list = "thankyoulike_users,thankyoulike_postbit_author_user,thankyoulike_postbit,thankyoulike_postbit_classic,thankyoulike_expcollapse,thankyoulike_button_add,thankyoulike_button_del";
 		}
 		if (THIS_SCRIPT == 'member.php')
 		{
-			$template_list = "thankyoulike_memprofile";
+			$template_list = "thankyoulike_member_profile";
 		}
 		if (THIS_SCRIPT == 'announcements.php')
 		{
-			$template_list = "thankyoulike_postbit";
+			$template_list = "thankyoulike_postbit_author_user";
 		}
 		if (THIS_SCRIPT == 'private.php')
 		{
-			$template_list = "thankyoulike_postbit";
+			$template_list = "thankyoulike_postbit_author_user";
 		}
 		if (isset($templatelist))
 		{
@@ -844,7 +844,7 @@ function thankyoulike_postbit(&$post)
 			$post['tyl_unumrtyls'] = $lang->sprintf($lang->tyl_likes_rcvd_bit, my_number_format($post['tyl_unumrcvtyls']), my_number_format($post['tyl_unumptyls']));
 			$post['tyl_unumtyls'] = my_number_format($post['tyl_unumtyls']);
 			
-			eval("\$tyl_thankslikes = \"".$templates->get("thankyoulike_postbit", 1, 0)."\";");
+			eval("\$tyl_thankslikes = \"".$templates->get("thankyoulike_postbit_author_user", 1, 0)."\";");
 		}
 		else if ($mybb->settings[$prefix.'thankslike'] == "thanks")
 		{
@@ -853,7 +853,7 @@ function thankyoulike_postbit(&$post)
 			$post['tyl_unumrtyls'] = $lang->sprintf($lang->tyl_thanks_rcvd_bit, my_number_format($post['tyl_unumrcvtyls']), my_number_format($post['tyl_unumptyls']));
 			$post['tyl_unumtyls'] = my_number_format($post['tyl_unumtyls']);
 			
-			eval("\$tyl_thankslikes = \"".$templates->get("thankyoulike_postbit", 1, 0)."\";");
+			eval("\$tyl_thankslikes = \"".$templates->get("thankyoulike_postbit_author_user", 1, 0)."\";");
 		}
 		// Setup stats in postbit
 		$post['user_details'] = preg_replace("#".preg_quote('%%TYL_NUMTHANKEDLIKED%%')."#i", $tyl_thankslikes, $post['user_details']);
@@ -1046,11 +1046,11 @@ function thankyoulike_postbit(&$post)
 			$post['tyl_display'] = "";
 			if($mybb->settings['postlayout'] == "classic")
 			{
-				eval("\$thankyoulike = \"".$templates->get("thankyoulike_classic")."\";");
+				eval("\$thankyoulike = \"".$templates->get("thankyoulike_postbit_classic")."\";");
 			}
 			else
 			{
-				eval("\$thankyoulike = \"".$templates->get("thankyoulike")."\";");
+				eval("\$thankyoulike = \"".$templates->get("thankyoulike_postbit")."\";");
 			}
 			$post['thankyoulike_data'] = $thankyoulike;
 		}
@@ -1061,11 +1061,11 @@ function thankyoulike_postbit(&$post)
 			$post['tyl_display'] = "display: none;";
 			if($mybb->settings['postlayout'] == "classic")
 			{
-				eval("\$thankyoulike = \"".$templates->get("thankyoulike_classic")."\";");
+				eval("\$thankyoulike = \"".$templates->get("thankyoulike_postbit_classic")."\";");
 			}
 			else
 			{
-				eval("\$thankyoulike = \"".$templates->get("thankyoulike")."\";");
+				eval("\$thankyoulike = \"".$templates->get("thankyoulike_postbit")."\";");
 			}
 			$post['thankyoulike_data'] = $thankyoulike;
 		}
@@ -1096,7 +1096,7 @@ function thankyoulike_postbit_udetails(&$post)
 			$post['tyl_unumrtyls'] = $lang->sprintf($lang->tyl_likes_rcvd_bit, my_number_format($post['tyl_unumrcvtyls']), my_number_format($post['tyl_unumptyls']));
 			$post['tyl_unumtyls'] = my_number_format($post['tyl_unumtyls']);
 				
-			eval("\$tyl_thankslikes = \"".$templates->get("thankyoulike_postbit", 1, 0)."\";");
+			eval("\$tyl_thankslikes = \"".$templates->get("thankyoulike_postbit_author_user", 1, 0)."\";");
 		}
 		else if ($mybb->settings[$prefix.'thankslike'] == "thanks")
 		{
@@ -1105,7 +1105,7 @@ function thankyoulike_postbit_udetails(&$post)
 			$post['tyl_unumrtyls'] = $lang->sprintf($lang->tyl_thanks_rcvd_bit, my_number_format($post['tyl_unumrcvtyls']), my_number_format($post['tyl_unumptyls']));
 			$post['tyl_unumtyls'] = my_number_format($post['tyl_unumtyls']);
 			
-			eval("\$tyl_thankslikes = \"".$templates->get("thankyoulike_postbit", 1, 0)."\";");
+			eval("\$tyl_thankslikes = \"".$templates->get("thankyoulike_postbit_author_user", 1, 0)."\";");
 		}
 		// Setup stats in postbit
 		$post['user_details'] = preg_replace("#".preg_quote('%%TYL_NUMTHANKEDLIKED%%')."#i", $tyl_thankslikes, $post['user_details']);
@@ -1276,7 +1276,7 @@ function thankyoulike_memprofile()
 		$memprofile['tyl_unumrcvtyls'] = my_number_format($memprofile['tyl_unumrcvtyls']);
 		$tylpd_percent_total = $lang->sprintf($lang->tyl_tylpd_percent_total, my_number_format($tylpd), $tyl_thankslikes_given, $percent);
 		$tylrcvpd_percent_total = $lang->sprintf($lang->tyl_tylpd_percent_total, my_number_format($tylrcvpd), $tyl_thankslikes_rcvd, $percent_rcv);
-		eval("\$tyl_memprofile = \"".$templates->get("thankyoulike_memprofile")."\";");
+		eval("\$tyl_memprofile = \"".$templates->get("thankyoulike_member_profile")."\";");
 	}
 }
 

@@ -22,7 +22,7 @@ define('THIS_SCRIPT', 'thankyoulike.php');
 
 $prefix = "g33k_thankyoulike_";
 
-$templatelist = "thankyoulike_users,thankyoulike,thankyoulike_button_add,thankyoulike_button_del";
+$templatelist = "thankyoulike_users,thankyoulike_postbit,thankyoulike_postbit_classic,thankyoulike_button_add,thankyoulike_button_del";
 
 require_once "./global.php";
 
@@ -457,11 +457,11 @@ if($mybb->input['ajax'])
 		$post['tyl_display'] = "";
 		if($mybb->settings['postlayout'] == "classic")
 		{
-			eval("\$thankyoulike = \"".$templates->get("thankyoulike_classic")."\";");
+			eval("\$thankyoulike = \"".$templates->get("thankyoulike_postbit_classic")."\";");
 		}
 		else
 		{
-			eval("\$thankyoulike = \"".$templates->get("thankyoulike")."\";");
+			eval("\$thankyoulike = \"".$templates->get("thankyoulike_postbit")."\";");
 		}
 		// Cleanup for JSON
 		$thankyoulike = thankyoulike_cleanup_json($thankyoulike);
