@@ -48,7 +48,7 @@ $l['tyl_find_l_posts_for'] = "Find All Posts Liked For";
 
 $l['tyl_wol_searching'] = "<a href=\"{1}\">Searching {2}</a>";
 
-$l['tyl_error'] = "Thankyoulike System Error Message";
+$l['tyl_error'] = "Thank You/Like System Error Message";
 $l['tyl_error_invalid_action'] = "You are trying to perform an invalid action.";
 $l['tyl_error_disabled'] = "{1} Feature has been disabled.";
 $l['tyl_error_not_allowed'] = "Not allowed for this post.";
