@@ -29,8 +29,8 @@ $l['tyl_title_collapsed_l'] = "<strong>{1} {2} {3} {4}'s post</strong>";
 
 $l['add_ty'] = "Add Thank You";
 $l['del_ty'] = "Remove Thank You";
-$l['add_l'] = "Like Post";
-$l['del_l'] = "Unlike Post";
+$l['add_l'] = "Like";
+$l['del_l'] = "Unlike";
 
 $l['tyl_total_thanks_given'] = "Total Thanks Given:";
 $l['tyl_total_likes_given'] = "Total Likes Given:";
