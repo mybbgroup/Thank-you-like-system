@@ -159,11 +159,27 @@ if($mybb->input['action'] == "add")
 		$timesearch = TIME_NOW - (60 * 60 * 24);
 		$query = $db->simple_select($prefix."thankyoulike", "*", "uid='{$mybb->user['uid']}' AND dateline>'$timesearch'");
 		$numtoday = $db->num_rows($query);
+		
+		// Time left to next thankyou/like
+		if($numtoday>0)
+		{
+			$lastthank = $db->fetch_array($db->simple_select($prefix."thankyoulike", "dateline", "uid='{$mybb->user['uid']}' AND dateline>'$timesearch'", array("order_by" => 'dateline',"order_dir" => 'ASC', "limit" => 1)));
+			$tyltimediff = $lastthank['dateline'] - $timesearch;
+			
+			if($tyltimediff > 0)
+			{
+				$tyltimeleft = my_date("H", $tyltimediff).'h '.my_date("i", $tyltimediff).'m '.my_date("s", $tyltimediff).'s';
+			}
+		}
 
 		// Reached the quota - error.
 		if($numtoday >= $mybb->usergroup['tyl_limits_max'])
 		{			
-			$message = $lang->sprintf($lang->tyl_error_reached_max_per_hour, $pre2);
+			$message = $lang->sprintf($lang->tyl_error_reached_max_limit, $pre2);
+			if($tyltimeleft)
+			{
+				$message .= $lang->sprintf($lang->tyl_error_reached_max_timeleft, $pre2).$tyltimeleft;
+			}
 		}
 	}
 
@@ -183,7 +199,7 @@ if($mybb->input['action'] == "add")
 		else
 		{
 			$url = get_post_link($pid, $tid)."#pid{$pid}";
-			redirect($url, $message, $lang->tyl_error, true);
+			redirect($url, $message.$lang->tyl_redirect_back, $lang->tyl_error, true);
 		}
 		
 	}
