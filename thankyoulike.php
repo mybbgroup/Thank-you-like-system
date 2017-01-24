@@ -174,12 +174,23 @@ if($mybb->input['action'] == "add")
 
 		// Reached the quota - error.
 		if($numtoday >= $mybb->usergroup['tyl_limits_max'])
-		{			
-			$message = $lang->sprintf($lang->tyl_error_reached_max_limit, $pre2);
-			if($tyltimeleft)
+		{				
+			if($mybb->settings[$prefix.'displaygrowl'] == 1 || !$mybb->get_input('ajax', MyBB::INPUT_INT))
 			{
-				$message .= $lang->sprintf($lang->tyl_error_reached_max_timeleft, $pre2).$tyltimeleft;
+				$message = $lang->sprintf("<strong>".$lang->tyl_error_reached_max_limit."</strong>", $pre2);
+				if($tyltimeleft)
+				{
+					$message .= $lang->sprintf("<br/>".$lang->tyl_error_reached_max_timeleft, $pre2).$tyltimeleft;
+				}
 			}
+			else
+			{
+				$message = $lang->sprintf($lang->tyl_error_reached_max_limit, $pre2);
+				if($tyltimeleft)
+				{
+					$message .= $lang->sprintf("\n==>".$lang->tyl_error_reached_max_timeleft, $pre2).$tyltimeleft;
+				}
+			}			
 		}
 	}
 

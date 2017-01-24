@@ -64,9 +64,16 @@ var thankyoulike = {
 		if(typeof data === 'string')
 		{
 			var result = $.parseJSON(data);
-			if(result && tylDisplayGrowl == 1)
+			if(result)
 			{
-				$.jGrowl(result, {theme:'jgrowl_error'});
+				if(tylDisplayGrowl == 1)
+				{
+					$.jGrowl(result, {theme:'jgrowl_error'});
+				}
+				else
+				{
+					alert(result);
+				}
 			}
 			document.body.style.cursor = 'default';
 		}
@@ -113,9 +120,15 @@ var thankyoulike = {
 		if(typeof data === 'string')
 		{
 			var result = $.parseJSON(data);
-			if(result && tylDisplayGrowl == 1)
-			{
-				$.jGrowl(result, {theme:'jgrowl_error'});
+			if(result){
+				if(tylDisplayGrowl == 1)
+				{
+					$.jGrowl(result, {theme:'jgrowl_error'});
+				}
+				else
+				{
+					alert(result);
+				}
 			}
 			document.body.style.cursor = 'default';
 		}
