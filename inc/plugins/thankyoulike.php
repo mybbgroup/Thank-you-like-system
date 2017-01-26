@@ -1281,8 +1281,8 @@ function thankyoulike_memprofile()
 		}
 		$memprofile['tyl_unumtyls'] = my_number_format($memprofile['tyl_unumtyls']);
 		$memprofile['tyl_unumrcvtyls'] = my_number_format($memprofile['tyl_unumrcvtyls']);
-		$tylpd_percent_total = $lang->sprintf($lang->tyl_tylpd_percent_total, my_number_format($tylpd), $tyl_thankslikes_given, $percent);
-		$tylrcvpd_percent_total = $lang->sprintf($lang->tyl_tylpd_percent_total, my_number_format($tylrcvpd), $tyl_thankslikes_rcvd, $percent_rcv);
+		$tylpd_percent_total = $lang->sprintf($lang->tyl_tylpd_percent_total, my_number_format($tylpd), $tyl_thankslikes_given, $percent, $total['value']);
+		$tylrcvpd_percent_total = $lang->sprintf($lang->tyl_tylpd_percent_total, my_number_format($tylrcvpd), $tyl_thankslikes_rcvd, $percent_rcv, $total['value']);
 		eval("\$tyl_memprofile = \"".$templates->get("thankyoulike_member_profile")."\";");
 	}
 }
