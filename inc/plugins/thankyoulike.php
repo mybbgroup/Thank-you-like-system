@@ -705,7 +705,7 @@ function thankyoulike_uninstall()
 			$db->drop_table($prefix.'stats');
 		}
 	}
-	// Remove ThankYou/Like Promotions Tables Fields
+	// Remove Thank You/Like Promotions Tables Fields
 		if($db->field_exists("tylreceived", "promotions"))
 		{
 			$query = $db->simple_select("promotions", "pid", "tylreceived>'0'");
@@ -1748,7 +1748,7 @@ function thankyoulike_settings_peeker()
 </script>';
 }
 
-// Start ThankYou/Like Promotions Functions
+// Start Thank You/Like Promotions Functions
 function thankyoulike_promotion_formcontainer_output_row(&$args)
 {
 	global $run_module, $form_container, $mybb, $db, $lang, $form, $options, $options_type, $promotion;
@@ -1836,7 +1836,7 @@ function thankyoulike_promotion_task(&$args)
 	}
 }
 
-// Start ThankYou/Like Counter Functions
+// Start Thank You/Like Counter Functions
 function acp_tyl_do_recounting()
 {
 	global $db, $mybb, $lang;
