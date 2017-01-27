@@ -60,7 +60,13 @@ $tyl_uid = 	intval($mybb->input['uid']);
 
 if($mybb->input['action'] == "usertylthreads" && $tyl_uid)
 {
-	$where_sql = "t.tid IN (SELECT p.tid 
+	$ownTYLout = '';
+	if($mybb->settings[$prefix.'remowntylfroms'] == 1)
+	{
+		$ownTYLout = 't.uid <> '.$tyl_uid.' AND ';
+	}
+	
+	$where_sql = "{$ownTYLout}t.tid IN (SELECT p.tid 
 				FROM ".TABLE_PREFIX.$prefix."thankyoulike tyl
 				LEFT JOIN ".TABLE_PREFIX."posts p ON ( p.pid = tyl.pid )
 				WHERE tyl.uid = $tyl_uid)";
@@ -110,7 +116,13 @@ if($mybb->input['action'] == "usertylthreads" && $tyl_uid)
 }
 elseif($mybb->input['action'] == "usertylposts" && $tyl_uid)
 {
-	$where_sql = "pid IN (SELECT tyl.pid 
+	$ownTYLout = '';
+	if($mybb->settings[$prefix.'remowntylfroms'] == 1)
+	{
+		$ownTYLout = 'uid <> '.$tyl_uid.' AND ';
+	}
+	
+	$where_sql = "{$ownTYLout}pid IN (SELECT tyl.pid 
 				FROM ".TABLE_PREFIX.$prefix."thankyoulike tyl
 				WHERE tyl.uid = $tyl_uid)";
 	
@@ -178,10 +190,16 @@ elseif($mybb->input['action'] == "usertylposts" && $tyl_uid)
 }
 elseif($mybb->input['action'] == "usertylforthreads" && $tyl_uid)
 {
+	$ownTYLout = '';
+	if($mybb->settings[$prefix.'remowntylfroms'] == 1)
+	{
+		$ownTYLout = 'tyl.uid <> '.$tyl_uid.' AND ';
+	}
+	
 	$where_sql = "t.uid = ".$tyl_uid." AND t.tid IN (SELECT p.tid 
 				FROM ".TABLE_PREFIX.$prefix."thankyoulike tyl
 				LEFT JOIN ".TABLE_PREFIX."posts p ON ( p.pid = tyl.pid )
-				WHERE tyl.puid = $tyl_uid)";
+				WHERE {$ownTYLout}tyl.puid = $tyl_uid)";
 	
 
 	$unsearchforums = get_unsearchable_forums();
@@ -229,11 +247,16 @@ elseif($mybb->input['action'] == "usertylforthreads" && $tyl_uid)
 }
 elseif($mybb->input['action'] == "usertylforposts" && $tyl_uid)
 {
+	$ownTYLout = '';
+	if($mybb->settings[$prefix.'remowntylfroms'] == 1)
+	{
+		$ownTYLout = 'tyl.uid <> '.$tyl_uid.' AND ';
+	}
 	
 	$where_sql = "pid IN (
 				SELECT tyl.pid 
 				FROM ".TABLE_PREFIX.$prefix."thankyoulike tyl
-				WHERE tyl.puid = $tyl_uid)";
+				WHERE {$ownTYLout}tyl.puid = $tyl_uid)";
 	
 	$unsearchforums = get_unsearchable_forums();
 	if($unsearchforums)

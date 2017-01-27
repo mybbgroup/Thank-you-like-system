@@ -39,6 +39,12 @@ $l['tyl_removing_desc'] = "Do you want to allow the removing of Thank/Like from 
 $l['tyl_tylownposts_title'] = "Allow Giving Thanks/Likes to own Posts";
 $l['tyl_tylownposts_desc'] = "Do you want to allow users to give Thanks/Likes to own posts?";
 
+$l['tyl_remowntylfroms_title'] = "Remove Own Given Thanks/Likes From Search Results";
+$l['tyl_remowntylfroms_desc'] = "Choose YES to hide own given Thanks/Likes on search list";
+
+$l['tyl_remowntylfromc_title'] = "Remove Numbers of Own Given Thanks/Likes in Counters";
+$l['tyl_remowntylfromc_desc'] = "Choose YES to hide own given Thanks/Likes in post and member profile counters";
+
 $l['tyl_closedthreads_title'] = "Allow in Closed Threads";
 $l['tyl_closedthreads_desc'] = "Do you want to allow to give Thank/Like in closed threads?";
 

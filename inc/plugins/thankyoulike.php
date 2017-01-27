@@ -20,6 +20,22 @@ if(!defined("IN_MYBB"))
 	die("Direct initialization of this file is not allowed.<br /><br />Please make sure IN_MYBB is defined.");
 }
 
+if(defined("IN_ADMINCP"))
+{
+	$plugins->add_hook('admin_formcontainer_output_row', 'thankyoulike_promotion_formcontainer_output_row');
+	$plugins->add_hook('admin_user_group_promotions_edit_commit', 'thankyoulike_promotion_commit');
+	$plugins->add_hook('admin_user_group_promotions_add_commit', 'thankyoulike_promotion_commit');
+	$plugins->add_hook("admin_user_groups_edit_graph_tabs", "tyl_limits_usergroup_permission_tabs");
+	$plugins->add_hook("admin_formcontainer_end", "tyl_limits_usergroup_permission");
+	$plugins->add_hook("admin_user_groups_edit_commit", "tyl_limits_usergroup_permission_commit");
+	$plugins->add_hook('admin_load', 'thankyoulike_admin_load');
+	$plugins->add_hook("admin_user_users_delete_commit","thankyoulike_delete_user");
+	$plugins->add_hook("admin_tools_recount_rebuild", "acp_tyl_do_recounting");
+	$plugins->add_hook("admin_tools_recount_rebuild_output_list", "acp_tyl_recount_form");
+	$plugins->add_hook("admin_config_settings_change","thankyoulike_settings_page");
+	$plugins->add_hook("admin_page_output_footer","thankyoulike_settings_peeker");
+}
+
 $plugins->add_hook("global_start", "thankyoulike_templatelist");
 $plugins->add_hook("postbit","thankyoulike_postbit");
 $plugins->add_hook("postbit_prev","thankyoulike_postbit_udetails");
@@ -33,34 +49,15 @@ $plugins->add_hook("class_moderation_delete_post_start","thankyoulike_delete_pos
 $plugins->add_hook("class_moderation_merge_posts","thankyoulike_merge_posts");
 $plugins->add_hook("class_moderation_merge_threads","thankyoulike_merge_threads");
 $plugins->add_hook("class_moderation_split_posts","thankyoulike_split_posts");
-$plugins->add_hook('admin_load', 'thankyoulike_admin_load');
-$plugins->add_hook("admin_user_users_delete_commit","thankyoulike_delete_user");
-$plugins->add_hook("admin_tools_recount_rebuild", "acp_tyl_do_recounting");
-$plugins->add_hook("admin_tools_recount_rebuild_output_list", "acp_tyl_recount_form");
-$plugins->add_hook("admin_config_settings_change","thankyoulike_settings_page");
-$plugins->add_hook("admin_page_output_footer","thankyoulike_settings_peeker");
-
-// Start ThankYou/Like Promotions Hooks
-if(defined("IN_ADMINCP"))
-{
-	$plugins->add_hook('admin_formcontainer_output_row', 'thankyoulike_promotion_formcontainer_output_row');
-	$plugins->add_hook('admin_user_group_promotions_edit_commit', 'thankyoulike_promotion_commit');
-	$plugins->add_hook('admin_user_group_promotions_add_commit', 'thankyoulike_promotion_commit');
-}
 $plugins->add_hook('task_promotions', 'thankyoulike_promotion_task');
-// End ThankYou/Like Promotions Hooks
 
-$plugins->add_hook("admin_user_groups_edit_graph_tabs", "tyl_limits_usergroup_permission_tabs");
-$plugins->add_hook("admin_formcontainer_end", "tyl_limits_usergroup_permission");
-$plugins->add_hook("admin_user_groups_edit_commit", "tyl_limits_usergroup_permission_commit");
 
 function thankyoulike_info()
 {
 	global $plugins_cache, $mybb, $db, $lang, $cache;
-	$lang->load('config_thankyoulike');
-	
-	$codename = basename(__FILE__, ".php");
-	$prefix = 'g33k_'.$codename.'_';
+	$lang->load('config_thankyoulike');	
+	$prefix = 'g33k_thankyoulike_';
+	$codename = 'thankyoulike';
 
 $url_AT= '<a href="http://my-bb.ir" target="_blank">AliReza_Tofighi</a>';
 $url_SP = '<a href="https://community.mybb.com/user-91011.html" target="_blank">SvePu</a>';
@@ -108,7 +105,7 @@ $url_S = '<a href="https://github.com/Cu8eeeR/MyBB_Thank-you-like-plugin" target
     
     if(is_array($plugins_cache) && is_array($plugins_cache['active']) && $plugins_cache['active'][$codename])
     {
-	    $info_desc .= "<ul><li style=\"list-style-image: url(styles/default/images/icons/default.png)\"><a href=\"index.php?module=tools-thankyoulike_recount\">".$db->escape_string($lang->tyl_info_desc_recount)."</a></li></ul>";
+	    $info_desc .= "<ul><li style=\"list-style-image: url(styles/default/images/icons/default.png)\"><a href=\"index.php?module=tools-recount_rebuild\">".$db->escape_string($lang->tyl_info_desc_recount)."</a></li></ul>";
 		$info_desc .= '<form action="https://www.paypal.com/cgi-bin/webscr" method="post" style="float: right;" target="_blank">
 <input type="hidden" name="cmd" value="_s-xclick">
 <input type="hidden" name="hosted_button_id" value="KCNAC5PE828X8">
@@ -165,10 +162,8 @@ function tyl_myalerts_integrate()
 
 function thankyoulike_install()
 {
-	global $mybb, $db, $cache;
-	
-	$codename = basename(__FILE__, ".php");
-	$prefix = 'g33k_'.$codename.'_';
+	global $mybb, $db, $cache;	
+	$prefix = 'g33k_thankyoulike_';
 	$info = thankyoulike_info();
 	
 	//delete old unnecessary files
@@ -247,7 +242,7 @@ function thankyoulike_install()
 
 		$db->insert_query($prefix."stats", $total_data);
 	}
-	// Add ThankYou/Like Promotions Tables Fields
+	// Add Thank You/Like Promotions Tables Fields
 	if(!$db->field_exists("tylreceived", "promotions"))
 	{
 		$db->add_column("promotions", "tylreceived", "int NOT NULL default '0'");
@@ -265,7 +260,7 @@ function thankyoulike_install()
 		$db->add_column("promotions", "tylgiventype", "char(2) NOT NULL default ''");
 	}
 	
-	// Add ThankYou/Like Limits Tables Fields
+	// Add Thank You/Like Limits Tables Fields
 	if(!$db->field_exists("tyl_limits_max", "usergroups"))
 	{
 		$db->add_column("usergroups", "tyl_limits_max", "int(10) NOT NULL DEFAULT '10'");
@@ -275,7 +270,7 @@ function thankyoulike_install()
 	// Insert Template elements
 	$templateset = array(
 	    "prefix" => "thankyoulike",
-	    "title" => "ThankYou/Like",
+	    "title" => "Thank You/Like",
     );
 	$db->insert_query("templategroups", $templateset);
 	
@@ -379,10 +374,8 @@ img[id^=tyl_i_expcol_]{
 
 function thankyoulike_is_installed()
 {
-	global $mybb, $db;
-	
-	$codename = basename(__FILE__, ".php");
-	$prefix = 'g33k_'.$codename.'_';
+	global $mybb, $db;	
+	$prefix = 'g33k_thankyoulike_';
 	
 	$result = $db->simple_select('templategroups', 'gid', "prefix in ('thankyoulike')", array('limit' => 1));
 	$templategroup = $db->fetch_array($result);
@@ -397,10 +390,8 @@ function thankyoulike_is_installed()
 function thankyoulike_activate()
 {
 	global $mybb, $db, $cache, $lang;
-	$lang->load('config_thankyoulike');
-	
-	$codename = basename(__FILE__, ".php");
-	$prefix = 'g33k_'.$codename.'_';
+	$lang->load('config_thankyoulike');	
+	$prefix = 'g33k_thankyoulike_';
 	
 	// Insert settings in to the database
 	$query = $db->query("SELECT disporder FROM ".TABLE_PREFIX."settinggroups ORDER BY `disporder` DESC LIMIT 1");
@@ -451,6 +442,16 @@ all='.$lang->tyl_firstall_op_2.'',
 				'description'		=> $lang->tyl_tylownposts_desc,
 				'optionscode'		=> 'yesno',
 				'value'				=> '0'),
+		'remowntylfroms'			=> array(
+				'title'				=> $lang->tyl_remowntylfroms_title,
+				'description'		=> $lang->tyl_remowntylfroms_desc,
+				'optionscode'		=> 'yesno',
+				'value'				=> '1'),
+		'remowntylfromc'			=> array(
+				'title'				=> $lang->tyl_remowntylfromc_title,
+				'description'		=> $lang->tyl_remowntylfromc_desc,
+				'optionscode'		=> 'yesno',
+				'value'				=> '1'),
 		'closedthreads'			=> array(
 				'title'				=> $lang->tyl_closedthreads_title,
 				'description'		=> $lang->tyl_closedthreads_desc,
@@ -591,10 +592,8 @@ closed='.$lang->tyl_colldefault_op_2.'',
 
 function thankyoulike_deactivate()
 {
-	global $db, $cache;
-	
-	$codename = basename(__FILE__, ".php");
-	$prefix = 'g33k_'.$codename.'_';
+	global $db, $cache;	
+	$prefix = 'g33k_thankyoulike_';
 	
 	// Remove settings
 	$result = $db->simple_select('settinggroups', 'gid', "name = '{$prefix}settings'", array('limit' => 1));
@@ -647,10 +646,8 @@ function thankyoulike_deactivate()
 
 function thankyoulike_uninstall()
 {
-	global $mybb, $db, $cache;
-	
-	$codename = basename(__FILE__, ".php");
-	$prefix = 'g33k_'.$codename.'_';
+	global $mybb, $db, $cache;	
+	$prefix = 'g33k_thankyoulike_';
 	
 	if($mybb->request_method != 'post')
 	{
@@ -751,10 +748,8 @@ function thankyoulike_uninstall()
 
 function thankyoulike_templatelist()
 {
-	global $mybb, $cache, $lang, $code, $templatelist;
-	
-	$codename = basename(__FILE__, ".php");
-	$prefix = 'g33k_'.$codename.'_';
+	global $mybb, $cache, $lang, $code, $templatelist;	
+	$prefix = 'g33k_thankyoulike_';
 	if ($mybb->settings[$prefix.'enabled'] == "1")
 	{
 		$lang->load('thankyoulike', false, true);
@@ -824,10 +819,8 @@ function thankyoulike_templatelist()
 
 function thankyoulike_postbit(&$post)
 {
-	global $db, $mybb, $theme, $templates, $lang, $pids, $g33k_pcache;
-	
-	$codename = basename(__FILE__, ".php");
-	$prefix = 'g33k_'.$codename.'_';
+	global $db, $mybb, $theme, $templates, $lang, $pids, $g33k_pcache;	
+	$prefix = 'g33k_thankyoulike_';
 	
 	$lang->load("thankyoulike");
 	
@@ -1087,11 +1080,8 @@ function thankyoulike_postbit(&$post)
 
 function thankyoulike_postbit_udetails(&$post)
 {
-	global $mybb, $templates, $lang;
-	
-	$codename = basename(__FILE__, ".php");
-	$prefix = 'g33k_'.$codename.'_';
-	
+	global $mybb, $templates, $lang;	
+	$prefix = 'g33k_thankyoulike_';	
 	$lang->load("thankyoulike");
 	
 	if ($mybb->settings[$prefix.'enabled'] == "1")
@@ -1128,11 +1118,8 @@ function thankyoulike_postbit_udetails(&$post)
 // Sending the alert to db
 function tyl_recordAlertThankyou()
 {
-	global $db, $lang, $mybb, $alert, $post, $codename, $prefix;
-	
-	$codename = basename(__FILE__, ".php");
-	$prefix = 'g33k_'.$codename.'_';
-	
+	global $db, $lang, $mybb, $alert, $post, $prefix;	
+	$prefix = 'g33k_thankyoulike_';	
 	$lang->load("thankyoulike", false, true);
 	
 	if(!$mybb->settings[$prefix.'enabled'] == "1")
@@ -1172,9 +1159,8 @@ function tyl_recordAlertThankyou()
 
  // Alert formatter for my custom alerts.
 function tyl_myalerts_formatter_load(){
-	global $mybb, $codename, $prefix;
-	$codename = basename(__FILE__, ".php");
-	$prefix = 'g33k_'.$codename.'_';
+	global $mybb, $prefix;
+	$prefix = 'g33k_thankyoulike_';
 
 	if ($mybb->settings[$prefix.'enabled'] == "1")
 	{
@@ -1210,10 +1196,8 @@ function tyl_myalerts_formatter_load(){
 
 function thankyoulike_memprofile()
 {
-	global $db, $mybb, $lang, $memprofile, $templates, $tyl_memprofile, $uid;
-	
-	$codename = basename(__FILE__, ".php");
-	$prefix = 'g33k_'.$codename.'_';
+	global $db, $mybb, $lang, $memprofile, $templates, $tyl_memprofile, $uid;	
+	$prefix = 'g33k_thankyoulike_';
 	
 	$lang->load("thankyoulike");
 	
@@ -1239,6 +1223,22 @@ function thankyoulike_memprofile()
 			$lang->tyl_find_posts_for = $lang->tyl_find_ty_posts_for;
 			$tyl_thankslikes = $lang->tyl_thanks;
 		}
+		
+		if ($mybb->settings[$prefix.'remowntylfromc'] == 1)
+		{
+			$ownTYLgiv= $db->num_rows($db->simple_select($prefix."thankyoulike", "*", "uid='{$memprofile['uid']}' AND uid=puid"));
+			if($ownTYLgiv>0)
+			{
+				$memprofile['tyl_unumtyls'] = $memprofile['tyl_unumtyls']-$ownTYLgiv;
+			}
+			
+			$ownTYLrcv= $db->num_rows($db->simple_select($prefix."thankyoulike", "*", "puid='{$memprofile['uid']}' AND uid=puid"));
+			if($ownTYLrcv>0)
+			{
+				$memprofile['tyl_unumrcvtyls'] = $memprofile['tyl_unumrcvtyls']-$ownTYLrcv;
+			}
+		}
+		
 		$daysreg = (TIME_NOW - $memprofile['regdate']) / (24*3600);
 		$tylpd = $memprofile['tyl_unumtyls'] / $daysreg;
 		$tylpd = round($tylpd, 2);
@@ -1265,6 +1265,10 @@ function thankyoulike_memprofile()
 		}
 		else
 		{
+			if($ownTYLgiv || $ownTYLrcv)
+			{
+				$total['value'] = $total['value'] - ($ownTYLgiv+$ownTYLrcv);
+			}
 			$percent = $memprofile['tyl_unumtyls']*100/$total['value'];
 			$percent = round($percent, 2);
 			$percent_rcv = $memprofile['tyl_unumrcvtyls']*100/$total['value'];
@@ -1289,10 +1293,8 @@ function thankyoulike_memprofile()
 
 function thankyoulike_delete_thread($tid)
 {
-	global $db;
-	
-	$codename = basename(__FILE__, ".php");
-	$prefix = 'g33k_'.$codename.'_';
+	global $db;	
+	$prefix = 'g33k_thankyoulike_';
 	
 	$thread = get_thread($tid);
 	
@@ -1368,10 +1370,8 @@ function thankyoulike_delete_thread($tid)
 
 function thankyoulike_delete_post($pid)
 {
-	global $db;
-	
-	$codename = basename(__FILE__, ".php");
-	$prefix = 'g33k_'.$codename.'_';
+	global $db;	
+	$prefix = 'g33k_thankyoulike_';
 	
 	$pid = intval($pid);
 	
@@ -1428,10 +1428,8 @@ function thankyoulike_delete_post($pid)
 
 function thankyoulike_merge_posts($args)
 {
-	global $db;
-	
-	$codename = basename(__FILE__, ".php");
-	$prefix = 'g33k_'.$codename.'_';
+	global $db;	
+	$prefix = 'g33k_thankyoulike_';
 	
 	$pids = $args['pids'];
 	$tid = $args['tid'];
@@ -1535,10 +1533,8 @@ function thankyoulike_merge_posts($args)
 
 function thankyoulike_merge_threads($args)
 {
-	global $db;
-	
-	$codename = basename(__FILE__, ".php");
-	$prefix = 'g33k_'.$codename.'_';
+	global $db;	
+	$prefix = 'g33k_thankyoulike_';
 	
 	$mergetid = $args['mergetid'];
 	$tid = $args['tid'];
@@ -1556,10 +1552,8 @@ function thankyoulike_merge_threads($args)
 
 function thankyoulike_split_posts($args)
 {
-	global $db;
-	
-	$codename = basename(__FILE__, ".php");
-	$prefix = 'g33k_'.$codename.'_';
+	global $db;	
+	$prefix = 'g33k_thankyoulike_';
 	
 	$pids = $args['pids'];
 	$tid = $args['tid'];
@@ -1587,10 +1581,8 @@ function thankyoulike_split_posts($args)
 
 function thankyoulike_delete_user()
 {
-	global $db, $user;
-	
-	$codename = basename(__FILE__, ".php");
-	$prefix = 'g33k_'.$codename.'_';
+	global $db, $user;	
+	$prefix = 'g33k_thankyoulike_';
 	
 	// Only delete/update if the user had tyls
 	if($user['tyl_unumtyls'] != 0)
@@ -1697,8 +1689,7 @@ function thankyoulike_wol_activity($user_activity)
 
 function thankyoulike_friendly_wol_activity($plugin_array)
 {
-	global $mybb, $lang;
-	
+	global $mybb, $lang;	
 	$lang->load("thankyoulike");
 	
 	if ($plugin_array['user_activity']['activity'] == "tyl_searching")
@@ -1718,10 +1709,8 @@ function thankyoulike_friendly_wol_activity($plugin_array)
 
 function thankyoulike_settings_page()
 {
-	global $db, $mybb, $g33k_settings_peeker;
-	
-	$codename = basename(__FILE__, ".php");
-	$prefix = 'g33k_'.$codename.'_';
+	global $db, $mybb, $g33k_settings_peeker;	
+	$prefix = 'g33k_thankyoulike_';
 	
 	$query = $db->simple_select("settinggroups", "gid", "name='{$prefix}settings'", array('limit' => 1));
 	$group = $db->fetch_array($query);
@@ -1730,10 +1719,8 @@ function thankyoulike_settings_page()
 
 function thankyoulike_settings_peeker()
 {
-	global $g33k_settings_peeker;
-	
-	$codename = basename(__FILE__, ".php");
-	$prefix = 'g33k_'.$codename.'_';
+	global $g33k_settings_peeker;	
+	$prefix = 'g33k_thankyoulike_';
 	
 	if($g33k_settings_peeker)
 		echo '<script type="text/javascript">
@@ -1853,9 +1840,8 @@ function thankyoulike_promotion_task(&$args)
 function acp_tyl_do_recounting()
 {
 	global $db, $mybb, $lang;
-	$lang->load("config_thankyoulike");
-	
 	$prefix = "g33k_thankyoulike_";
+	$lang->load("config_thankyoulike");
 
 	if($mybb->request_method == "post")
 	{
@@ -2031,11 +2017,9 @@ function acp_tyl_recount_form()
 
 function tyl_limits_usergroup_permission_tabs(&$tabs)
 {
-	global $lang;
-	$codename = basename(__FILE__, ".php");
-	$prefix = 'g33k_'.$codename.'_';
-	
-	$lang->load("config_thankyoulike", true);
+	global $lang;	
+	$prefix = 'g33k_thankyoulike_';	
+	$lang->load("config_thankyoulike");
 
 	$tabs['tyl_limits'] = $lang->tyl_limits_tab;
 	return $tabs;
@@ -2043,11 +2027,9 @@ function tyl_limits_usergroup_permission_tabs(&$tabs)
 
 function tyl_limits_usergroup_permission()
 {
-	global $mybb, $lang, $form, $form_container;
-	$codename = basename(__FILE__, ".php");
-	$prefix = 'g33k_'.$codename.'_';
-
-	$lang->load("config_thankyoulike", true);	
+	global $mybb, $lang, $form, $form_container;	
+	$prefix = 'g33k_thankyoulike_';
+	$lang->load("config_thankyoulike");	
 	
 	if($mybb->settings[$prefix.'limits'] == 1)
 	{
