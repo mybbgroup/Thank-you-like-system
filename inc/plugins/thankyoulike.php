@@ -40,7 +40,7 @@ $plugins->add_hook("admin_tools_recount_rebuild_output_list", "acp_tyl_recount_f
 $plugins->add_hook("admin_config_settings_change","thankyoulike_settings_page");
 $plugins->add_hook("admin_page_output_footer","thankyoulike_settings_peeker");
 
-// Start ThankYou/Like Promotions Hooks
+// Start Thank You/Like Promotions Hooks
 if(defined("IN_ADMINCP"))
 {
 	$plugins->add_hook('admin_formcontainer_output_row', 'thankyoulike_promotion_formcontainer_output_row');
@@ -48,7 +48,7 @@ if(defined("IN_ADMINCP"))
 	$plugins->add_hook('admin_user_group_promotions_add_commit', 'thankyoulike_promotion_commit');
 }
 $plugins->add_hook('task_promotions', 'thankyoulike_promotion_task');
-// End ThankYou/Like Promotions Hooks
+// End Thank You/Like Promotions Hooks
 
 $plugins->add_hook("admin_user_groups_edit_graph_tabs", "tyl_limits_usergroup_permission_tabs");
 $plugins->add_hook("admin_formcontainer_end", "tyl_limits_usergroup_permission");
@@ -247,7 +247,7 @@ function thankyoulike_install()
 
 		$db->insert_query($prefix."stats", $total_data);
 	}
-	// Add ThankYou/Like Promotions Tables Fields
+	// Add Thank You/Like Promotions Tables Fields
 	if(!$db->field_exists("tylreceived", "promotions"))
 	{
 		$db->add_column("promotions", "tylreceived", "int NOT NULL default '0'");
@@ -265,7 +265,7 @@ function thankyoulike_install()
 		$db->add_column("promotions", "tylgiventype", "char(2) NOT NULL default ''");
 	}
 	
-	// Add ThankYou/Like Limits Tables Fields
+	// Add Thank You/Like Limits Tables Fields
 	if(!$db->field_exists("tyl_limits_max", "usergroups"))
 	{
 		$db->add_column("usergroups", "tyl_limits_max", "int(10) NOT NULL DEFAULT '10'");
@@ -275,7 +275,7 @@ function thankyoulike_install()
 	// Insert Template elements
 	$templateset = array(
 	    "prefix" => "thankyoulike",
-	    "title" => "ThankYou/Like",
+	    "title" => "Thank You/Like",
     );
 	$db->insert_query("templategroups", $templateset);
 	
@@ -708,7 +708,7 @@ function thankyoulike_uninstall()
 			$db->drop_table($prefix.'stats');
 		}
 	}
-	// Remove ThankYou/Like Promotions Tables Fields
+	// Remove Thank You/Like Promotions Tables Fields
 		if($db->field_exists("tylreceived", "promotions"))
 		{
 			$query = $db->simple_select("promotions", "pid", "tylreceived>'0'");
@@ -1761,7 +1761,7 @@ function thankyoulike_settings_peeker()
 </script>';
 }
 
-// Start ThankYou/Like Promotions Functions
+// Start Thank You/Like Promotions Functions
 function thankyoulike_promotion_formcontainer_output_row(&$args)
 {
 	global $run_module, $form_container, $mybb, $db, $lang, $form, $options, $options_type, $promotion;
@@ -1849,7 +1849,7 @@ function thankyoulike_promotion_task(&$args)
 	}
 }
 
-// Start ThankYou/Like Counter Functions
+// Start Thank You/Like Counter Functions
 function acp_tyl_do_recounting()
 {
 	global $db, $mybb, $lang;
