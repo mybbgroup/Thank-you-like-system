@@ -169,11 +169,8 @@ function thankyoulike_install()
 	$prefix = 'g33k_thankyoulike_';
 	$info = thankyoulike_info();
 	
-	//delete old unnecessary files
-	if(file_exists(MYBB_ROOT."/admin/modules/tools/thankyoulike_recount.php"))
-	{
-		@unlink(MYBB_ROOT."/admin/modules/tools/thankyoulike_recount.php");
-	}
+	// Run preinstall cleanup
+	tyl_preinstall_cleanup();
 	
 	if(!$db->field_exists('tyl_pnumtyls', 'posts'))
 	{
@@ -2047,4 +2044,50 @@ function tyl_limits_usergroup_permission_commit()
 {
 	global $db, $mybb, $updated_group;
 	$updated_group['tyl_limits_max'] = $db->escape_string((int)$mybb->input['tyl_limits_max']);
+}
+
+function tyl_preinstall_cleanup()
+{
+	global $mybb, $db, $cache;
+	
+	$codename = basename(__FILE__, ".php");
+	$prefix = 'g33k_'.$codename.'_';
+	
+	//delete old unnecessary files
+	if(file_exists(MYBB_ROOT."/admin/modules/tools/thankyoulike_recount.php"))
+	{
+		@unlink(MYBB_ROOT."/admin/modules/tools/thankyoulike_recount.php");
+	}
+	if(file_exists(MYBB_ROOT."/inc/languages/english/admin/tools_thankyoulike_recount.lang.php"))
+	{
+		@unlink(MYBB_ROOT."/inc/languages/english/admin/tools_thankyoulike_recount.lang.php");
+	}
+	
+	// Remove old templates
+	$db->delete_query("templates", "title LIKE 'thankyoulike%'");
+	$db->delete_query("templategroups", "prefix in ('thankyoulike')");
+	
+	// Remove old CSS rules for g33k_thankyoulike	
+	require_once MYBB_ADMIN_DIR."inc/functions_themes.php";
+	$db->delete_query("themestylesheets", "name='g33k_thankyoulike.css'");
+	$query = $db->simple_select("themes", "tid");
+	while($theme = $db->fetch_array($query))
+	{
+		update_theme_stylesheet_list($theme['tid']);
+	}
+	
+	// Remove old settings
+	$result = $db->simple_select('settinggroups', 'gid', "name = '{$prefix}settings'", array('limit' => 1));
+	$group = $db->fetch_array($result);
+	
+	if(!empty($group['gid']))
+	{
+		$db->delete_query('settinggroups', "gid='{$group['gid']}'");
+		$db->delete_query('settings', "gid='{$group['gid']}'");
+		rebuild_settings();
+	}
+	
+	$cache->update_usergroups();
+	$cache->update_forums();
+	$cache->update_tasks();		
 }
