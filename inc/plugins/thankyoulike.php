@@ -833,6 +833,24 @@ function thankyoulike_postbit(&$post)
 				$excluded = true;
 			}
 		}
+		
+		if ($mybb->settings[$prefix.'remowntylfromc'] == 1)
+		{
+			$query = $db->simple_select($prefix."thankyoulike", "*", "uid=puid");
+			while($result = $db->fetch_array($query))
+			{
+				if($result['uid'] == $post['uid'])
+				{
+					$post['tyl_unumtyls'] = $post['tyl_unumtyls'] - count($result['tlid']);
+				}
+				
+				if($result['puid'] == $post['uid'])
+				{
+					$post['tyl_unumrcvtyls'] = $post['tyl_unumrcvtyls'] - count($result['tlid']);
+				}
+			}
+		}
+		
 		// Setup the stat in postbit
 		if ($mybb->settings[$prefix.'thankslike'] == "like")
 		{
@@ -1083,6 +1101,23 @@ function thankyoulike_postbit_udetails(&$post)
 	
 	if ($mybb->settings[$prefix.'enabled'] == "1")
 	{		
+		if ($mybb->settings[$prefix.'remowntylfromc'] == 1)
+		{
+			$query = $db->simple_select($prefix."thankyoulike", "*", "uid=puid");
+			while($result = $db->fetch_array($query))
+			{
+				if($result['uid'] == $post['uid'])
+				{
+					$post['tyl_unumtyls'] = $post['tyl_unumtyls'] - count($result['tlid']);
+				}
+				
+				if($result['puid'] == $post['uid'])
+				{
+					$post['tyl_unumrcvtyls'] = $post['tyl_unumrcvtyls'] - count($result['tlid']);
+				}
+			}
+		}
+		
 		if ($mybb->settings[$prefix.'thankslike'] == "like")
 		{
 			$lang->tyl_rcvd = $lang->tyl_likes_rcvd;
