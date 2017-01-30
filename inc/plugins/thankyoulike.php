@@ -73,7 +73,7 @@ $url_S = '<a href="https://github.com/Cu8eeeR/MyBB_Thank-you-like-plugin" target
 		"website"	=> "https://community.mybb.com/thread-169382.html",
 		"author"	=> "- G33K -",
 		"authorsite"	=> "https://community.mybb.com/user-19236.html",
-		"version"	=> "1.9.11",
+		"version"	=> "2.0.0",
 		"codename"	=> "thankyoulikesystem",
 		"compatibility"	=> "18*"
     );
@@ -137,9 +137,9 @@ function thankyoulike_admin_load()
 function tyl_myalerts_integrate()
 {
 	global $db, $cache;
-	// Verify if myalerts exists and if compatible with 1.8.x then add alert type
+	// Verify if MyAlerts exists and if is compatible with 1.8.x then add alert type
 	if(function_exists("myalerts_info")){
-		// Load myalerts info into an array
+		// Load MyAlerts info into an array
 		$my_alerts_info = myalerts_info();
 		// Set version info to a new var
 		$verify = $my_alerts_info['version'];
@@ -148,7 +148,7 @@ function tyl_myalerts_integrate()
 			// Load cache data and compare if version is the same or not
 			$myalerts_plugins = $cache->read('mybbstuff_myalerts_alert_types');
 			if($myalerts_plugins['tyl']['code'] != 'tyl'){
-				//Adding alert type to db
+				// Adding alert type into db
 				$alertTypeManager = MybbStuff_MyAlerts_AlertTypeManager::createInstance($db, $cache);
 					$alertType = new MybbStuff_MyAlerts_Entity_AlertType();
 					$alertType->setCode('tyl');
@@ -156,7 +156,7 @@ function tyl_myalerts_integrate()
 				$alertTypeManager->add($alertType);	
 			}
 
-			flash_message("MyAlerts and TYL System were integrated successfully!", 'success');
+			flash_message("MyAlerts and Thank You/Like System were integrated successfully!", 'success');
 			admin_redirect('index.php?module=config-plugins');			
 		}	
 	}
@@ -267,7 +267,7 @@ function thankyoulike_install()
 	}
 	
 	
-	// Insert settings in to the database
+	// Insert settings into the database
 	$query = $db->query("SELECT disporder FROM ".TABLE_PREFIX."settinggroups ORDER BY `disporder` DESC LIMIT 1");
 	$disporder = $db->fetch_field($query, 'disporder')+1;
 
@@ -464,7 +464,7 @@ closed='.$lang->tyl_colldefault_op_2.'',
 		$db->insert_query('templates', $insert_templates);
 	}
 	
-	// css-class for g33k_thankyoulike	
+	// css-class for thankyoulike	
 	$css = array(
 	"name" => "thankyoulike.css",
 	"tid" => 1,
@@ -568,18 +568,18 @@ function thankyoulike_activate()
 		find_replace_templatesets("member_profile", '#{\$reputation}(\r?)\n#', "{\$tyl_memprofile}\n{\$reputation}\n");
 	} 
 
-	// Verify if myalerts exists and if it is compatible with 1.8.x, then add alert type
+	// Verify if MyAlerts exists and if it is compatible with 1.8.x, then add alert type
 	if(function_exists("myalerts_info")){
-		// Load myalerts info into an array
+		// Load MyAlerts info into an array
 		$my_alerts_info = myalerts_info();
 		// Set version info to a new var
 		$verify = $my_alerts_info['version'];
-		// If MyAlerts 2.0 or better then do this !!!
+		// If MyAlerts 2.0 or better then do this!!!
 		if($verify >= "2.0.0"){
 		// Load cache data and compare if version is the same or not
 		$myalerts_plugins = $cache->read('mybbstuff_myalerts_alert_types');
 		if($myalerts_plugins['tyl']['code'] != 'tyl'){
-			//Adding alert type to db
+			// Adding alert type into database
 			$alertTypeManager = MybbStuff_MyAlerts_AlertTypeManager::createInstance($db, $cache);
 				$alertType = new MybbStuff_MyAlerts_Entity_AlertType();
 				$alertType->setCode('tyl');
@@ -619,7 +619,7 @@ function thankyoulike_deactivate()
 	find_replace_templatesets("member_profile", '#{\$tyl_memprofile}(\r?)\n#', "", 0);
 
 	if(function_exists("myalerts_info")){
-		// Load myalerts info into an array
+		// Load MyAlerts info into an array
 		$my_alerts_info = myalerts_info();
 		// Set version info to a new var
 		$verify = $my_alerts_info['version'];
@@ -851,7 +851,7 @@ function thankyoulike_postbit(&$post)
 			}
 		}
 		
-		// Setup the stat in postbit
+		// Setup stats in postbit
 		if ($mybb->settings[$prefix.'thankslike'] == "like")
 		{
 			$lang->tyl_rcvd = $lang->tyl_likes_rcvd;
@@ -879,7 +879,7 @@ function thankyoulike_postbit(&$post)
 			return $post;
 		}
 		
-		// Get all the ty/l data for all the posts on this thread
+		// Get all the thank you/like data for all the posts on this thread
 		// Check first is it already fetched/cached?
 		if(!is_array($g33k_pcache))
 		{
@@ -1147,7 +1147,7 @@ function thankyoulike_postbit_udetails(&$post)
 	return $post;
 }
 
-// Sending the alert to db
+// Sending the alert to database
 function tyl_recordAlertThankyou()
 {
 	global $db, $lang, $mybb, $alert, $post, $prefix;	
@@ -1168,7 +1168,7 @@ function tyl_recordAlertThankyou()
     $alertType = MybbStuff_MyAlerts_AlertTypeManager::getInstance()->getByCode('tyl');
 	
     if(isset($alertType) && $alertType->getEnabled()){
-         //check if already alerted
+         // Check if already alerted
         $query = $db->simple_select(
 			'alerts',
 			'id',
@@ -1189,7 +1189,7 @@ function tyl_recordAlertThankyou()
 	}
 }
 
- // Alert formatter for my custom alerts.
+ // Alert formatter for my custom alerts
 function tyl_myalerts_formatter_load(){
 	global $mybb, $prefix;
 	$prefix = 'g33k_thankyoulike_';
