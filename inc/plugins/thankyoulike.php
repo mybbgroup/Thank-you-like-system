@@ -1095,7 +1095,7 @@ function thankyoulike_postbit(&$post)
 
 function thankyoulike_postbit_udetails(&$post)
 {
-	global $mybb, $templates, $lang;	
+	global $mybb, $db, $templates, $lang;	
 	$prefix = 'g33k_thankyoulike_';	
 	$lang->load("thankyoulike");
 	
