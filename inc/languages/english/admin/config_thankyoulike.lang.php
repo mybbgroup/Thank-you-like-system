@@ -102,7 +102,7 @@ $l['setting_thankyoulike_promotion_rcv_desc'] = 'Enter the number of received Th
 $l['setting_thankyoulike_promotion_gvn'] = 'Thank You/Like Given';
 $l['setting_thankyoulike_promotion_gvn_desc'] = 'Enter the number of given Thanks/Likes required. Thanks/Likes count must be selected as a required value for this to be included. Select the type of comparison for Thanks/Likes.';
 
-$l['tyl_recount'] = "Thank/Like Counters";
+$l['tyl_recount'] = "Recount Thank You/Like";
 $l['tyl_recount_do_desc'] = "When this is run, the Thanks/Likes count for each user and post will be updated to reflect its current live value based on the data in the database.";
 $l['tyl_success_thankyoulike_rebuilt'] = "The Thanks/Likes have been recounted successfully.";
 
