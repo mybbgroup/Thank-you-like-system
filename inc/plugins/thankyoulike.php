@@ -1103,18 +1103,27 @@ function thankyoulike_postbit_udetails(&$post)
 	{		
 		if ($mybb->settings[$prefix.'remowntylfromc'] == 1)
 		{
-			$query = $db->simple_select($prefix."thankyoulike", "*", "uid=puid");
-			while($result = $db->fetch_array($query))
+			$query = $db->simple_select($prefix."thankyoulike", "COUNT(tlid) AS owntyluser", "uid='".$post['uid']."' AND uid=puid");	
+			$owntyluser = $db->fetch_field($query, 'owntyluser');
+			if($owntyluser)	
 			{
-				if($result['uid'] == $post['uid'])
-				{
-					$post['tyl_unumtyls'] = $post['tyl_unumtyls'] - count($result['tlid']);
-				}
-				
-				if($result['puid'] == $post['uid'])
-				{
-					$post['tyl_unumrcvtyls'] = $post['tyl_unumrcvtyls'] - count($result['tlid']);
-				}
+				$post['tyl_unumtyls'] = $post['tyl_unumtyls'] - $owntyluser;
+				$post['tyl_unumrcvtyls'] = $post['tyl_unumrcvtyls'] - $owntyluser;
+			}
+			$query1 = $db->query("SELECT
+				COUNT(pid) AS owntylposts
+				FROM ".TABLE_PREFIX.$prefix."thankyoulike
+				WHERE uid='".$post['uid']."' AND uid=puid AND pid NOT IN (
+					SELECT pid FROM ".TABLE_PREFIX.$prefix."thankyoulike
+					WHERE puid='".$post['uid']."' 
+					GROUP BY pid 
+					HAVING COUNT(pid) > 1
+					)
+				");
+			$owntylposts = $db->fetch_field($query1, 'owntylposts');
+			if($owntylposts)
+			{
+				$post['tyl_unumptyls'] = $post['tyl_unumptyls'] - $owntylposts;
 			}
 		}
 		
@@ -1258,16 +1267,12 @@ function thankyoulike_memprofile()
 		
 		if ($mybb->settings[$prefix.'remowntylfromc'] == 1)
 		{
-			$ownTYLgiv= $db->num_rows($db->simple_select($prefix."thankyoulike", "*", "uid='{$memprofile['uid']}' AND uid=puid"));
-			if($ownTYLgiv>0)
+			$query = $db->simple_select($prefix."thankyoulike", "COUNT(tlid) AS owntyl_user", "uid='".$memprofile['uid']."' AND uid=puid");	
+			$owntyluser = $db->fetch_field($query, 'owntyl_user');
+			if($owntyluser)	
 			{
-				$memprofile['tyl_unumtyls'] = $memprofile['tyl_unumtyls']-$ownTYLgiv;
-			}
-			
-			$ownTYLrcv= $db->num_rows($db->simple_select($prefix."thankyoulike", "*", "puid='{$memprofile['uid']}' AND uid=puid"));
-			if($ownTYLrcv>0)
-			{
-				$memprofile['tyl_unumrcvtyls'] = $memprofile['tyl_unumrcvtyls']-$ownTYLrcv;
+				$memprofile['tyl_unumtyls'] = $memprofile['tyl_unumtyls'] - $owntyluser;
+				$memprofile['tyl_unumrcvtyls'] = $memprofile['tyl_unumrcvtyls'] - $owntyluser;
 			}
 		}
 		
@@ -1284,28 +1289,45 @@ function thankyoulike_memprofile()
 		{
 			$tylrcvpd = $memprofile['tyl_unumrcvtyls'];
 		}
-		// Get total tyl and percentage
-		$options = array(
-			"limit" => 1
-		);
-		$query = $db->simple_select($prefix."stats", "*", "title='total'", $options);
-		$total = $db->fetch_array($query);
-		if($total['value'] == 0)
+		
+		// Get total tyl and percentage		
+		$query1 = $db->query("SELECT SUM(tyl_unumtyls) as totalgiv, SUM(tyl_unumrcvtyls) as totalrcv FROM ".TABLE_PREFIX."users");
+		if($total = $db->fetch_array($query1))
 		{
-			$percent = "0";
-			$percent_rcv = "0";
+			$totalgiv = (int)$total['totalgiv'];
+			$totalrcv = (int)$total['totalrcv'];
+		}		
+		
+		if($mybb->settings[$prefix.'remowntylfromc'] == 1)
+		{
+			$query = $db->simple_select($prefix."thankyoulike", "COUNT(tlid) AS owntyl_total", "uid=puid");
+			$owntyltotal = $db->fetch_field($query, 'owntyl_total');
+			if($owntyltotal)
+			{
+				$totalgiv = $totalgiv - $owntyltotal;
+				$totalrcv = $totalrcv - $owntyltotal;
+			}
+		}
+		
+		if($totalgiv > 0)
+		{
+			$percent = $memprofile['tyl_unumtyls']*100/$totalgiv;
+			$percent = round($percent, 2);
 		}
 		else
 		{
-			if($ownTYLgiv || $ownTYLrcv)
-			{
-				$total['value'] = $total['value'] - ($ownTYLgiv+$ownTYLrcv);
-			}
-			$percent = $memprofile['tyl_unumtyls']*100/$total['value'];
-			$percent = round($percent, 2);
-			$percent_rcv = $memprofile['tyl_unumrcvtyls']*100/$total['value'];
+			$percent = "0";
+		}
+		
+		if($totalrcv > 0)
+		{
+			$percent_rcv = $memprofile['tyl_unumrcvtyls']*100/$totalrcv;
 			$percent_rcv = round($percent_rcv, 2);
 		}
+		else
+		{
+			$percent_rcv = "0";
+		}	
 		
 		if($percent > 100)
 		{
@@ -1317,8 +1339,8 @@ function thankyoulike_memprofile()
 		}
 		$memprofile['tyl_unumtyls'] = my_number_format($memprofile['tyl_unumtyls']);
 		$memprofile['tyl_unumrcvtyls'] = my_number_format($memprofile['tyl_unumrcvtyls']);
-		$tylpd_percent_total = $lang->sprintf($lang->tyl_tylpd_percent_total, my_number_format($tylpd), $tyl_thankslikes_given, $percent, $total['value']);
-		$tylrcvpd_percent_total = $lang->sprintf($lang->tyl_tylpd_percent_total, my_number_format($tylrcvpd), $tyl_thankslikes_rcvd, $percent_rcv, $total['value']);
+		$tylpd_percent_total = $lang->sprintf($lang->tyl_tylpd_percent_total, my_number_format($tylpd), $percent, $totalgiv);
+		$tylrcvpd_percent_total = $lang->sprintf($lang->tyl_tylpd_percent_total, my_number_format($tylrcvpd), $percent_rcv, $totalrcv);
 		eval("\$tyl_memprofile = \"".$templates->get("thankyoulike_member_profile")."\";");
 	}
 }
