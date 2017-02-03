@@ -28,9 +28,15 @@ $l['tyl_title_collapsed_ty'] = "<strong>{1} {2} {3} Thank You to {4} for this po
 $l['tyl_title_collapsed_l'] = "<strong>{1} {2} {3} {4}'s post</strong>";
 
 $l['add_ty'] = "Add Thank You";
+$l['add_ty_button_title'] = "Add a Thank You to this Post";
 $l['del_ty'] = "Remove Thank You";
+$l['del_ty_button_title'] = "Remove your Thank You from this Post";
+
 $l['add_l'] = "Like";
+$l['add_l_button_title'] = "Like this Post";
 $l['del_l'] = "Unlike";
+$l['del_l_button_title'] = "Unlike this Post";
+
 
 $l['tyl_total_thanks_given'] = "Total Thanks Given:";
 $l['tyl_total_likes_given'] = "Total Likes Given:";
