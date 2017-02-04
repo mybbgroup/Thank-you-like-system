@@ -320,12 +320,12 @@ all='.$lang->tyl_firstall_op_2.'',
 				'title'				=> $lang->tyl_remowntylfroms_title,
 				'description'		=> $lang->tyl_remowntylfroms_desc,
 				'optionscode'		=> 'yesno',
-				'value'				=> '1'),
+				'value'				=> '0'),
 		'remowntylfromc'			=> array(
 				'title'				=> $lang->tyl_remowntylfromc_title,
 				'description'		=> $lang->tyl_remowntylfromc_desc,
 				'optionscode'		=> 'yesno',
-				'value'				=> '1'),
+				'value'				=> '0'),
 		'closedthreads'			=> array(
 				'title'				=> $lang->tyl_closedthreads_title,
 				'description'		=> $lang->tyl_closedthreads_desc,
@@ -1781,29 +1781,16 @@ function thankyoulike_settings_peeker()
 	$prefix = 'g33k_thankyoulike_';
 	
 	if($g33k_settings_peeker)
+	{
 		echo '<script type="text/javascript">
-	Event.observe(window,"load",function(){
-		load'.$prefix.'Peekers();
-	});
-	function load'.$prefix.'Peekers(){
-		new Peeker($$(".setting_'.$prefix.'enabled"), $("row_setting_'.$prefix.'thankslike"), /1/, true);
-		new Peeker($$(".setting_'.$prefix.'enabled"), $("row_setting_'.$prefix.'firstall"), /1/, true);
-		new Peeker($$(".setting_'.$prefix.'enabled"), $("row_setting_'.$prefix.'firstalloverwrite"), /1/, true);
-		new Peeker($$(".setting_'.$prefix.'enabled"), $("row_setting_'.$prefix.'removing"), /1/, true);
-		new Peeker($$(".setting_'.$prefix.'enabled"), $("row_setting_'.$prefix.'tylownposts"), /1/, true);
-		new Peeker($$(".setting_'.$prefix.'enabled"), $("row_setting_'.$prefix.'closedthreads"), /1/, true);
-		new Peeker($$(".setting_'.$prefix.'enabled"), $("row_setting_'.$prefix.'exclude"), /1/, true);		
-		new Peeker($$(".setting_'.$prefix.'enabled"), $("row_setting_'.$prefix.'unameformat"), /1/, true);
-		new Peeker($$(".setting_'.$prefix.'enabled"), $("row_setting_'.$prefix.'hideforgroups"), /1/, true);
-		new Peeker($$(".setting_'.$prefix.'enabled"), $("row_setting_'.$prefix.'showdt"), /1/, true);
-		new Peeker($$(".setting_'.$prefix.'enabled"), $("row_setting_'.$prefix.'dtformat"), /1/, true);
-		new Peeker($$(".setting_'.$prefix.'enabled"), $("row_setting_'.$prefix.'sortorder"), /1/, true);
-		new Peeker($$(".setting_'.$prefix.'enabled"), $("row_setting_'.$prefix.'collapsible"), /1/, true);
-		new Peeker($$(".setting_'.$prefix.'enabled"), $("row_setting_'.$prefix.'colldefault"), /1/, true);
-		new Peeker($$(".setting_'.$prefix.'enabled"), $("row_setting_'.$prefix.'hidelistforgroups"), /1/, true);
-		new Peeker($$(".setting_'.$prefix.'enabled"), $("row_setting_'.$prefix.'displaygrowl"), /1/, true);
+		$(document).ready(function(){
+			new Peeker($(".setting_'.$prefix.'enabled"), $("#row_setting_'.$prefix.'thankslike, #row_setting_'.$prefix.'firstall, #row_setting_'.$prefix.'firstalloverwrite, #row_setting_'.$prefix.'removing, #row_setting_'.$prefix.'tylownposts, #row_setting_'.$prefix.'remowntylfroms, #row_setting_'.$prefix.'remowntylfromc, #row_setting_'.$prefix.'closedthreads, #row_setting_'.$prefix.'exclude, #row_setting_'.$prefix.'unameformat, #row_setting_'.$prefix.'hideforgroups, #row_setting_'.$prefix.'showdt, #row_setting_'.$prefix.'dtformat, #row_setting_'.$prefix.'sortorder, #row_setting_'.$prefix.'collapsible, #row_setting_'.$prefix.'colldefault, #row_setting_'.$prefix.'hidelistforgroups, #row_setting_'.$prefix.'displaygrowl, #row_setting_'.$prefix.'limits"), 1, true),
+			new Peeker($(".setting_'.$prefix.'tylownposts"), $("#row_setting_'.$prefix.'remowntylfroms, #row_setting_'.$prefix.'remowntylfromc"), 1, true),
+			new Peeker($(".setting_'.$prefix.'showdt"), $("#row_setting_'.$prefix.'dtformat"),/^(?!none)/, true),
+			new Peeker($(".setting_'.$prefix.'collapsible"), $("#row_setting_'.$prefix.'colldefault"), 1, true)
+		});
+		</script>';
 	}
-</script>';
 }
 
 // Start Thank You/Like Promotions Functions
