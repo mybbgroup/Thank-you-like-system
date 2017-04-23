@@ -394,6 +394,16 @@ closed='.$lang->tyl_colldefault_op_2.'',
 				'title'				=> $lang->tyl_limits_title,
 				'description'		=> $lang->tyl_limits_desc,
 				'optionscode'		=> 'yesno',
+				'value'				=> '0'),
+		'highlight_popular_posts' 		=> array(
+				'title'				=> $lang->tyl_highlight_popular_posts_title,
+				'description'		=> $lang->tyl_highlight_popular_posts_desc,
+				'optionscode'		=> 'yesno',
+				'value'				=> '0'),
+		'highlight_popular_posts_count' 	=> array(
+				'title'				=> $lang->tyl_highlight_popular_posts_count_title,
+				'description'		=> $lang->tyl_highlight_popular_posts_count_desc,
+				'optionscode'		=> 'numeric',
 				'value'				=> '0')
 	);
 	
@@ -501,7 +511,9 @@ a.del_tyl_button span{
 
 img[id^=tyl_i_expcol_]{
 	vertical-align: bottom;
-}",
+}
+
+.popular_post{}",
     "cachefile" => $db->escape_string(str_replace('/', '', thankyoulike.css)),
 	"lastmodified" => TIME_NOW
 	);
@@ -557,6 +569,8 @@ function thankyoulike_activate()
 </script>
 </head>');
 
+	find_replace_templatesets("postbit","#".preg_quote('<div class="post {$unapproved_shade}" style="{$post_visibility}" id="post_{$post[\'pid\']}">')."#i","<div class=\"post{\$post['styleclass']} {\$unapproved_shade}\" style=\"{\$post_visibility}\" id=\"post_{\$post['pid']}\">");
+	find_replace_templatesets("postbit_classic","#".preg_quote('<div class="post {$unapproved_shade}" style="{$post_visibility}" id="post_{$post[\'pid\']}">')."#i","<div class=\"post{\$post['styleclass']} {\$unapproved_shade}\" style=\"{\$post_visibility}\" id=\"post_{\$post['pid']}\">");
 	find_replace_templatesets("postbit_classic","#".preg_quote('<div class="post_controls">')."#i","<div style=\"{\$post['tyl_display']}\" id=\"tyl_{\$post['pid']}\">{\$post['thankyoulike_data']}</div>\n<div class=\"post_controls\">");
 	find_replace_templatesets("postbit","#".preg_quote('<div class="post_controls">')."#i","<div style=\"{\$post['tyl_display']}\" id=\"tyl_{\$post['pid']}\">{\$post['thankyoulike_data']}</div>\n<div class=\"post_controls\">");
 	find_replace_templatesets("postbit", "#".preg_quote('{$post[\'button_edit\']}')."#i", '{$post[\'button_tyl\']}{$post[\'button_edit\']}');
@@ -610,6 +624,8 @@ function thankyoulike_deactivate()
 </script>
 </head>')."#i", '</head>', 0);
 
+	find_replace_templatesets("postbit", "#".preg_quote('{$post[\'styleclass\']}')."#i", '', 0);
+	find_replace_templatesets("postbit_classic", "#".preg_quote('{$post[\'styleclass\']}')."#i", '', 0);
 	find_replace_templatesets("postbit", "#".preg_quote('<div style="{$post[\'tyl_display\']}" id="tyl_{$post[\'pid\']}">{$post[\'thankyoulike_data\']}</div>')."(\r?)\n#", '', 0);
 	find_replace_templatesets("postbit_classic", "#".preg_quote('<div style="{$post[\'tyl_display\']}" id="tyl_{$post[\'pid\']}">{$post[\'thankyoulike_data\']}</div>')."(\r?)\n#", '', 0);
 	find_replace_templatesets("postbit", "#".preg_quote('{$post[\'button_tyl\']}')."#i", '', 0);
@@ -1094,6 +1110,15 @@ function thankyoulike_postbit(&$post)
 		// Remove stats in postbit
 		$post['user_details'] = preg_replace("#".preg_quote('%%TYL_NUMTHANKEDLIKED%%<br />')."#i", "", $post['user_details']);
 	}
+	$post['styleclass'] = '';
+	if($mybb->settings[$prefix.'highlight_popular_posts'] == 1 && $mybb->settings[$prefix.'highlight_popular_posts_count'] > 0)
+	{
+		if($post['tyl_pnumtyls'] >= $mybb->settings[$prefix.'highlight_popular_posts_count'])
+		{
+			$post['styleclass'] = ' popular_post';
+		}
+	}
+
 	return $post;
 }
 
@@ -1787,7 +1812,8 @@ function thankyoulike_settings_peeker()
 			new Peeker($(".setting_'.$prefix.'enabled"), $("#row_setting_'.$prefix.'thankslike, #row_setting_'.$prefix.'firstall, #row_setting_'.$prefix.'firstalloverwrite, #row_setting_'.$prefix.'removing, #row_setting_'.$prefix.'tylownposts, #row_setting_'.$prefix.'remowntylfroms, #row_setting_'.$prefix.'remowntylfromc, #row_setting_'.$prefix.'closedthreads, #row_setting_'.$prefix.'exclude, #row_setting_'.$prefix.'unameformat, #row_setting_'.$prefix.'hideforgroups, #row_setting_'.$prefix.'showdt, #row_setting_'.$prefix.'dtformat, #row_setting_'.$prefix.'sortorder, #row_setting_'.$prefix.'collapsible, #row_setting_'.$prefix.'colldefault, #row_setting_'.$prefix.'hidelistforgroups, #row_setting_'.$prefix.'displaygrowl, #row_setting_'.$prefix.'limits"), 1, true),
 			new Peeker($(".setting_'.$prefix.'tylownposts"), $("#row_setting_'.$prefix.'remowntylfroms, #row_setting_'.$prefix.'remowntylfromc"), 1, true),
 			new Peeker($(".setting_'.$prefix.'showdt"), $("#row_setting_'.$prefix.'dtformat"),/^(?!none)/, true),
-			new Peeker($(".setting_'.$prefix.'collapsible"), $("#row_setting_'.$prefix.'colldefault"), 1, true)
+			new Peeker($(".setting_'.$prefix.'collapsible"), $("#row_setting_'.$prefix.'colldefault"), 1, true),
+			new Peeker($(".setting_'.$prefix.'highlight_popular_posts"), $("#row_setting_'.$prefix.'highlight_popular_posts_count"), 1, true)
 		});
 		</script>';
 	}

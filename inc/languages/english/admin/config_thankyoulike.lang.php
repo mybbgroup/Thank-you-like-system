@@ -89,6 +89,11 @@ $l['tyl_displaygrowl_desc'] = "Choose ON to enable the Ajax notification popup w
 
 $l['tyl_limits_title'] = "Enable Usergroup based Thanks/Likes Limits?";
 $l['tyl_limits_desc'] = "Choose Yes to enable this feature and check the usergroup settings.";
+$l['tyl_highlight_popular_posts_title'] = "Highlight Posts with X Numbers of Thank You/Likes?";
+$l['tyl_highlight_popular_posts_desc'] = "Choose Yes to enable this feature and define your style of CSS class <strong>.popular_post</strong> in theme thankyoulike.css";
+$l['tyl_highlight_popular_posts_count_title'] = "Numbers of Thank You / Like for Highlight Posts";
+$l['tyl_highlight_popular_posts_count_desc'] = "Set the number of thank you / likes the post will be highlighted.";
+
 $l['tyl_limits_permissions_system'] = "Thanks/Likes Limits";
 $l['tyl_limits_permissions_title'] = "Maximum Thanks/Likes Allowed Per 24 Hours:";
 $l['tyl_limits_permissions_desc'] = "Here you can enter the maximum number of thanks/likes that users in this group can give per day (24 hours). To allow unlimited reputations per hour, enter 0.";
