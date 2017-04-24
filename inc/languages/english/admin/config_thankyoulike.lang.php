@@ -7,9 +7,9 @@
 $l['tyl_info_title'] = "Thank You/Like System";
 $l['tyl_info_desc'] = "Adds option for users to Thank the user for the post or Like the post.";
 $l['tyl_info_desc_url'] ="<br />*Edited for MyBB 1.8 by: {1}<br />*Maintained by: {2}, {3} and {4}<br />*Sources: {5}";
-$l['tyl_info_desc_recount'] = "Recount Thank You/Likes";
+$l['tyl_info_desc_recount'] = "Recount Thank You/Like";
 $l['tyl_info_desc_configsettings'] = "Configure Settings";
-$l['tyl_info_desc_alerts_error'] = "<b>TYL System is uninstalled or deactivated</b>";
+$l['tyl_info_desc_alerts_error'] = "<b>Thank You/Like System is uninstalled or deactivated</b>";
 $l['tyl_info_desc_alerts_integrate'] = "<b>Click <u>HERE</u> to integrate Thank You/Like System with MyAlerts</b>";
 $l['tyl_info_desc_alerts_integrated'] = "<b>Thank You/Like System and MyAlerts were integrated successfully!</b>";
 $l['tyl_info_desc_alerts_registeralerttype'] = "Register a new alert type into MyAlerts";
@@ -26,7 +26,7 @@ $l['tyl_thankslike_op_1'] = "Use Thank You";
 $l['tyl_thankslike_op_2'] = "Use Like";
 
 $l['tyl_firstall_title'] = "First Post only or All";
-$l['tyl_firstall_desc'] = "Do you want the Thanks or Like to be given on the first post of a thread only or on all the posts of a thread?";
+$l['tyl_firstall_desc'] = "Do you want the Thanks/Likes to be given on the first post of a thread only or on all the posts of a thread?";
 $l['tyl_firstall_op_1'] = "First Post Only";
 $l['tyl_firstall_op_2'] = "All Posts";
 
@@ -61,7 +61,7 @@ $l['tyl_showdt_title'] = "Show Date/Time";
 $l['tyl_showdt_desc'] = "Do you want to show the Date/Time the Thank/Like was received in the Thank/Like list?";
 $l['tyl_showdt_op_1'] = "Not Display";
 $l['tyl_showdt_op_2'] = "Display next to user name";
-$l['tyl_showdt_op_3'] = "Display on mouse over username";
+$l['tyl_showdt_op_3'] = "Display on mouse hover over username";
 
 $l['tyl_dtformat_title'] = "Date/Time Format";
 $l['tyl_dtformat_desc'] = "Set the format you want to use to show the Date/Time in the thank/like list.<br />Format is same as the one used by PHP\'s date() function.<br />Example format: m-d-Y h:i A &lt;&lt;will show&gt;&gt; 12-31-2009 12:01 PM";
@@ -87,12 +87,12 @@ $l['tyl_hidelistforgroups_desc'] = "Select User Groups which cannot see Thank Yo
 $l['tyl_displaygrowl_title'] = "Display Add/Remove Notification Popup";
 $l['tyl_displaygrowl_desc'] = "Choose ON to enable the Ajax notification popup window.";
 
-$l['tyl_limits_title'] = "Enable Usergroup based Thanks/Likes Limits?";
+$l['tyl_limits_title'] = "Enable User group based Thank You/Likes Limits?";
 $l['tyl_limits_desc'] = "Choose Yes to enable this feature and check the usergroup settings.";
 $l['tyl_highlight_popular_posts_title'] = "Highlight Posts with X Numbers of Thank You/Likes?";
-$l['tyl_highlight_popular_posts_desc'] = "Choose Yes to enable this feature and define your style of CSS class <strong>.popular_post</strong> in theme thankyoulike.css";
-$l['tyl_highlight_popular_posts_count_title'] = "Numbers of Thank You / Like for Highlight Posts";
-$l['tyl_highlight_popular_posts_count_desc'] = "Set the number of thank you / likes the post will be highlighted.";
+$l['tyl_highlight_popular_posts_desc'] = "Choose Yes to enable this feature and define your style of CSS class <strong>.popular_post</strong> in thankyoulike.css (in your theme).";
+$l['tyl_highlight_popular_posts_count_title'] = "Numbers of Thank You/Likes for Highlight Posts";
+$l['tyl_highlight_popular_posts_count_desc'] = "Set the number of Thank You/Likes the post will be highlighted.";
 
 $l['tyl_limits_permissions_system'] = "Thanks/Likes Limits";
 $l['tyl_limits_permissions_title'] = "Maximum Thanks/Likes Allowed Per 24 Hours:";
