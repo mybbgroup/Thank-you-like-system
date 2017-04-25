@@ -513,7 +513,12 @@ img[id^=tyl_i_expcol_]{
 	vertical-align: bottom;
 }
 
-.popular_post{}",
+.popular_post{
+	border: 2px solid;
+	border-radius: 3px;
+	border-color: rgba(112,202,47,0.5);
+	background-color: rgba(139,195,74,0.3);
+}",
     "cachefile" => $db->escape_string(str_replace('/', '', thankyoulike.css)),
 	"lastmodified" => TIME_NOW
 	);
@@ -570,7 +575,7 @@ function thankyoulike_activate()
 </head>');
 
 	find_replace_templatesets("postbit","#".preg_quote('<div class="post {$unapproved_shade}" style="{$post_visibility}" id="post_{$post[\'pid\']}">')."#i","<div class=\"post{\$post['styleclass']} {\$unapproved_shade}\" style=\"{\$post_visibility}\" id=\"post_{\$post['pid']}\">");
-	find_replace_templatesets("postbit_classic","#".preg_quote('<div class="post {$unapproved_shade}" style="{$post_visibility}" id="post_{$post[\'pid\']}">')."#i","<div class=\"post{\$post['styleclass']} {\$unapproved_shade}\" style=\"{\$post_visibility}\" id=\"post_{\$post['pid']}\">");
+	find_replace_templatesets("postbit_classic","#".preg_quote('<div class="post classic {$unapproved_shade}" style="{$post_visibility}" id="post_{$post[\'pid\']}">')."#i","<div class=\"post classic{\$post['styleclass']} {\$unapproved_shade}\" style=\"{\$post_visibility}\" id=\"post_{\$post['pid']}\">");
 	find_replace_templatesets("postbit_classic","#".preg_quote('<div class="post_controls">')."#i","<div style=\"{\$post['tyl_display']}\" id=\"tyl_{\$post['pid']}\">{\$post['thankyoulike_data']}</div>\n<div class=\"post_controls\">");
 	find_replace_templatesets("postbit","#".preg_quote('<div class="post_controls">')."#i","<div style=\"{\$post['tyl_display']}\" id=\"tyl_{\$post['pid']}\">{\$post['thankyoulike_data']}</div>\n<div class=\"post_controls\">");
 	find_replace_templatesets("postbit", "#".preg_quote('{$post[\'button_edit\']}')."#i", '{$post[\'button_tyl\']}{$post[\'button_edit\']}');
