@@ -959,8 +959,8 @@ function thankyoulike_postbit(&$post)
 				$profilelink = $username;
 				// Format username... or not
 				$tyl_list = $mybb->settings[$prefix.'unameformat'] == "1" ? format_name($tyl['username'], $tyl['usergroup'], $tyl['displaygroup']) : $tyl['username'];
-				$datedisplay_next = $mybb->settings[$prefix.'showdt'] == "nexttoname" ? "<span class='smalltext'> (".my_date($mybb->settings[$prefix.'dtformat'], $tyl['dateline']).")</span>" : "";
-				$datedisplay_title = $mybb->settings[$prefix.'showdt'] == "astitle" ? "title='".my_date($mybb->settings[$prefix.'dtformat'], $tyl['dateline'])."'" : "";
+				$datedisplay_next = $mybb->settings[$prefix.'showdt'] == "nexttoname" ? "<span class='smalltext'> (".date($mybb->settings[$prefix.'dtformat'], $tyl['dateline']).")</span>" : "";
+				$datedisplay_title = $mybb->settings[$prefix.'showdt'] == "astitle" ? "title='".date($mybb->settings[$prefix.'dtformat'], $tyl['dateline'])."'" : "";
 				eval("\$thankyoulike_users = \"".$templates->get("thankyoulike_users", 1, 0)."\";");
 				$tyls .= trim($thankyoulike_users);
 				$comma = ', ';	
