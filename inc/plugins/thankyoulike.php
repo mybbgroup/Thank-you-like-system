@@ -73,7 +73,7 @@ $url_S = '<a href="https://github.com/Cu8eeeR/MyBB_Thank-you-like-plugin" target
 		"website"	=> "https://community.mybb.com/thread-169382.html",
 		"author"	=> "- G33K -",
 		"authorsite"	=> "https://community.mybb.com/user-19236.html",
-		"version"	=> "2.0.2",
+		"version"	=> "2.1.0",
 		"codename"	=> "thankyoulikesystem",
 		"compatibility"	=> "18*"
     );
