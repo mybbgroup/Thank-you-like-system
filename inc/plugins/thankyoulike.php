@@ -1,20 +1,20 @@
 <?php
 /**
  * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by 
- * the Free Software Foundation, either version 3 of the License, 
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License,
  * or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License 
- * along with this program.  
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.
  * If not, see <http://www.gnu.org/licenses/>.
  */
- 
+
 if(!defined("IN_MYBB"))
 {
 	die("Direct initialization of this file is not allowed.<br /><br />Please make sure IN_MYBB is defined.");
@@ -57,7 +57,7 @@ else
 function thankyoulike_info()
 {
 	global $plugins_cache, $mybb, $db, $lang, $cache;
-	$lang->load('config_thankyoulike');	
+	$lang->load('config_thankyoulike');
 	$prefix = 'g33k_thankyoulike_';
 	$codename = 'thankyoulike';
 
@@ -77,7 +77,7 @@ $url_S = '<a href="https://github.com/Cu8eeeR/MyBB_Thank-you-like-plugin" target
 		"codename"	=> "thankyoulikesystem",
 		"compatibility"	=> "18*"
     );
-	
+
    	$info_desc = '';
 
    	if(function_exists("myalerts_info")){
@@ -86,8 +86,8 @@ $url_S = '<a href="https://github.com/Cu8eeeR/MyBB_Thank-you-like-plugin" target
 		if($verify >= 2.0){
 			// Load cache data and compare if version is the same or not
 		    	$myalerts_plugins = $cache->read('mybbstuff_myalerts_alert_types');
-		
-			if($myalerts_plugins['tyl']['code'] == 'tyl' && $myalerts_plugins['tyl']['enabled'] == 1){	
+
+			if($myalerts_plugins['tyl']['code'] == 'tyl' && $myalerts_plugins['tyl']['enabled'] == 1){
 				$info_desc .= "<ul><li style=\"list-style-image: url(styles/default/images/icons/success.png)\"><span style=\"color: green;\">".$db->escape_string($lang->tyl_info_desc_alerts_integrated)."</span></li></ul>";
 			}
 			else if(!$myalerts_plugins['tyl']['code'] == 'tyl' && $mybb->settings['g33k_thankyoulike_enabled']){
@@ -104,7 +104,7 @@ $url_S = '<a href="https://github.com/Cu8eeeR/MyBB_Thank-you-like-plugin" target
 	{
 		$info_desc .= "<ul><li style=\"list-style-image: url(styles/default/images/icons/custom.png)\"><a href=\"index.php?module=config-settings&action=change&gid=".$group['gid']."\">".$db->escape_string($lang->tyl_info_desc_configsettings)."</a></li></ul>";
 	}
-    
+
     if(is_array($plugins_cache) && is_array($plugins_cache['active']) && $plugins_cache['active'][$codename])
     {
 	    $info_desc .= "<ul><li style=\"list-style-image: url(styles/default/images/icons/default.png)\"><a href=\"index.php?module=tools-recount_rebuild\">".$db->escape_string($lang->tyl_info_desc_recount)."</a></li></ul>";
@@ -115,12 +115,12 @@ $url_S = '<a href="https://github.com/Cu8eeeR/MyBB_Thank-you-like-plugin" target
 <img alt="" border="0" src="https://www.paypalobjects.com/en_US/i/scr/pixel.gif" width="1" height="1">
 </form>';
 	}
-	
+
 	if($info_desc != '')
 	{
 		$info['description'] = $info_desc.'<br />'.$info['description'];
 	}
-	
+
 	return $info;
 }
 
@@ -153,50 +153,50 @@ function tyl_myalerts_integrate()
 					$alertType = new MybbStuff_MyAlerts_Entity_AlertType();
 					$alertType->setCode('tyl');
 					$alertType->setEnabled(true);
-				$alertTypeManager->add($alertType);	
+				$alertTypeManager->add($alertType);
 			}
 
 			flash_message("MyAlerts and Thank You/Like System were integrated successfully!", 'success');
-			admin_redirect('index.php?module=config-plugins');			
-		}	
+			admin_redirect('index.php?module=config-plugins');
+		}
 	}
 }
 
 function thankyoulike_install()
 {
 	global $mybb, $db, $cache, $lang;
-	$lang->load('config_thankyoulike');	
+	$lang->load('config_thankyoulike');
 	$prefix = 'g33k_thankyoulike_';
 	$info = thankyoulike_info();
-	
+
 	// Run preinstall cleanup
 	tyl_preinstall_cleanup();
-	
+
 	if(!$db->field_exists('tyl_pnumtyls', 'posts'))
 	{
 		$db->query("ALTER TABLE ".TABLE_PREFIX."posts ADD `tyl_pnumtyls` int(100) NOT NULL default '0'");
 	}
-	
+
 	if(!$db->field_exists('tyl_tnumtyls', 'threads'))
 	{
 		$db->query("ALTER TABLE ".TABLE_PREFIX."threads ADD `tyl_tnumtyls` int(100) NOT NULL default '0'");
 	}
-	
+
 	if(!$db->field_exists('tyl_unumtyls', 'users'))
 	{
 		$db->query("ALTER TABLE ".TABLE_PREFIX."users ADD `tyl_unumtyls` int(100) NOT NULL default '0'");
 	}
-	
+
 	if(!$db->field_exists('tyl_unumrcvtyls', 'users'))
 	{
 		$db->query("ALTER TABLE ".TABLE_PREFIX."users ADD `tyl_unumrcvtyls` int(100) NOT NULL default '0'");
 	}
-	
+
 	if(!$db->field_exists('tyl_unumptyls', 'users'))
 	{
 		$db->query("ALTER TABLE ".TABLE_PREFIX."users ADD `tyl_unumptyls` int(100) NOT NULL default '0'");
 	}
-	
+
 	if(!$db->table_exists($prefix.'thankyoulike'))
 	{
 		$db->query("CREATE TABLE ".TABLE_PREFIX.$prefix."thankyoulike (
@@ -210,13 +210,13 @@ function thankyoulike_install()
 				) ENGINE=MyISAM
 				".$db->build_create_table_collation().";");
 	}
-	
+
 	// Added puid field after v1.0 so check for that
 	if($db->table_exists($prefix.'thankyoulike') && !$db->field_exists('puid', $prefix.'thankyoulike'))
 	{
 		$db->query("ALTER TABLE ".TABLE_PREFIX.$prefix."thankyoulike ADD `puid` int unsigned NOT NULL default '0' AFTER `uid`");
 	}
-	
+
 	if(!$db->table_exists($prefix.'stats'))
 	{
 		$db->query("CREATE TABLE ".TABLE_PREFIX.$prefix."stats (
@@ -232,7 +232,7 @@ function thankyoulike_install()
 		);
 	$query = $db->simple_select($prefix."stats", "*", "title='total'", $options);
 	$total = $db->fetch_array($query);
-	
+
 	if(!isset($total['title']))
 	{
 		$total_data = array(
@@ -259,14 +259,14 @@ function thankyoulike_install()
 	{
 		$db->add_column("promotions", "tylgiventype", "char(2) NOT NULL default ''");
 	}
-	
+
 	// Add Thank You/Like Limits Tables Fields
 	if(!$db->field_exists("tyl_limits_max", "usergroups"))
 	{
 		$db->add_column("usergroups", "tyl_limits_max", "int(10) NOT NULL DEFAULT '10'");
 	}
-	
-	
+
+
 	// Insert settings into the database
 	$query = $db->query("SELECT disporder FROM ".TABLE_PREFIX."settinggroups ORDER BY `disporder` DESC LIMIT 1");
 	$disporder = $db->fetch_field($query, 'disporder')+1;
@@ -280,10 +280,10 @@ function thankyoulike_install()
 	);
 	$db->insert_query('settinggroups', $setting_group);
 	$gid = $db->insert_id();
-	
+
 	$settings = array(
 		'enabled' 				=> array(
-				'title' 			=> $lang->tyl_enabled_title, 
+				'title' 			=> $lang->tyl_enabled_title,
 				'description' 		=> $lang->tyl_enabled_desc,
 				'optionscode'		=> 'onoff',
 				'value'				=> '1'),
@@ -326,6 +326,21 @@ all='.$lang->tyl_firstall_op_2.'',
 				'description'		=> $lang->tyl_remowntylfromc_desc,
 				'optionscode'		=> 'yesno',
 				'value'				=> '0'),
+		'reputation_add'			=> array(
+				'title'				=> $lang->tyl_reputation_add_title,
+				'description'		=> $lang->tyl_reputation_add_desc,
+				'optionscode'		=> 'yesno',
+				'value'				=> '0'),
+		'reputation_add_reppoints'	=> array(
+				'title'				=> $lang->tyl_reputation_add_reppoints_title,
+				'description'		=> $lang->tyl_reputation_add_reppoints_desc,
+				'optionscode'		=> 'numeric',
+				'value'				=> '1'),
+		'reputation_add_repcomment'	=> array(
+				'title'				=> $lang->tyl_reputation_add_repcomment_title,
+				'description'		=> $lang->tyl_reputation_add_repcomment_desc,
+				'optionscode'		=> 'text',
+				'value'				=> ''),
 		'closedthreads'			=> array(
 				'title'				=> $lang->tyl_closedthreads_title,
 				'description'		=> $lang->tyl_closedthreads_desc,
@@ -406,7 +421,7 @@ closed='.$lang->tyl_colldefault_op_2.'',
 				'optionscode'		=> 'numeric',
 				'value'				=> '0')
 	);
-	
+
 	$x = 1;
 	foreach($settings as $name => $setting)
 	{
@@ -423,25 +438,25 @@ closed='.$lang->tyl_colldefault_op_2.'',
 		$db->insert_query('settings', $insert_settings);
 		$x++;
 	}
-	
+
 	rebuild_settings();
-	
-	
+
+
 	// Insert Template elements
 	$templateset = array(
 	    "prefix" => "thankyoulike",
 	    "title" => "Thank You/Like",
     );
 	$db->insert_query("templategroups", $templateset);
-	
+
 	$tyl_templates = array(
 		'thankyoulike_postbit'			=> "<div class=\"post_controls tyllist {\$unapproved_shade}\">
-	{\$tyl_expcol} 
+	{\$tyl_expcol}
 	<span id=\"tyl_title_{\$post['pid']}\" style=\"{\$tyl_title_display}\">{\$lang->tyl_title}</span><span id=\"tyl_title_collapsed_{\$post['pid']}\" style=\"{\$tyl_title_display_collapsed}\">{\$lang->tyl_title_collapsed}</span><br />
 	<span id=\"tyl_data_{\$post['pid']}\" style=\"{\$tyl_data_display}\">&nbsp;&nbsp;• {\$post['thankyoulike']}</span>
 </div>",
 		'thankyoulike_postbit_classic'		=> "<div class=\"post_controls tyllist_classic {\$unapproved_shade}\">
-	{\$tyl_expcol} 
+	{\$tyl_expcol}
 	<span id=\"tyl_title_{\$post['pid']}\" style=\"{\$tyl_title_display}\">{\$lang->tyl_title}</span><span id=\"tyl_title_collapsed_{\$post['pid']}\" style=\"{\$tyl_title_display_collapsed}\">{\$lang->tyl_title_collapsed}</span><br />
 	<span id=\"tyl_data_{\$post['pid']}\" style=\"{\$tyl_data_display}\">&nbsp;&nbsp;• {\$post['thankyoulike']}</span>
 </div>",
@@ -461,7 +476,7 @@ closed='.$lang->tyl_colldefault_op_2.'',
 	<td class=\"trow2\">{\$memprofile['tyl_unumtyls']} ({\$tylpd_percent_total})<br /><span class=\"smalltext\">(<a href=\"tylsearch.php?action=usertylthreads&amp;uid={\$uid}\">{\$lang->tyl_find_threads}</a> &mdash; <a href=\"tylsearch.php?action=usertylposts&amp;uid={\$uid}\">{\$lang->tyl_find_posts}</a>)</span></td>
 </tr>"
 	);
-	
+
 	foreach($tyl_templates as $template_title => $template_data)
 	{
 		$insert_templates = array(
@@ -473,8 +488,8 @@ closed='.$lang->tyl_colldefault_op_2.'',
 			);
 		$db->insert_query('templates', $insert_templates);
 	}
-	
-	// css-class for thankyoulike	
+
+	// css-class for thankyoulike
 	$css = array(
 	"name" => "thankyoulike.css",
 	"tid" => 1,
@@ -533,20 +548,20 @@ img[id^=tyl_i_expcol_]{
 	{
 		update_theme_stylesheet_list($theme['tid']);
 	}
-	
+
 	$cache->update_usergroups();
 	$cache->update_forums();
-	$cache->update_tasks();	
+	$cache->update_tasks();
 }
 
 function thankyoulike_is_installed()
 {
-	global $mybb, $db;	
+	global $mybb, $db;
 	$prefix = 'g33k_thankyoulike_';
-	
+
 	$result = $db->simple_select('templategroups', 'gid', "prefix in ('thankyoulike')", array('limit' => 1));
 	$templategroup = $db->fetch_array($result);
-	
+
 	if($db->table_exists($prefix.'thankyoulike') && $db->table_exists($prefix.'stats') && $db->field_exists('tyl_pnumtyls', 'posts') && $db->field_exists('tyl_tnumtyls', 'threads') && $db->field_exists('tyl_unumtyls', 'users') && $db->field_exists('tyl_unumrcvtyls', 'users') && $db->field_exists('tyl_unumptyls', 'users') && !empty($templategroup['gid']))
 	{
 		return true;
@@ -556,11 +571,11 @@ function thankyoulike_is_installed()
 
 function thankyoulike_activate()
 {
-	global $mybb, $db, $cache;	
+	global $mybb, $db, $cache;
 	$prefix = 'g33k_thankyoulike_';
-	
+
 	require_once MYBB_ROOT."/inc/adminfunctions_templates.php";
-	
+
 	find_replace_templatesets("showthread", "#".preg_quote('</head>')."#i", '<script type="text/javascript" src="{$mybb->settings[\'bburl\']}/jscripts/thankyoulike.min.js"></script>
 <script type="text/javascript">
 <!--
@@ -585,7 +600,7 @@ function thankyoulike_activate()
 	if(!find_replace_templatesets("member_profile", '#{\$reputation}(\r?)\n#', "{\$tyl_memprofile}\n{\$reputation}\n"))
 	{
 		find_replace_templatesets("member_profile", '#{\$reputation}(\r?)\n#', "{\$tyl_memprofile}\n{\$reputation}\n");
-	} 
+	}
 
 	// Verify if MyAlerts exists and if it is compatible with 1.8.x, then add alert type
 	if(function_exists("myalerts_info")){
@@ -603,7 +618,7 @@ function thankyoulike_activate()
 				$alertType = new MybbStuff_MyAlerts_Entity_AlertType();
 				$alertType->setCode('tyl');
 				$alertType->setEnabled(true);
-			$alertTypeManager->add($alertType);	
+			$alertTypeManager->add($alertType);
 			}
 		}
 	}
@@ -611,9 +626,9 @@ function thankyoulike_activate()
 
 function thankyoulike_deactivate()
 {
-	global $db, $cache;	
+	global $db, $cache;
 	$prefix = 'g33k_thankyoulike_';
-		
+
 	require_once MYBB_ROOT."/inc/adminfunctions_templates.php";
 
 	find_replace_templatesets("showthread", "#".preg_quote('<script type="text/javascript" src="{$mybb->settings[\'bburl\']}/jscripts/thankyoulike.min.js"></script>
@@ -645,32 +660,32 @@ function thankyoulike_deactivate()
 		// Set version info to a new var
 		$verify = $my_alerts_info['version'];
 		// If MyAlerts is v2.0 or better then do this!!!
-		if($verify >= "2.0.0"){	
+		if($verify >= "2.0.0"){
 			if($db->table_exists("alert_types")){
 				$alertTypeManager = MybbStuff_MyAlerts_AlertTypeManager::getInstance();
 				$alertTypeManager->deleteByCode('tyl');
 			}
 		}
-	}	
+	}
 }
 
 function thankyoulike_uninstall()
 {
-	global $mybb, $db, $cache;	
+	global $mybb, $db, $cache;
 	$prefix = 'g33k_thankyoulike_';
-	
+
 	if($mybb->request_method != 'post')
 	{
 		global $page, $lang;
 		$lang->load('config_thankyoulike');
 		$page->output_confirm_action('index.php?module=config-plugins&action=deactivate&uninstall=1&plugin=thankyoulike', $lang->tyl_uninstall_message, $lang->tyl_uninstall);
 	}
-	
+
 	// Remove templates
 	$db->delete_query("templates", "title LIKE 'thankyoulike_%'");
 	$db->delete_query("templategroups", "prefix in ('thankyoulike')");
-	
-	// Remove CSS rules for g33k_thankyoulike	
+
+	// Remove CSS rules for g33k_thankyoulike
 	require_once MYBB_ADMIN_DIR."inc/functions_themes.php";
 
 	$db->delete_query("themestylesheets", "name = 'thankyoulike.css'");
@@ -680,18 +695,18 @@ function thankyoulike_uninstall()
 	{
 		update_theme_stylesheet_list($theme['tid']);
 	}
-	
+
 	// Remove settings
 	$result = $db->simple_select('settinggroups', 'gid', "name = '{$prefix}settings'", array('limit' => 1));
-	$group = $db->fetch_array($result);	
+	$group = $db->fetch_array($result);
 	if(!empty($group['gid']))
 	{
 		$db->delete_query('settinggroups', "gid='{$group['gid']}'");
 		$db->delete_query('settings', "gid='{$group['gid']}'");
 		rebuild_settings();
 	}
-	
-	// This part will remove the database tables	
+
+	// This part will remove the database tables
 	if(!isset($mybb->input['no']))
 	{
 		if($db->field_exists('tyl_unumtyls', 'users'))
@@ -752,53 +767,53 @@ function thankyoulike_uninstall()
 		{
 			$db->drop_column("promotions", "tylgiventype");
 		}
-		
+
 		if($db->field_exists("tyl_limits_max", "usergroups"))
 		{
 			$db->drop_column("usergroups", "tyl_limits_max");
 		}
-		
-		
+
+
 	$cache->update_usergroups();
 	$cache->update_forums();
-	$cache->update_tasks();	
+	$cache->update_tasks();
 }
 
 function thankyoulike_templatelist()
 {
-	global $mybb, $cache, $lang, $code, $templatelist;	
+	global $mybb, $cache, $lang, $code, $templatelist;
 	$prefix = 'g33k_thankyoulike_';
 	if ($mybb->settings[$prefix.'enabled'] == "1")
 	{
 		$lang->load('thankyoulike', false, true);
 		if ($mybb->settings[$prefix.'thankslike'] == "like")
-		{	
+		{
 			$prelang = $lang->tyl_like;
 			$prelang1 = $lang->tyl_likes;
-			
-			$lang->tyl_alert = $lang->tyl_alert_like;			
-			$lang->myalerts_setting_tyl = $lang->myalerts_setting_tyl_like;	
+
+			$lang->tyl_alert = $lang->tyl_alert_like;
+			$lang->myalerts_setting_tyl = $lang->myalerts_setting_tyl_like;
 		}
 		else if ($mybb->settings[$prefix.'thankslike'] == "thanks")
 		{
 
 			$prelang = $lang->tyl_thankyou;
 			$prelang1 = $lang->tyl_thanks;
-			
+
 			$lang->tyl_alert = $lang->tyl_alert_thanks;
 			$lang->myalerts_setting_tyl = $lang->myalerts_setting_tyl_thanks;
 		}
-		
+
 		$lang->tyl_send = $lang->sprintf($lang->tyl_send, $prelang);
-		$lang->tyl_remove = $lang->sprintf($lang->tyl_remove, $prelang);				
-		
+		$lang->tyl_remove = $lang->sprintf($lang->tyl_remove, $prelang);
+
 		// Registering alert formatter
 		if((function_exists('myalerts_is_activated')) && myalerts_is_activated() && $mybb->user['uid']){
 			global $cache, $formatterManager;
 			tyl_myalerts_formatter_load();
 			// Load cache data and compare if version is the same or not
 			$myalerts_plugins = $cache->read('mybbstuff_myalerts_alert_types');
-		
+
 			if($myalerts_plugins['tyl']['code'] == 'tyl' && $myalerts_plugins['tyl']['enabled'] == 1){
 				if (class_exists('MybbStuff_MyAlerts_AlertFormatterManager') && class_exists('ThankyouAlertFormatter')) {
 					$code = 'tyl';
@@ -806,7 +821,7 @@ function thankyoulike_templatelist()
 					$formatterManager->registerFormatter(new ThankyouAlertFormatter($mybb, $lang, $code));
 				}
 			}
-		}	
+		}
 		$template_list = '';
 		if (THIS_SCRIPT == 'showthread.php')
 		{
@@ -837,13 +852,13 @@ function thankyoulike_templatelist()
 
 function thankyoulike_postbit(&$post)
 {
-	global $db, $mybb, $theme, $templates, $lang, $pids, $g33k_pcache;	
+	global $db, $mybb, $theme, $templates, $lang, $pids, $g33k_pcache;
 	$prefix = 'g33k_thankyoulike_';
-	
+
 	$lang->load("thankyoulike");
-	
+
 	if ($mybb->settings[$prefix.'enabled'] == "1" && $mybb->settings[$prefix.'exclude'] != "-1")
-	{		
+	{
 		// Check first if this post is in an excluded forum, if it is end right here.
 		$forums = explode(",", $mybb->settings[$prefix.'exclude']);
 		$excluded = false;
@@ -854,7 +869,7 @@ function thankyoulike_postbit(&$post)
 				$excluded = true;
 			}
 		}
-		
+
 		if ($mybb->settings[$prefix.'remowntylfromc'] == 1)
 		{
 			$query = $db->simple_select($prefix."thankyoulike", "*", "uid=puid");
@@ -864,14 +879,14 @@ function thankyoulike_postbit(&$post)
 				{
 					$post['tyl_unumtyls'] = $post['tyl_unumtyls'] - count($result['tlid']);
 				}
-				
+
 				if($result['puid'] == $post['uid'])
 				{
 					$post['tyl_unumrcvtyls'] = $post['tyl_unumrcvtyls'] - count($result['tlid']);
 				}
 			}
 		}
-		
+
 		// Setup stats in postbit
 		if ($mybb->settings[$prefix.'thankslike'] == "like")
 		{
@@ -879,7 +894,7 @@ function thankyoulike_postbit(&$post)
 			$lang->tyl_given = $lang->tyl_likes_given;
 			$post['tyl_unumrtyls'] = $lang->sprintf($lang->tyl_likes_rcvd_bit, my_number_format($post['tyl_unumrcvtyls']), my_number_format($post['tyl_unumptyls']));
 			$post['tyl_unumtyls'] = my_number_format($post['tyl_unumtyls']);
-			
+
 			eval("\$tyl_thankslikes = \"".$templates->get("thankyoulike_postbit_author_user", 1, 0)."\";");
 		}
 		else if ($mybb->settings[$prefix.'thankslike'] == "thanks")
@@ -888,18 +903,18 @@ function thankyoulike_postbit(&$post)
 			$lang->tyl_given = $lang->tyl_thanks_given;
 			$post['tyl_unumrtyls'] = $lang->sprintf($lang->tyl_thanks_rcvd_bit, my_number_format($post['tyl_unumrcvtyls']), my_number_format($post['tyl_unumptyls']));
 			$post['tyl_unumtyls'] = my_number_format($post['tyl_unumtyls']);
-			
+
 			eval("\$tyl_thankslikes = \"".$templates->get("thankyoulike_postbit_author_user", 1, 0)."\";");
 		}
 		// Setup stats in postbit
 		$post['user_details'] = preg_replace("#".preg_quote('%%TYL_NUMTHANKEDLIKED%%')."#i", $tyl_thankslikes, $post['user_details']);
-		
+
 		if ($excluded)
 		{
 			// We're in an excluded forum, end right here
 			return $post;
 		}
-		
+
 		// Get all the thank you/like data for all the posts on this thread
 		// Check first is it already fetched/cached?
 		if(!is_array($g33k_pcache))
@@ -914,7 +929,7 @@ function thankyoulike_postbit(&$post)
 			{
 				$g33k_pids = "tyl.pid='".$post['pid']."'";
 			}
-			
+
 			// Set retrieve order
 			switch($mybb->settings[$prefix.'sortorder'])
 			{
@@ -932,20 +947,20 @@ function thankyoulike_postbit(&$post)
 					$order = " ORDER BY username ASC";
 					break;
 			}
-			
+
 			$query = $db->query("
 			SELECT u.username, u.usergroup, u.displaygroup, tyl.*
 			FROM ".TABLE_PREFIX.$prefix."thankyoulike tyl
 			LEFT JOIN ".TABLE_PREFIX."users u ON (u.uid=tyl.uid)
 			WHERE ".$g33k_pids."
-			".$order.""); 
-			
+			".$order."");
+
 			while($t = $db->fetch_array($query))
 			{
 				$g33k_pcache[$t['pid']][] = $t;
 			}
 		}
-			
+
 		$tyls = '';
 		$comma = '';
 		$tyled = 0;
@@ -963,16 +978,16 @@ function thankyoulike_postbit(&$post)
 				$datedisplay_title = $mybb->settings[$prefix.'showdt'] == "astitle" ? "title='".date($mybb->settings[$prefix.'dtformat'], $tyl['dateline'])."'" : "";
 				eval("\$thankyoulike_users = \"".$templates->get("thankyoulike_users", 1, 0)."\";");
 				$tyls .= trim($thankyoulike_users);
-				$comma = ', ';	
+				$comma = ', ';
 				// Has this user tyled?
 				if($tyl['uid'] == $mybb->user['uid'])
 				{
 					$tyled = 1;
-				}	
+				}
 				$count++;
 			}
 		}
-		
+
 		// Are we using thanks or like? Setup titles
 		if($count == 1)
 		{
@@ -1047,17 +1062,17 @@ function thankyoulike_postbit(&$post)
 			$tyl_showhide = "";
 			$lang->tyl_title_collapsed = "";
 		}
-		
+
 		// Setup stats in postbit
 		$post['user_details'] = preg_replace("#".preg_quote('%%TYL_NUMTHANKEDLIKED%%')."#i", $tyl_thankslikes, $post['user_details']);
-		
+
 		// Determine whether we're showing tyl for this post:
 		$thread = get_thread($post['tid']);
-		$tyluserid = $mybb->settings[$prefix.'tylownposts'] == "1" ? "-1" : $mybb->user['uid'];		
-		
+		$tyluserid = $mybb->settings[$prefix.'tylownposts'] == "1" ? "-1" : $mybb->user['uid'];
+
 		if(($tyled && $mybb->settings[$prefix.'removing'] != "1") || (!is_moderator($post['fid'], "caneditposts") && $thread['closed'] == 1 && $mybb->settings[$prefix.'closedthreads'] != "1") || $post['uid'] == $tyluserid || is_member($mybb->settings[$prefix.'hideforgroups']) || $mybb->settings[$prefix.'hideforgroups'] == "-1")
 		{
-			// Show no button for poster or user who has already thanked/liked and disabled removing. 
+			// Show no button for poster or user who has already thanked/liked and disabled removing.
 			$post['button_tyl'] = '';
 		}
 		else if($tyled && $mybb->settings[$prefix.'removing'] == "1" && (($mybb->settings[$prefix.'firstall'] == "first" && $thread['firstpost'] == $post['pid']) || $mybb->settings[$prefix.'firstall'] == "all"))
@@ -1077,8 +1092,8 @@ function thankyoulike_postbit(&$post)
 				// Same as above but show add button, to first post only, both have to been on that way or won't work...
 				eval("\$post['button_tyl'] = \"".$templates->get("thankyoulike_button_add")."\";");
 			}
-		} 
-		
+		}
+
 		if($count>0 && ((($mybb->settings[$prefix.'firstall'] == "first" && $thread['firstpost'] == $post['pid']) || $mybb->settings[$prefix.'firstall'] == "all") && !is_member($mybb->settings[$prefix.'hidelistforgroups']) && $mybb->settings[$prefix.'hidelistforgroups'] != "-1"))
 		{
 			// We have thanks/likes to show
@@ -1129,17 +1144,17 @@ function thankyoulike_postbit(&$post)
 
 function thankyoulike_postbit_udetails(&$post)
 {
-	global $mybb, $db, $templates, $lang;	
-	$prefix = 'g33k_thankyoulike_';	
+	global $mybb, $db, $templates, $lang;
+	$prefix = 'g33k_thankyoulike_';
 	$lang->load("thankyoulike");
-	
+
 	if ($mybb->settings[$prefix.'enabled'] == "1")
-	{		
+	{
 		if ($mybb->settings[$prefix.'remowntylfromc'] == 1)
 		{
-			$query = $db->simple_select($prefix."thankyoulike", "COUNT(tlid) AS owntyluser", "uid='".$post['uid']."' AND uid=puid");	
+			$query = $db->simple_select($prefix."thankyoulike", "COUNT(tlid) AS owntyluser", "uid='".$post['uid']."' AND uid=puid");
 			$owntyluser = $db->fetch_field($query, 'owntyluser');
-			if($owntyluser)	
+			if($owntyluser)
 			{
 				$post['tyl_unumtyls'] = $post['tyl_unumtyls'] - $owntyluser;
 				$post['tyl_unumrcvtyls'] = $post['tyl_unumrcvtyls'] - $owntyluser;
@@ -1149,8 +1164,8 @@ function thankyoulike_postbit_udetails(&$post)
 				FROM ".TABLE_PREFIX.$prefix."thankyoulike
 				WHERE uid='".$post['uid']."' AND uid=puid AND pid NOT IN (
 					SELECT pid FROM ".TABLE_PREFIX.$prefix."thankyoulike
-					WHERE puid='".$post['uid']."' 
-					GROUP BY pid 
+					WHERE puid='".$post['uid']."'
+					GROUP BY pid
 					HAVING COUNT(pid) > 1
 					)
 				");
@@ -1160,14 +1175,14 @@ function thankyoulike_postbit_udetails(&$post)
 				$post['tyl_unumptyls'] = $post['tyl_unumptyls'] - $owntylposts;
 			}
 		}
-		
+
 		if ($mybb->settings[$prefix.'thankslike'] == "like")
 		{
 			$lang->tyl_rcvd = $lang->tyl_likes_rcvd;
 			$lang->tyl_given = $lang->tyl_likes_given;
 			$post['tyl_unumrtyls'] = $lang->sprintf($lang->tyl_likes_rcvd_bit, my_number_format($post['tyl_unumrcvtyls']), my_number_format($post['tyl_unumptyls']));
 			$post['tyl_unumtyls'] = my_number_format($post['tyl_unumtyls']);
-				
+
 			eval("\$tyl_thankslikes = \"".$templates->get("thankyoulike_postbit_author_user", 1, 0)."\";");
 		}
 		else if ($mybb->settings[$prefix.'thankslike'] == "thanks")
@@ -1176,7 +1191,7 @@ function thankyoulike_postbit_udetails(&$post)
 			$lang->tyl_given = $lang->tyl_thanks_given;
 			$post['tyl_unumrtyls'] = $lang->sprintf($lang->tyl_thanks_rcvd_bit, my_number_format($post['tyl_unumrcvtyls']), my_number_format($post['tyl_unumptyls']));
 			$post['tyl_unumtyls'] = my_number_format($post['tyl_unumtyls']);
-			
+
 			eval("\$tyl_thankslikes = \"".$templates->get("thankyoulike_postbit_author_user", 1, 0)."\";");
 		}
 		// Setup stats in postbit
@@ -1193,10 +1208,10 @@ function thankyoulike_postbit_udetails(&$post)
 // Sending the alert to database
 function tyl_recordAlertThankyou()
 {
-	global $db, $lang, $mybb, $alert, $post, $prefix;	
-	$prefix = 'g33k_thankyoulike_';	
+	global $db, $lang, $mybb, $alert, $post, $prefix;
+	$prefix = 'g33k_thankyoulike_';
 	$lang->load("thankyoulike", false, true);
-	
+
 	if(!$mybb->settings[$prefix.'enabled'] == "1")
 	{
 		return false;
@@ -1209,7 +1224,7 @@ function tyl_recordAlertThankyou()
 	$fid = (int)$post['fid'];
 
     $alertType = MybbStuff_MyAlerts_AlertTypeManager::getInstance()->getByCode('tyl');
-	
+
     if(isset($alertType) && $alertType->getEnabled()){
          // Check if already alerted
         $query = $db->simple_select(
@@ -1218,15 +1233,15 @@ function tyl_recordAlertThankyou()
 			'object_id = ' .$pid . ' AND uid = ' . $uid . ' AND unread = 1 AND alert_type_id = ' . $alertType->getId() . ''
         );
 
-        if ($db->num_rows($query) == 0) {   	
+        if ($db->num_rows($query) == 0) {
 			$alert = new MybbStuff_MyAlerts_Entity_Alert($uid, $alertType, $pid, $mybb->user['uid']);
 					$alert->setExtraDetails(
 					array(
 						'tid' 		=> $tid,
 						'pid'		=> $pid,
 						't_subject' 	=> $subject,
-						'fid'		=> $fid					
-					)); 
+						'fid'		=> $fid
+					));
 			MybbStuff_MyAlerts_AlertManager::getInstance()->addAlert($alert);
 		}
 	}
@@ -1248,7 +1263,7 @@ function tyl_myalerts_formatter_load(){
 				$this->lang->tyl_alert,
 				$outputAlert['from_user'],
 				$alertContent['t_subject']
-			);				
+			);
 		}
 
 		public function init()
@@ -1261,21 +1276,21 @@ function tyl_myalerts_formatter_load(){
 		public function buildShowLink(MybbStuff_MyAlerts_Entity_Alert $alert)
 		{
         $alertContent = $alert->getExtraDetails();
-        $postLink = $this->mybb->settings['bburl'] . '/' . get_post_link((int)$alertContent['pid'], (int)$alertContent['tid']).'#pid'.(int)$alertContent['pid'];              
+        $postLink = $this->mybb->settings['bburl'] . '/' . get_post_link((int)$alertContent['pid'], (int)$alertContent['tid']).'#pid'.(int)$alertContent['pid'];
 
         return $postLink;
 		}
 	}
 	}
-}	
+}
 
 function thankyoulike_memprofile()
 {
-	global $db, $mybb, $lang, $memprofile, $templates, $tyl_memprofile, $uid;	
+	global $db, $mybb, $lang, $memprofile, $templates, $tyl_memprofile, $uid;
 	$prefix = 'g33k_thankyoulike_';
-	
+
 	$lang->load("thankyoulike");
-	
+
 	if ($mybb->settings[$prefix.'enabled'] == "1")
 	{
 		if ($mybb->settings[$prefix.'thankslike'] == "like")
@@ -1298,18 +1313,18 @@ function thankyoulike_memprofile()
 			$lang->tyl_find_posts_for = $lang->tyl_find_ty_posts_for;
 			$tyl_thankslikes = $lang->tyl_thanks;
 		}
-		
+
 		if ($mybb->settings[$prefix.'remowntylfromc'] == 1)
 		{
-			$query = $db->simple_select($prefix."thankyoulike", "COUNT(tlid) AS owntyl_user", "uid='".$memprofile['uid']."' AND uid=puid");	
+			$query = $db->simple_select($prefix."thankyoulike", "COUNT(tlid) AS owntyl_user", "uid='".$memprofile['uid']."' AND uid=puid");
 			$owntyluser = $db->fetch_field($query, 'owntyl_user');
-			if($owntyluser)	
+			if($owntyluser)
 			{
 				$memprofile['tyl_unumtyls'] = $memprofile['tyl_unumtyls'] - $owntyluser;
 				$memprofile['tyl_unumrcvtyls'] = $memprofile['tyl_unumrcvtyls'] - $owntyluser;
 			}
 		}
-		
+
 		$daysreg = (TIME_NOW - $memprofile['regdate']) / (24*3600);
 		$tylpd = $memprofile['tyl_unumtyls'] / $daysreg;
 		$tylpd = round($tylpd, 2);
@@ -1323,15 +1338,15 @@ function thankyoulike_memprofile()
 		{
 			$tylrcvpd = $memprofile['tyl_unumrcvtyls'];
 		}
-		
-		// Get total tyl and percentage		
+
+		// Get total tyl and percentage
 		$query1 = $db->query("SELECT SUM(tyl_unumtyls) as totalgiv, SUM(tyl_unumrcvtyls) as totalrcv FROM ".TABLE_PREFIX."users");
 		if($total = $db->fetch_array($query1))
 		{
 			$totalgiv = (int)$total['totalgiv'];
 			$totalrcv = (int)$total['totalrcv'];
-		}		
-		
+		}
+
 		if($mybb->settings[$prefix.'remowntylfromc'] == 1)
 		{
 			$query = $db->simple_select($prefix."thankyoulike", "COUNT(tlid) AS owntyl_total", "uid=puid");
@@ -1342,7 +1357,7 @@ function thankyoulike_memprofile()
 				$totalrcv = $totalrcv - $owntyltotal;
 			}
 		}
-		
+
 		if($totalgiv > 0)
 		{
 			$percent = $memprofile['tyl_unumtyls']*100/$totalgiv;
@@ -1352,7 +1367,7 @@ function thankyoulike_memprofile()
 		{
 			$percent = "0";
 		}
-		
+
 		if($totalrcv > 0)
 		{
 			$percent_rcv = $memprofile['tyl_unumrcvtyls']*100/$totalrcv;
@@ -1361,8 +1376,8 @@ function thankyoulike_memprofile()
 		else
 		{
 			$percent_rcv = "0";
-		}	
-		
+		}
+
 		if($percent > 100)
 		{
 			$percent = 100;
@@ -1381,11 +1396,11 @@ function thankyoulike_memprofile()
 
 function thankyoulike_delete_thread($tid)
 {
-	global $db;	
+	global $db;
 	$prefix = 'g33k_thankyoulike_';
-	
+
 	$thread = get_thread($tid);
-	
+
 	// Only delete if there are any tyls
 	if($thread['tyl_tnumtyls'] != 0)
 	{
@@ -1402,7 +1417,7 @@ function thankyoulike_delete_thread($tid)
 		while($tyl_post = $db->fetch_array($query))
 		{
 			$tlids[] = $tyl_post['tlid'];
-			
+
 			// Count # of posts and # of thanks received for every post to be subtracted
 			if($user_prcvtyls[$tyl_post['puid']][$tyl_post['pid']])
 			{
@@ -1412,7 +1427,7 @@ function thankyoulike_delete_thread($tid)
 			{
 				$user_prcvtyls[$tyl_post['puid']][$tyl_post['pid']] = -1;
 			}
-			
+
 			// Count the tyl counts for each user to be subtracted
 			if($user_tyls[$tyl_post['uid']])
 			{
@@ -1453,19 +1468,19 @@ function thankyoulike_delete_thread($tid)
 			$db->write_query("UPDATE ".TABLE_PREFIX.$prefix."stats SET value=value-$tlids_count WHERE title='total'");
 			$db->delete_query($prefix."thankyoulike", "tlid IN ($tlids)");
 		}
-	}	
+	}
 }
 
 function thankyoulike_delete_post($pid)
 {
-	global $db;	
+	global $db;
 	$prefix = 'g33k_thankyoulike_';
-	
+
 	$pid = intval($pid);
-	
+
 	$query = $db->simple_select("posts", "*", "pid='".$pid."'");
 	$post = $db->fetch_array($query);
-	
+
 	// Only delete if there are any tyls
 	if($post['tyl_pnumtyls'] != 0)
 	{
@@ -1480,7 +1495,7 @@ function thankyoulike_delete_post($pid)
 		while($tyl_post = $db->fetch_array($query))
 		{
 			$tlids[] = $tyl_post['tlid'];
-			
+
 			// Count the tyl counts for each user to be subtracted
 			if($user_tyls[$tyl_post['uid']])
 			{
@@ -1511,22 +1526,22 @@ function thankyoulike_delete_post($pid)
 			$db->write_query("UPDATE ".TABLE_PREFIX.$prefix."stats SET value=value-$tlids_count WHERE title='total'");
 			$db->delete_query($prefix."thankyoulike", "tlid IN ($tlids)");
 		}
-	}	
+	}
 }
 
 function thankyoulike_merge_posts($args)
 {
-	global $db;	
+	global $db;
 	$prefix = 'g33k_thankyoulike_';
-	
+
 	$pids = $args['pids'];
 	$tid = $args['tid'];
-	
+
 	$pidin = implode(',', $pids);
 	// We first check which is the masterpid where others were merged, other posts should be gone by now
 	$query1 = $db->simple_select("posts", "pid, uid", "pid IN ($pidin)");
 	$master = $db->fetch_array($query1);
-	
+
 	// Get all the tyls for all the pids to be merged
 	$query = $db->query("
 		SELECT tyl.*
@@ -1548,7 +1563,7 @@ function thankyoulike_merge_posts($args)
 			$masterpiduid[$tyl['uid']] = 1;
 		}
 		else
-		{			
+		{
 			if(($masterpiduid[$tyl['uid']]) || $tyl['uid'] == $master['uid'])
 			{
 				// User has tyled master post or is author of master post, remove tyl, update count
@@ -1616,21 +1631,21 @@ function thankyoulike_merge_posts($args)
 		$db->write_query("UPDATE ".TABLE_PREFIX.$prefix."stats SET value=value-$tlids_count WHERE title='total'");
 		// Delete the tyls
 		$db->delete_query($prefix."thankyoulike", "tlid IN ($tlids_remove)");
-	}	
+	}
 }
 
 function thankyoulike_merge_threads($args)
 {
-	global $db;	
+	global $db;
 	$prefix = 'g33k_thankyoulike_';
-	
+
 	$mergetid = $args['mergetid'];
 	$tid = $args['tid'];
-	
+
 	// Get the tyl num from old thread
 	$query = $db->simple_select("threads", "tyl_tnumtyls", "tid='$mergetid'");
 	$merge_tyltnum = $db->fetch_field($query, "tyl_tnumtyls");
-	
+
 	// Add tyl count from old thread to new one
 	if ($merge_tyltnum != 0)
 	{
@@ -1640,14 +1655,14 @@ function thankyoulike_merge_threads($args)
 
 function thankyoulike_split_posts($args)
 {
-	global $db;	
+	global $db;
 	$prefix = 'g33k_thankyoulike_';
-	
+
 	$pids = $args['pids'];
 	$tid = $args['tid'];
-	
+
 	$pids_list = implode(',', $pids);
-	
+
 	// Get tyl count for each post
 	$query = $db->simple_select("posts", "tid, tyl_pnumtyls", "pid IN ($pids_list)");
 	$tyl_pnumtyls = 0;
@@ -1657,7 +1672,7 @@ function thankyoulike_split_posts($args)
 		$tyl_pnumtyls = $tyl_pnumtyls + $tyl_pnum['tyl_pnumtyls'];
 		$newtid = $tyl_pnum['tid'];
 	}
-	
+
 	if ($tyl_pnumtyls != 0)
 	{
 		// Add it to new thread
@@ -1669,9 +1684,9 @@ function thankyoulike_split_posts($args)
 
 function thankyoulike_delete_user()
 {
-	global $db, $user;	
+	global $db, $user;
 	$prefix = 'g33k_thankyoulike_';
-	
+
 	// Only delete/update if the user had tyls
 	if($user['tyl_unumtyls'] != 0)
 	{
@@ -1689,7 +1704,7 @@ function thankyoulike_delete_user()
 		while($tyl_user = $db->fetch_array($query))
 		{
 			$tlids[] = $tyl_user['tlid'];
-			
+
 			// Count the tyl counts for each post to be subtracted
 			if($post_tyls[$tyl_user['pid']])
 			{
@@ -1756,7 +1771,7 @@ function thankyoulike_delete_user()
 function thankyoulike_wol_activity($user_activity)
 {
 	global $user;
-	
+
 	$split_loc = explode(".php", $user_activity['location']);
 	if($split_loc[0] == $user['location'])
 	{
@@ -1766,20 +1781,20 @@ function thankyoulike_wol_activity($user_activity)
 	{
 		$filename = my_substr($split_loc[0], -my_strpos(strrev($split_loc[0]), "/"));
 	}
-	
+
 	if ($filename == "tylsearch")
 	{
 		$user_activity['activity'] = "tyl_searching";
 	}
-	
+
 	return $user_activity;
 }
 
 function thankyoulike_friendly_wol_activity($plugin_array)
 {
-	global $mybb, $lang;	
+	global $mybb, $lang;
 	$lang->load("thankyoulike");
-	
+
 	if ($plugin_array['user_activity']['activity'] == "tyl_searching")
 	{
 		if ($mybb->settings[$prefix.'thankslike'] == "like")
@@ -1791,15 +1806,15 @@ function thankyoulike_friendly_wol_activity($plugin_array)
 			$plugin_array['location_name'] = $lang->sprintf($lang->tyl_wol_searching, "tylsearch.php", $lang->tyl_thanks);
 		}
 	}
-	
+
 	return $plugin_array;
 }
 
 function thankyoulike_settings_page()
 {
-	global $db, $mybb, $g33k_settings_peeker;	
+	global $db, $mybb, $g33k_settings_peeker;
 	$prefix = 'g33k_thankyoulike_';
-	
+
 	$query = $db->simple_select("settinggroups", "gid", "name='{$prefix}settings'", array('limit' => 1));
 	$group = $db->fetch_array($query);
 	$g33k_settings_peeker = ($mybb->input["gid"] == $group["gid"]) && ($mybb->request_method != "post");
@@ -1807,15 +1822,16 @@ function thankyoulike_settings_page()
 
 function thankyoulike_settings_peeker()
 {
-	global $g33k_settings_peeker;	
+	global $g33k_settings_peeker;
 	$prefix = 'g33k_thankyoulike_';
-	
+
 	if($g33k_settings_peeker)
 	{
 		echo '<script type="text/javascript">
 		$(document).ready(function(){
 			new Peeker($(".setting_'.$prefix.'enabled"), $("#row_setting_'.$prefix.'thankslike, #row_setting_'.$prefix.'firstall, #row_setting_'.$prefix.'firstalloverwrite, #row_setting_'.$prefix.'removing, #row_setting_'.$prefix.'tylownposts, #row_setting_'.$prefix.'remowntylfroms, #row_setting_'.$prefix.'remowntylfromc, #row_setting_'.$prefix.'closedthreads, #row_setting_'.$prefix.'exclude, #row_setting_'.$prefix.'unameformat, #row_setting_'.$prefix.'hideforgroups, #row_setting_'.$prefix.'showdt, #row_setting_'.$prefix.'dtformat, #row_setting_'.$prefix.'sortorder, #row_setting_'.$prefix.'collapsible, #row_setting_'.$prefix.'colldefault, #row_setting_'.$prefix.'hidelistforgroups, #row_setting_'.$prefix.'displaygrowl, #row_setting_'.$prefix.'limits"), 1, true),
 			new Peeker($(".setting_'.$prefix.'tylownposts"), $("#row_setting_'.$prefix.'remowntylfroms, #row_setting_'.$prefix.'remowntylfromc"), 1, true),
+			new Peeker($(".setting_'.$prefix.'reputation_add"), $("#row_setting_'.$prefix.'reputation_add_reppoints, #row_setting_'.$prefix.'reputation_add_repcomment"), 1, true),
 			new Peeker($(".setting_'.$prefix.'showdt"), $("#row_setting_'.$prefix.'dtformat"),/^(?!none)/, true),
 			new Peeker($(".setting_'.$prefix.'collapsible"), $("#row_setting_'.$prefix.'colldefault"), 1, true),
 			new Peeker($(".setting_'.$prefix.'highlight_popular_posts"), $("#row_setting_'.$prefix.'highlight_popular_posts_count"), 1, true)
@@ -1833,7 +1849,7 @@ function thankyoulike_promotion_formcontainer_output_row(&$args)
 	{
 		return;
 	}
-	
+
 	$lang->load('config_thankyoulike');
 
 	if($args['label_for'] == 'requirements')
@@ -1857,7 +1873,7 @@ function thankyoulike_promotion_formcontainer_output_row(&$args)
 
 		$form_container->output_row($lang->setting_thankyoulike_promotion_rcv, $lang->setting_thankyoulike_promotion_rcv_desc, $form->generate_numeric_field('tylreceived', (int)$tylreceived, array('id' => 'tylreceived'))." ".$form->generate_select_box("tylreceivedtype", $options_type, $tylreceivedtype, array('id' => 'tylreceivedtype')), 'tylreceived');
 	}
-	
+
 	if($args['label_for'] == 'requirements')
 	{
 		$options['tylgiven'] = $lang->setting_thankyoulike_promotion_gvn;
@@ -1954,7 +1970,7 @@ function acp_tyl_do_recounting()
 				$db->write_query("UPDATE ".TABLE_PREFIX."posts SET tyl_pnumtyls=0");
 				$db->write_query("UPDATE ".TABLE_PREFIX."threads SET tyl_tnumtyls=0");
 				$db->write_query("UPDATE ".TABLE_PREFIX."users SET tyl_unumtyls=0, tyl_unumptyls=0, tyl_unumrcvtyls=0");
-				
+
 				$query = $db->query("
 						SELECT tyl.tlid
 						FROM ".TABLE_PREFIX.$prefix."thankyoulike tyl
@@ -1972,24 +1988,24 @@ function acp_tyl_do_recounting()
 					$tlids_remove = implode(',', $tlids_remove);
 					// Delete the tyls
 					$db->delete_query($prefix."thankyoulike", "tlid IN ($tlids_remove)");
-				}	
+				}
 				// Lets also update the puid field in the db with uid values from the posts table
 				// This is done to sync up the db with the puids of post tyled, since this feature wasn't there in v1.0 so data needs to be generated.
-				$db->write_query("UPDATE ".TABLE_PREFIX.$prefix."thankyoulike tyl 
-							LEFT JOIN ".TABLE_PREFIX."posts p ON ( p.pid=tyl.pid )  
+				$db->write_query("UPDATE ".TABLE_PREFIX.$prefix."thankyoulike tyl
+							LEFT JOIN ".TABLE_PREFIX."posts p ON ( p.pid=tyl.pid )
 							SET tyl.puid=p.uid");
 				// Update the number of tyled posts for the post owners, we do this here because this needs to be done in one swoop and will break if done in parts
-				$db->write_query("UPDATE ".TABLE_PREFIX."users u 
-							JOIN (SELECT puid, COUNT(DISTINCT(pid)) AS pidcount 
+				$db->write_query("UPDATE ".TABLE_PREFIX."users u
+							JOIN (SELECT puid, COUNT(DISTINCT(pid)) AS pidcount
 							FROM ".TABLE_PREFIX.$prefix."thankyoulike
 							GROUP BY puid) tyl
 							ON ( u.uid=tyl.puid )
 							SET u.tyl_unumptyls=tyl.pidcount");
 			}
-			
+
 			$query1 = $db->simple_select($prefix."thankyoulike", "COUNT(tlid) AS num_tyls");
 			$num_tyls = $db->fetch_field($query1, 'num_tyls');
-			
+
 			$query2 = $db->query("
 					SELECT tyl.*, p.tid
 					FROM ".TABLE_PREFIX.$prefix."thankyoulike tyl
@@ -2083,7 +2099,7 @@ function acp_tyl_recount_form()
 {
 	global $lang, $form_container, $form;
 	$lang->load("config_thankyoulike");
-	
+
 	$form_container->output_cell("<label>{$lang->tyl_recount}</label><div class=\"description\">{$lang->tyl_recount_do_desc}</div>");
 	$form_container->output_cell($form->generate_numeric_field("tyls", 500, array('style' => 'width: 150px;', 'min' => 0)));
 	$form_container->output_cell($form->generate_submit_button($lang->go, array("name" => "do_recounttyls")));
@@ -2093,8 +2109,8 @@ function acp_tyl_recount_form()
 
 function tyl_limits_usergroup_permission_tabs(&$tabs)
 {
-	global $lang;	
-	$prefix = 'g33k_thankyoulike_';	
+	global $lang;
+	$prefix = 'g33k_thankyoulike_';
 	$lang->load("config_thankyoulike");
 
 	$tabs['tyl_limits'] = $lang->tyl_limits_tab;
@@ -2103,10 +2119,10 @@ function tyl_limits_usergroup_permission_tabs(&$tabs)
 
 function tyl_limits_usergroup_permission()
 {
-	global $mybb, $lang, $form, $form_container;	
+	global $mybb, $lang, $form, $form_container;
 	$prefix = 'g33k_thankyoulike_';
-	$lang->load("config_thankyoulike");	
-	
+	$lang->load("config_thankyoulike");
+
 	if($mybb->settings[$prefix.'limits'] == 1)
 	{
 		if(!empty($form_container->_title) & !empty($lang->users_permissions) & $form_container->_title == $lang->users_permissions)
@@ -2128,10 +2144,10 @@ function tyl_limits_usergroup_permission_commit()
 function tyl_preinstall_cleanup()
 {
 	global $mybb, $db, $cache;
-	
+
 	$codename = basename(__FILE__, ".php");
 	$prefix = 'g33k_'.$codename.'_';
-	
+
 	//delete old unnecessary files
 	if(file_exists(MYBB_ROOT."/admin/modules/tools/thankyoulike_recount.php"))
 	{
@@ -2141,12 +2157,12 @@ function tyl_preinstall_cleanup()
 	{
 		@unlink(MYBB_ROOT."/inc/languages/english/admin/tools_thankyoulike_recount.lang.php");
 	}
-	
+
 	// Remove old templates
 	$db->delete_query("templates", "title LIKE 'thankyoulike%'");
 	$db->delete_query("templategroups", "prefix in ('thankyoulike')");
-	
-	// Remove old CSS rules for g33k_thankyoulike	
+
+	// Remove old CSS rules for g33k_thankyoulike
 	require_once MYBB_ADMIN_DIR."inc/functions_themes.php";
 	$db->delete_query("themestylesheets", "name='g33k_thankyoulike.css'");
 	$query = $db->simple_select("themes", "tid");
@@ -2154,19 +2170,19 @@ function tyl_preinstall_cleanup()
 	{
 		update_theme_stylesheet_list($theme['tid']);
 	}
-	
+
 	// Remove old settings
 	$result = $db->simple_select('settinggroups', 'gid', "name = '{$prefix}settings'", array('limit' => 1));
 	$group = $db->fetch_array($result);
-	
+
 	if(!empty($group['gid']))
 	{
 		$db->delete_query('settinggroups', "gid='{$group['gid']}'");
 		$db->delete_query('settings', "gid='{$group['gid']}'");
 		rebuild_settings();
 	}
-	
+
 	$cache->update_usergroups();
 	$cache->update_forums();
-	$cache->update_tasks();		
+	$cache->update_tasks();
 }

@@ -45,6 +45,15 @@ $l['tyl_remowntylfroms_desc'] = "Choose YES to hide own given Thanks/Likes on se
 $l['tyl_remowntylfromc_title'] = "Remove Numbers of Own Given Thanks/Likes in Counters";
 $l['tyl_remowntylfromc_desc'] = "Choose YES to hide own given Thanks/Likes in post and member profile counters";
 
+$l['tyl_reputation_add_title'] = "Reputation points for given Thanks/Likes";
+$l['tyl_reputation_add_desc'] = "Do you want to add reputation points for a thank or like?";
+
+$l['tyl_reputation_add_reppoints_title'] = "Number of reputation points to add";
+$l['tyl_reputation_add_reppoints_desc'] = "Enter the number of reputation points you want to add for a thank or like (default: 1)";
+
+$l['tyl_reputation_add_repcomment_title'] = "Comment of given reputation.";
+$l['tyl_reputation_add_repcomment_desc'] = "Enter a comment which will be displayed on thanked/liked users reputation overview. (default: empty)";
+
 $l['tyl_closedthreads_title'] = "Allow in Closed Threads";
 $l['tyl_closedthreads_desc'] = "Do you want to allow to give Thank/Like in closed threads?";
 

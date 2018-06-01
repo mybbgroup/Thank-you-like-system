@@ -1,17 +1,17 @@
 <?php
 /**
  * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by 
- * the Free Software Foundation, either version 3 of the License, 
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License,
  * or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License 
- * along with this program.  
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.
  * If not, see <http://www.gnu.org/licenses/>.
  */
 
@@ -150,22 +150,22 @@ if ($excluded)
 }
 
 if($mybb->input['action'] == "add")
-{	
+{
 	$message = '';
-	
+
 	// Check if this user has reached their "maximum thanks/likes per day" quota
 	if($mybb->usergroup['tyl_limits_max'] != 0 && $mybb->settings[$prefix.'limits'] == "1")
 	{
 		$timesearch = TIME_NOW - (60 * 60 * 24);
 		$query = $db->simple_select($prefix."thankyoulike", "*", "uid='{$mybb->user['uid']}' AND dateline>'$timesearch'");
 		$numtoday = $db->num_rows($query);
-		
+
 		// Time left to next thankyou/like
 		if($numtoday>0)
 		{
 			$lastthank = $db->fetch_array($db->simple_select($prefix."thankyoulike", "dateline", "uid='{$mybb->user['uid']}' AND dateline>'$timesearch'", array("order_by" => 'dateline',"order_dir" => 'ASC', "limit" => 1)));
 			$tyltimediff = $lastthank['dateline'] - $timesearch;
-			
+
 			if($tyltimediff > 0)
 			{
 				$tyltimeleft = my_date("H", $tyltimediff).'h '.my_date("i", $tyltimediff).'m '.my_date("s", $tyltimediff).'s';
@@ -174,7 +174,7 @@ if($mybb->input['action'] == "add")
 
 		// Reached the quota - error.
 		if($numtoday >= $mybb->usergroup['tyl_limits_max'])
-		{				
+		{
 			if($mybb->settings[$prefix.'displaygrowl'] == 1 || !$mybb->get_input('ajax', MyBB::INPUT_INT))
 			{
 				$message = $lang->sprintf("<strong>".$lang->tyl_error_reached_max_limit."</strong>", $pre2);
@@ -190,7 +190,7 @@ if($mybb->input['action'] == "add")
 				{
 					$message .= $lang->sprintf("\n==>".$lang->tyl_error_reached_max_timeleft, $pre2).$tyltimeleft;
 				}
-			}			
+			}
 		}
 	}
 
@@ -199,7 +199,7 @@ if($mybb->input['action'] == "add")
 	{
 		$message = $lang->sprintf($lang->tyl_error_own_post, $pre);
 	}
-	
+
 	if($message)
 	{
 		if($mybb->get_input('ajax', MyBB::INPUT_INT))
@@ -212,7 +212,7 @@ if($mybb->input['action'] == "add")
 			$url = get_post_link($pid, $tid)."#pid{$pid}";
 			redirect($url, $message.$lang->tyl_redirect_back, $lang->tyl_error, true);
 		}
-		
+
 	}
 
 	// Check if user has already thanked/liked this post.
@@ -221,7 +221,7 @@ if($mybb->input['action'] == "add")
 		);
 	$query_check = $db->simple_select($prefix."thankyoulike", "*", "pid='".$pid."' AND uid='".$mybb->user['uid']."'", $options);
 	$utyl = $db->fetch_array($query_check);
-	
+
 	if(isset($utyl['tlid']))
 	{
 		error($lang->sprintf($lang->tyl_error_already_tyled, $pre1));
@@ -249,7 +249,7 @@ if($mybb->input['action'] == "add")
 			// Load cache data and compare if version is the same or don't
 			$myalerts_plugins = $cache->read('mybbstuff_myalerts_alert_types');
 			if($myalerts_plugins['tyl']['code'] == 'tyl'){
-				tyl_recordAlertThankyou();	
+				tyl_recordAlertThankyou();
 			}
 		}
 	}
@@ -275,14 +275,45 @@ if($mybb->input['action'] == "add")
 		{
 			// Go back to the post
 			$url = get_post_link($pid, $tid)."#pid{$pid}";
-			redirect($url, $lang->sprintf($lang->tyl_redirect_tyled, $pre).$lang->tyl_redirect_back); 
+			redirect($url, $lang->sprintf($lang->tyl_redirect_tyled, $pre).$lang->tyl_redirect_back);
 			exit;
+		}
+
+		// Add also reputation points on thank or like
+		if($mybb->settings[$prefix.'reputation_add'] != 0)
+		{
+			$reppoints = 1;
+			if($mybb->settings[$prefix.'reputation_add_reppoints'] > 0)
+			{
+				$reppoints = intval($mybb->settings[$prefix.'reputation_add_reppoints']);
+			}
+
+			$repcomment = "";
+			if(!empty($mybb->settings[$prefix.'reputation_add_repcomment']))
+			{
+				$repcomment = htmlspecialchars_uni($mybb->settings[$prefix.'reputation_add_repcomment']);
+			}
+
+			// Build array of reputation data.
+			$reputation = array(
+				"uid" => intval($post['uid']),
+				"adduid" => $mybb->user['uid'],
+				"pid" => intval($post['pid']),
+				"reputation" => $reppoints,
+				"dateline" => TIME_NOW,
+				"comments" => $repcomment
+			);
+
+			// Insert a new reputation
+			$db->insert_query("reputation", $reputation);
+			// Update user
+			$db->write_query("UPDATE ".TABLE_PREFIX."users SET reputation=reputation+{$reppoints} WHERE uid='".intval($post['uid'])."'"); 
 		}
 	}
 	else
 	{
 		error($lang->sprintf($lang->tyl_error_unknown, $pre));
-	}	
+	}
 }
 
 if($mybb->input['action'] == "del")
@@ -297,7 +328,7 @@ if($mybb->input['action'] == "del")
 		);
 	$query_r = $db->simple_select($prefix."thankyoulike", "*", "pid='".$pid."' AND uid='".$mybb->user['uid']."'", $options);
 	$tyl_r = $db->fetch_array($query_r);
-	
+
 	if(isset($tyl_r['tlid']))
 	{
 		if($tyl_r['uid'] == $mybb->user['uid'])
@@ -319,7 +350,7 @@ if($mybb->input['action'] == "del")
 			$db->write_query("UPDATE ".TABLE_PREFIX."users SET tyl_unumtyls=tyl_unumtyls-1 WHERE uid='".intval($mybb->user['uid'])."'");
 			$db->write_query("UPDATE ".TABLE_PREFIX."users SET tyl_unumrcvtyls=tyl_unumrcvtyls-1 WHERE uid='".intval($post['uid'])."'");
 			$db->write_query("UPDATE ".TABLE_PREFIX.$prefix."stats SET value=value-1 WHERE title='total'");
-			
+
 			if($mybb->input['ajax'])
 			{
 				// Do nothing here
@@ -327,7 +358,22 @@ if($mybb->input['action'] == "del")
 			else
 			{
 				$url = get_post_link($pid, $tid)."#pid{$pid}";
-				redirect($url, $lang->sprintf($lang->tyl_redirect_deleted, $pre).$lang->tyl_redirect_back); 
+				redirect($url, $lang->sprintf($lang->tyl_redirect_deleted, $pre).$lang->tyl_redirect_back);
+			}
+
+			// delete given reputation points for thank or like
+			if($mybb->settings[$prefix.'reputation_add'] != 0)
+			{
+				$reppoints = 1;
+				if($mybb->settings[$prefix.'reputation_add_reppoints'] > 0)
+				{
+					$reppoints = intval($mybb->settings[$prefix.'reputation_add_reppoints']);
+				}
+				
+				// delete given reputation
+				$db->delete_query("reputation", "pid='".intval($post['pid'])."' AND adduid='".intval($mybb->user['uid'])."'");
+				// Update user
+				$db->write_query("UPDATE ".TABLE_PREFIX."users SET reputation=reputation-{$reppoints} WHERE uid='".intval($post['uid'])."'"); 
 			}
 		}
 		else
@@ -344,7 +390,7 @@ if($mybb->input['action'] == "del")
 if($mybb->input['ajax'])
 {
 	// Send headers.
-	
+
 	header("Content-type: application/json; charset={$charset}");
 	// Get all the thanks/likes for this post
 	switch($mybb->settings[$prefix.'sortorder'])
@@ -367,10 +413,10 @@ if($mybb->input['ajax'])
 		SELECT tyl.*, u.username, u.usergroup, u.displaygroup
 		FROM ".TABLE_PREFIX.$prefix."thankyoulike tyl
 		LEFT JOIN ".TABLE_PREFIX."users u ON (u.uid=tyl.uid)
-		WHERE tyl.pid='".$post['pid']."' 
+		WHERE tyl.pid='".$post['pid']."'
 		".$order."
 	");
-				
+
 	$tyls = '';
 	$comma = '';
 	$tyled = 0;
@@ -384,15 +430,15 @@ if($mybb->input['ajax'])
 		$datedisplay_title = $mybb->settings[$prefix.'showdt'] == "astitle" ? "title='".my_date($mybb->settings[$prefix.'dtformat'], $tyl['dateline'])."'" : "";
 		eval("\$thankyoulike_users = \"".$templates->get("thankyoulike_users", 1, 0)."\";");
 		$tyls .= trim($thankyoulike_users);
-		$comma = ', ';	
+		$comma = ', ';
 		// Has this user tyled?
 		if($tyl['uid'] == $mybb->user['uid'])
 		{
 			$tyled = 1;
-		}	
+		}
 		$count++;
 	}
-	
+
 	// Are we using thanks or like? Setup titles
 	if($count == 1)
 	{
@@ -406,7 +452,7 @@ if($mybb->input['ajax'])
 		$tyl_say = $lang->tyl_say;
 		$tyl_like = $lang->tyl_like;
 	}
-	
+
 	if ($mybb->settings[$prefix.'thankslike'] == "like")
 	{
 		$pre = "l";
@@ -467,7 +513,7 @@ if($mybb->input['ajax'])
 	}
 	$button_tyl = '';
 	$tyluserid = $mybb->settings[$prefix.'tylownposts'] == "1" ? "-1" : $mybb->user['uid'];
-	
+
 	if(($tyled && $mybb->settings[$prefix.'removing'] != "1") || (!is_moderator($post['fid'], "caneditposts") && $thread['closed'] == 1 && $mybb->settings[$prefix.'closedthreads'] != "1") || $post['uid'] == $tyluserid || is_member($mybb->settings[$prefix.'hideforgroups']) || $mybb->settings[$prefix.'hideforgroups'] == "-1")
 	{
 		// Show no button for poster or user who has already thanked/liked or removing is disabled.
@@ -490,10 +536,10 @@ if($mybb->input['ajax'])
 			eval("\$button_tyl = \"".$templates->get("thankyoulike_button_add")."\";");
 		}
 	}
-	
+
 	// Cleanup for JSON
 	$button_tyl = thankyoulike_cleanup_json($button_tyl);
-	
+
 	if($count>0 && (($mybb->settings[$prefix.'firstall'] == "first" && $thread['firstpost'] == $post['pid']) || $mybb->settings[$prefix.'firstall'] == "all"))
 	{
 		// We have thanks/likes to show
@@ -509,16 +555,16 @@ if($mybb->input['ajax'])
 		}
 		// Cleanup for JSON
 		$thankyoulike = thankyoulike_cleanup_json($thankyoulike);
-	
+
 		echo '{';
 		echo '"tylButton":"'.$button_tyl.'",';
 		echo '"tylData":"'.$thankyoulike.'"';
-		echo '}';	
+		echo '}';
 	}
 	else
 	{
 		// Nothing to show, return blank data with buttons.
-		
+
 		echo '{';
 		echo '"tylButton":"'.$button_tyl.'",';
 		echo '"tylData":""';
