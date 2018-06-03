@@ -71,9 +71,9 @@ $url_S = '<a href="https://github.com/Cu8eeeR/MyBB_Thank-you-like-plugin" target
 		"name"		=> $db->escape_string($lang->tyl_info_title),
 		"description"	=> $db->escape_string($lang->tyl_info_desc) . $lang->sprintf($lang->tyl_info_desc_url,$url_AT,$url_SP,$url_E,$url_DN,$url_S),
 		"website"	=> "https://community.mybb.com/thread-169382.html",
-		"author"	=> "- G33K -",
+		"author"	=> "- G33K -, Eldenroot, SvePu",
 		"authorsite"	=> "https://community.mybb.com/user-19236.html",
-		"version"	=> "2.1.0",
+		"version"	=> "2.2.0",
 		"codename"	=> "thankyoulikesystem",
 		"compatibility"	=> "18*"
     );
