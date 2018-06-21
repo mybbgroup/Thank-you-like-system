@@ -424,7 +424,7 @@ closed='.$lang->tyl_colldefault_op_2.'',
 				'title'				=> $lang->tyl_show_memberprofile_box_title,
 				'description'		=> $lang->tyl_show_memberprofile_box_desc,
 				'optionscode'		=> 'yesno',
-				'value'				=> '0')
+				'value'				=> '1')
 	);
 
 	$x = 1;
@@ -1424,7 +1424,17 @@ function thankyoulike_memprofile()
 		{
 			global $theme, $tyl_profile_box;
 
-			
+			if($mybb->settings[$prefix.'thankslike'] == "like")
+			{
+				$lang->tyl_profile_box_thead = $lang->sprintf($lang->tyl_profile_box_thead, $memprofile['username'], $lang->tyl_liked);
+				$lang->tyl_profile_box_number = $lang->sprintf($lang->tyl_profile_box_number, $lang->tyl_likes);
+			}
+			elseif($mybb->settings[$prefix.'thankslike'] == "thanks")
+			{
+				$lang->tyl_profile_box_thead = $lang->sprintf($lang->tyl_profile_box_thead, $memprofile['username'], $lang->tyl_thanked);
+				$lang->tyl_profile_box_number = $lang->sprintf($lang->tyl_profile_box_number, $lang->tyl_thanks);
+			}
+
 			$memprofile['tylsubject'] = $post['subject'];
 			$memprofile['tylcount'] = $post['tylcount'];
 			$memprofile['tylmessage'] = $post['message'];
