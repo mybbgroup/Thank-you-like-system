@@ -518,7 +518,7 @@ closed='.$lang->tyl_colldefault_op_2.'',
 	$css = array(
 	"name" => "thankyoulike.css",
 	"tid" => 1,
-	"attachedto" => "showthread.php",
+	"attachedto" => "showthread.php|member.php",
 	"stylesheet" => "div[id^=tyl_btn_] {
 	display: inline-block;
 }
@@ -558,6 +558,14 @@ img[id^=tyl_i_expcol_]{
 	border-radius: 3px;
 	border-color: rgba(112,202,47,0.5);
 	background-color: rgba(139,195,74,0.3);
+}
+
+.profile_box_read_more {
+	text-align: right;
+}
+
+.profile_box_read_more span {
+	background-position: 0 -200px;
 }",
 	"cachefile" => $db->escape_string(str_replace('/', '', thankyoulike.css)),
 	"lastmodified" => TIME_NOW
@@ -1434,12 +1442,71 @@ function thankyoulike_memprofile()
 				$lang->tyl_profile_box_thead = $lang->sprintf($lang->tyl_profile_box_thead, $memprofile['username'], $lang->tyl_thanked);
 				$lang->tyl_profile_box_number = $lang->sprintf($lang->tyl_profile_box_number, $lang->tyl_thanks);
 			}
+			
+			$unviewwhere = '';
+			$unviewable = get_unviewable_forums(true);
+			if($unviewable)
+			{
+				$unviewwhere = " AND p.fid NOT IN ($unviewable)";
+			}
+			$inactive = get_inactive_forums();
+			if($inactive)
+			{
+				$unviewwhere .= " AND p.fid NOT IN ($inactive)";
+			}
 
-			$memprofile['tylsubject'] = $post['subject'];
-			$memprofile['tylcount'] = $post['tylcount'];
-			$memprofile['tylmessage'] = $post['message'];
+			$query = $db->query("
+					SELECT l.pid, count( * ) AS tylcount, p.subject, p.username, p.message, p.tid
+					FROM ".TABLE_PREFIX."g33k_thankyoulike_thankyoulike l
+					LEFT JOIN ".TABLE_PREFIX."posts p ON (l.pid=p.pid)
+					WHERE p.visible='1' AND l.puid = {$memprofile['uid']}{$unviewwhere}
+					GROUP BY l.pid
+					ORDER BY tylcount DESC, l.pid ASC
+					LIMIT 0,1"
+				);
+			if($post = $db->fetch_array($query))
+			{
+				global $parser;
+				if(!$parser)
+				{
+					require_once MYBB_ROOT."inc/class_parser.php";
+					$parser = new postParser;
+				}
 
-			eval("\$tyl_profile_box = \"".$templates->get("thankyoulike_member_profile_box")."\";");
+				$parser_options = array(
+					"allow_html" => 0,
+					"allow_mycode" => 1,
+					"allow_smilies" => 1,
+					"allow_imgcode" => 0,
+					"allow_videocode" => 0,
+					"nofollow_on" => 1,
+					"filter_badwords" => 1
+				);
+
+				$memprofile['tylsubject'] = $parser->parse_badwords($post['subject']);
+				$memprofile['tylcount'] = (int)$post['tylcount'];
+				
+				$shorted = 0;
+				if(my_strlen($post['message']) > 600)
+				{
+					$post['message'] = my_substr($post['message'], 0, 597, 0)."...";
+					$shorted = 1;
+				}
+
+				$memprofile['tylmessage'] = $parser->parse_message($post['message'], $parser_options);
+
+				if($shorted == 1)
+				{
+					$postlink = get_post_link($post['pid'], $post['tid'])."#pid".$post['pid'];
+					$memprofile['tylmessage'] = $memprofile['tylmessage']."<br /><div class=\"postbit_buttons profile_box_read_more\"><a href=\"{$postlink}\"><span>{$lang->tyl_profile_box_message_read_more}</span></a></div>";
+				}
+
+				eval("\$tyl_profile_box = \"".$templates->get("thankyoulike_member_profile_box")."\";");
+			}
+			else
+			{
+				$tyl_profile_box = "";
+			}
 		}
 		// Member Profile Box End
 	}

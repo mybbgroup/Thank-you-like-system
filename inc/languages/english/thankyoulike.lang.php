@@ -56,6 +56,7 @@ $l['tyl_profile_box_thead'] = "{1}'s Most {2} Post";
 $l['tyl_profile_box_subject'] = "Post Subject";
 $l['tyl_profile_box_number'] = "Numbers of {1}";
 $l['tyl_profile_box_message'] = "Post Message";
+$l['tyl_profile_box_message_read_more'] = "Read More";
 
 $l['tyl_wol_searching'] = "<a href=\"{1}\">Searching {2}</a>";
 
