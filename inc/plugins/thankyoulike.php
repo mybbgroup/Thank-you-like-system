@@ -67,7 +67,7 @@ $url_E = '<a href="https://community.mybb.com/user-84065.html" target="_blank">E
 $url_DN = '<a href="https://community.mybb.com/user-51493.html" target="_blank">Dark Neo</a>';
 $url_S = '<a href="https://github.com/Cu8eeeR/MyBB_Thank-you-like-plugin" target="_blank">GitHub</a>';
 
-    $info = array(
+	$info = array(
 		"name"		=> $db->escape_string($lang->tyl_info_title),
 		"description"	=> $db->escape_string($lang->tyl_info_desc) . $lang->sprintf($lang->tyl_info_desc_url,$url_AT,$url_SP,$url_E,$url_DN,$url_S),
 		"website"	=> "https://community.mybb.com/thread-169382.html",
@@ -76,16 +76,16 @@ $url_S = '<a href="https://github.com/Cu8eeeR/MyBB_Thank-you-like-plugin" target
 		"version"	=> "2.2.0",
 		"codename"	=> "thankyoulikesystem",
 		"compatibility"	=> "18*"
-    );
+	);
 
-   	$info_desc = '';
+	$info_desc = '';
 
-   	if(function_exists("myalerts_info")){
+	if(function_exists("myalerts_info")){
 		$my_alerts_info = myalerts_info();
 		$verify = $my_alerts_info['version'];
 		if($verify >= 2.0){
 			// Load cache data and compare if version is the same or not
-		    	$myalerts_plugins = $cache->read('mybbstuff_myalerts_alert_types');
+				$myalerts_plugins = $cache->read('mybbstuff_myalerts_alert_types');
 
 			if($myalerts_plugins['tyl']['code'] == 'tyl' && $myalerts_plugins['tyl']['enabled'] == 1){
 				$info_desc .= "<ul><li style=\"list-style-image: url(styles/default/images/icons/success.png)\"><span style=\"color: green;\">".$db->escape_string($lang->tyl_info_desc_alerts_integrated)."</span></li></ul>";
@@ -97,7 +97,7 @@ $url_S = '<a href="https://github.com/Cu8eeeR/MyBB_Thank-you-like-plugin" target
 				$info_desc .= "<ul><li style=\"list-style-image: url(styles/default/images/icons/error.png)\"><span style=\"color: red\">".$db->escape_string($lang->tyl_info_desc_alerts_error)."</span></li></ul>";
 			}
 		}
-   	}
+	}
 	$result = $db->simple_select('settinggroups', 'gid', "name = '{$prefix}settings'", array('limit' => 1));
 	$group = $db->fetch_array($result);
 	if(!empty($group['gid']))
@@ -105,9 +105,9 @@ $url_S = '<a href="https://github.com/Cu8eeeR/MyBB_Thank-you-like-plugin" target
 		$info_desc .= "<ul><li style=\"list-style-image: url(styles/default/images/icons/custom.png)\"><a href=\"index.php?module=config-settings&action=change&gid=".$group['gid']."\">".$db->escape_string($lang->tyl_info_desc_configsettings)."</a></li></ul>";
 	}
 
-    if(is_array($plugins_cache) && is_array($plugins_cache['active']) && $plugins_cache['active'][$codename])
-    {
-	    $info_desc .= "<ul><li style=\"list-style-image: url(styles/default/images/icons/default.png)\"><a href=\"index.php?module=tools-recount_rebuild\">".$db->escape_string($lang->tyl_info_desc_recount)."</a></li></ul>";
+	if(is_array($plugins_cache) && is_array($plugins_cache['active']) && $plugins_cache['active'][$codename])
+	{
+		$info_desc .= "<ul><li style=\"list-style-image: url(styles/default/images/icons/default.png)\"><a href=\"index.php?module=tools-recount_rebuild\">".$db->escape_string($lang->tyl_info_desc_recount)."</a></li></ul>";
 		$info_desc .= '<form action="https://www.paypal.com/cgi-bin/webscr" method="post" style="float: right;" target="_blank">
 <input type="hidden" name="cmd" value="_s-xclick">
 <input type="hidden" name="hosted_button_id" value="KCNAC5PE828X8">
@@ -201,12 +201,12 @@ function thankyoulike_install()
 	{
 		$db->query("CREATE TABLE ".TABLE_PREFIX.$prefix."thankyoulike (
 				tlid int unsigned NOT NULL auto_increment,
-  				pid int unsigned NOT NULL default '0',
-  				uid int unsigned NOT NULL default '0',
+				pid int unsigned NOT NULL default '0',
+				uid int unsigned NOT NULL default '0',
 				puid int unsigned NOT NULL default '0',
-  				dateline bigint(30) NOT NULL default '0',
-  				UNIQUE KEY pid (pid, uid),
-  				PRIMARY KEY (tlid)
+				dateline bigint(30) NOT NULL default '0',
+				UNIQUE KEY pid (pid, uid),
+				PRIMARY KEY (tlid)
 				) ENGINE=MyISAM
 				".$db->build_create_table_collation().";");
 	}
@@ -220,7 +220,7 @@ function thankyoulike_install()
 	if(!$db->table_exists($prefix.'stats'))
 	{
 		$db->query("CREATE TABLE ".TABLE_PREFIX.$prefix."stats (
-  				title varchar(50) NOT NULL default '',
+				title varchar(50) NOT NULL default '',
 				value int unsigned NOT NULL default '0',
 				UNIQUE KEY title (title),
 				PRIMARY KEY(title)
@@ -272,29 +272,29 @@ function thankyoulike_install()
 	$disporder = $db->fetch_field($query, 'disporder')+1;
 
 	$setting_group = array(
-		'name' 			=>	$prefix.'settings',
-		'title' 		=>	$db->escape_string($lang->tyl_title),
-		'description' 	=>	$db->escape_string($lang->tyl_desc),
-		'disporder' 	=>	intval($disporder),
-		'isdefault' 	=>	0
+		'name'			=>	$prefix.'settings',
+		'title'			=>	$db->escape_string($lang->tyl_title),
+		'description'	=>	$db->escape_string($lang->tyl_desc),
+		'disporder'		=>	intval($disporder),
+		'isdefault'		=>	0
 	);
 	$db->insert_query('settinggroups', $setting_group);
 	$gid = $db->insert_id();
 
 	$settings = array(
-		'enabled' 				=> array(
-				'title' 			=> $lang->tyl_enabled_title,
-				'description' 		=> $lang->tyl_enabled_desc,
+		'enabled'				=> array(
+				'title'				=> $lang->tyl_enabled_title,
+				'description'		=> $lang->tyl_enabled_desc,
 				'optionscode'		=> 'onoff',
 				'value'				=> '1'),
-		'thankslike' 			=> array(
+		'thankslike'			=> array(
 				'title'				=> $lang->tyl_thankslike_title,
 				'description'		=> $lang->tyl_thankslike_desc,
 				'optionscode'		=> 'radio
 thanks='.$lang->tyl_thankslike_op_1.'
 like='.$lang->tyl_thankslike_op_2.'',
 				'value'				=> 'thanks'),
-		'firstall' 					=> array(
+		'firstall'					=> array(
 				'title'				=> $lang->tyl_firstall_title,
 				'description'		=> $lang->tyl_firstall_desc,
 				'optionscode'		=> 'radio
@@ -306,7 +306,7 @@ all='.$lang->tyl_firstall_op_2.'',
 				'description'		=> $lang->tyl_firstalloverwrite_desc,
 				'optionscode'		=> 'forumselect',
 				'value'				=> ''),
-		'removing' 				=> array(
+		'removing'				=> array(
 				'title'				=> $lang->tyl_removing_title,
 				'description'		=> $lang->tyl_removing_desc,
 				'optionscode'		=> 'yesno',
@@ -346,22 +346,22 @@ all='.$lang->tyl_firstall_op_2.'',
 				'description'		=> $lang->tyl_closedthreads_desc,
 				'optionscode'		=> 'yesno',
 				'value'				=> '0'),
-		'exclude' 				=> array(
+		'exclude'				=> array(
 				'title'				=> $lang->tyl_exclude_title,
 				'description'		=> $lang->tyl_exclude_desc,
 				'optionscode'		=> 'forumselect',
 				'value'				=> ''),
-		'unameformat' 			=> array(
+		'unameformat'			=> array(
 				'title'				=> $lang->tyl_unameformat_title,
 				'description'		=> $lang->tyl_unameformat_desc,
 				'optionscode'		=> 'yesno',
 				'value'				=> '1'),
-		'hideforgroups' 		=> array(
+		'hideforgroups'			=> array(
 				'title'				=> $lang->tyl_hideforgroups_title,
 				'description'		=> $lang->tyl_hideforgroups_desc,
 				'optionscode'		=> 'groupselect',
 				'value'				=> '1,7'),
-		'showdt' 				=> array(
+		'showdt'				=> array(
 				'title'				=> $lang->tyl_showdt_title,
 				'description'		=> $lang->tyl_showdt_desc,
 				'optionscode'		=> 'radio
@@ -369,12 +369,12 @@ none='.$lang->tyl_showdt_op_1.'
 nexttoname='.$lang->tyl_showdt_op_2.'
 astitle='.$lang->tyl_showdt_op_3.'',
 				'value'				=> 'astitle'),
-		'dtformat' 				=> array(
+		'dtformat'				=> array(
 				'title'				=> $lang->tyl_dtformat_title,
 				'description'		=> $lang->tyl_dtformat_desc,
 				'optionscode'		=> 'text',
 				'value'				=> 'm-d-Y'),
-		'sortorder' 			=> array(
+		'sortorder'				=> array(
 				'title'				=> $lang->tyl_sortorder_title,
 				'description'		=> $lang->tyl_sortorder_desc,
 				'optionscode'		=> 'select
@@ -383,42 +383,47 @@ userdesc='.$lang->tyl_sortorder_op_2.'
 dtasc='.$lang->tyl_sortorder_op_3.'
 dtdesc='.$lang->tyl_sortorder_op_4.'',
 				'value'				=> 'userasc'),
-		'collapsible' 			=> array(
+		'collapsible'			=> array(
 				'title'				=> $lang->tyl_collapsible_title,
 				'description'		=> $lang->tyl_collapsible_desc,
 				'optionscode'		=> 'yesno',
 				'value'				=> '1'),
-		'colldefault' 			=> array(
+		'colldefault'			=> array(
 				'title'				=> $lang->tyl_colldefault_title,
 				'description'		=> $lang->tyl_colldefault_desc,
 				'optionscode'		=> 'radio
 open='.$lang->tyl_colldefault_op_1.'
 closed='.$lang->tyl_colldefault_op_2.'',
 				'value'				=> 'open'),
-		'hidelistforgroups' 		=> array(
+		'hidelistforgroups'			=> array(
 				'title'				=> $lang->tyl_hidelistforgroups_title,
 				'description'		=> $lang->tyl_hidelistforgroups_desc,
 				'optionscode'		=> 'groupselect',
 				'value'				=> ''),
-		'displaygrowl' 		=> array(
+		'displaygrowl'		=> array(
 				'title'				=> $lang->tyl_displaygrowl_title,
 				'description'		=> $lang->tyl_displaygrowl_desc,
 				'optionscode'		=> 'onoff',
 				'value'				=> '1'),
-		'limits' 		=> array(
+		'limits'		=> array(
 				'title'				=> $lang->tyl_limits_title,
 				'description'		=> $lang->tyl_limits_desc,
 				'optionscode'		=> 'yesno',
 				'value'				=> '0'),
-		'highlight_popular_posts' 		=> array(
+		'highlight_popular_posts'		=> array(
 				'title'				=> $lang->tyl_highlight_popular_posts_title,
 				'description'		=> $lang->tyl_highlight_popular_posts_desc,
 				'optionscode'		=> 'yesno',
 				'value'				=> '0'),
-		'highlight_popular_posts_count' 	=> array(
+		'highlight_popular_posts_count'		=> array(
 				'title'				=> $lang->tyl_highlight_popular_posts_count_title,
 				'description'		=> $lang->tyl_highlight_popular_posts_count_desc,
 				'optionscode'		=> 'numeric',
+				'value'				=> '0'),
+		'show_memberprofile_box'	=> array(
+				'title'				=> $lang->tyl_show_memberprofile_box_title,
+				'description'		=> $lang->tyl_show_memberprofile_box_desc,
+				'optionscode'		=> 'yesno',
 				'value'				=> '0')
 	);
 
@@ -444,9 +449,9 @@ closed='.$lang->tyl_colldefault_op_2.'',
 
 	// Insert Template elements
 	$templateset = array(
-	    "prefix" => "thankyoulike",
-	    "title" => "Thank You/Like",
-    );
+		"prefix" => "thankyoulike",
+		"title" => "Thank You/Like",
+	);
 	$db->insert_query("templategroups", $templateset);
 
 	$tyl_templates = array(
@@ -475,6 +480,26 @@ closed='.$lang->tyl_colldefault_op_2.'',
 	<td class=\"trow2\"><strong>{\$lang->tyl_total_tyls_given}</strong></td>
 	<td class=\"trow2\">{\$memprofile['tyl_unumtyls']} ({\$tylpd_percent_total})<br /><span class=\"smalltext\">(<a href=\"tylsearch.php?action=usertylthreads&amp;uid={\$uid}\">{\$lang->tyl_find_threads}</a> &mdash; <a href=\"tylsearch.php?action=usertylposts&amp;uid={\$uid}\">{\$lang->tyl_find_posts}</a>)</span></td>
 </tr>"
+		'thankyoulike_member_profile_box'	=> "<table border=\"0\" cellspacing=\"{\$theme['borderwidth']}\" cellpadding=\"{\$theme['tablespace']}\" width=\"100%\" class=\"tborder\">
+<tr>
+<td colspan=\"2\" class=\"thead\"><strong>{\$lang->tyl_profile_box_thead}</strong></td>
+</tr>
+<tr>
+	<td class=\"tfoot\" width=\"80%\"><span class=\"smalltext\">{\$lang->tyl_profile_box_subject}</span></td>
+	<td class=\"tfoot\" width=\"20%\" align=\"center\"><span class=\"smalltext\">{\$lang->tyl_profile_box_number}</span></td>
+</tr>
+<tr>
+	<td class=\"trow1\">{\$memprofile['tylsubject']}</td>
+	<td class=\"trow1\"	 align=\"center\">{\$memprofile['tylcount']}</td>
+</tr>
+<tr>
+	<td class=\"tfoot\"	 colspan=\"2\"><span class=\"smalltext\">{\$lang->tyl_profile_box_message}</span></td>
+</tr>
+<tr>
+	<td class=\"trow1\" colspan=\"2\">{\$memprofile['tylmessage']}</td>
+</tr>
+</table>
+<br />"
 	);
 
 	foreach($tyl_templates as $template_title => $template_data)
@@ -534,7 +559,7 @@ img[id^=tyl_i_expcol_]{
 	border-color: rgba(112,202,47,0.5);
 	background-color: rgba(139,195,74,0.3);
 }",
-    "cachefile" => $db->escape_string(str_replace('/', '', thankyoulike.css)),
+	"cachefile" => $db->escape_string(str_replace('/', '', thankyoulike.css)),
 	"lastmodified" => TIME_NOW
 	);
 
@@ -601,6 +626,7 @@ function thankyoulike_activate()
 	{
 		find_replace_templatesets("member_profile", '#{\$reputation}(\r?)\n#', "{\$tyl_memprofile}\n{\$reputation}\n");
 	}
+	find_replace_templatesets("member_profile", '#{\$modoptions}(\r?)\n#', "{\$tyl_profile_box}\n{\$modoptions}\n");
 
 	// Verify if MyAlerts exists and if it is compatible with 1.8.x, then add alert type
 	if(function_exists("myalerts_info")){
@@ -653,6 +679,7 @@ function thankyoulike_deactivate()
 	find_replace_templatesets("postbit_author_user", "#".preg_quote('
 	%%TYL_NUMTHANKEDLIKED%%<br />')."#i", '', 0);
 	find_replace_templatesets("member_profile", '#{\$tyl_memprofile}(\r?)\n#', "", 0);
+	find_replace_templatesets("member_profile", '#{\$tyl_profile_box}(\r?)\n#', "", 0);
 
 	if(function_exists("myalerts_info")){
 		// Load MyAlerts info into an array
@@ -1223,23 +1250,23 @@ function tyl_recordAlertThankyou()
 	$subject = htmlspecialchars_uni($post['subject']);
 	$fid = (int)$post['fid'];
 
-    $alertType = MybbStuff_MyAlerts_AlertTypeManager::getInstance()->getByCode('tyl');
+	$alertType = MybbStuff_MyAlerts_AlertTypeManager::getInstance()->getByCode('tyl');
 
-    if(isset($alertType) && $alertType->getEnabled()){
-         // Check if already alerted
-        $query = $db->simple_select(
+	if(isset($alertType) && $alertType->getEnabled()){
+		 // Check if already alerted
+		$query = $db->simple_select(
 			'alerts',
 			'id',
 			'object_id = ' .$pid . ' AND uid = ' . $uid . ' AND unread = 1 AND alert_type_id = ' . $alertType->getId() . ''
-        );
+		);
 
-        if ($db->num_rows($query) == 0) {
+		if ($db->num_rows($query) == 0) {
 			$alert = new MybbStuff_MyAlerts_Entity_Alert($uid, $alertType, $pid, $mybb->user['uid']);
 					$alert->setExtraDetails(
 					array(
-						'tid' 		=> $tid,
+						'tid'		=> $tid,
 						'pid'		=> $pid,
-						't_subject' 	=> $subject,
+						't_subject'		=> $subject,
 						'fid'		=> $fid
 					));
 			MybbStuff_MyAlerts_AlertManager::getInstance()->addAlert($alert);
@@ -1257,8 +1284,8 @@ function tyl_myalerts_formatter_load(){
 	class ThankyouAlertFormatter extends MybbStuff_MyAlerts_Formatter_AbstractFormatter{
 		public function formatAlert(MybbStuff_MyAlerts_Entity_Alert $alert, array $outputAlert)
 		{
-	        $alertContent = $alert->getExtraDetails();
-	        $postLink = $this->buildShowLink($alert);
+			$alertContent = $alert->getExtraDetails();
+			$postLink = $this->buildShowLink($alert);
 			return $this->lang->sprintf(
 				$this->lang->tyl_alert,
 				$outputAlert['from_user'],
@@ -1275,10 +1302,10 @@ function tyl_myalerts_formatter_load(){
 
 		public function buildShowLink(MybbStuff_MyAlerts_Entity_Alert $alert)
 		{
-        $alertContent = $alert->getExtraDetails();
-        $postLink = $this->mybb->settings['bburl'] . '/' . get_post_link((int)$alertContent['pid'], (int)$alertContent['tid']).'#pid'.(int)$alertContent['pid'];
+		$alertContent = $alert->getExtraDetails();
+		$postLink = $this->mybb->settings['bburl'] . '/' . get_post_link((int)$alertContent['pid'], (int)$alertContent['tid']).'#pid'.(int)$alertContent['pid'];
 
-        return $postLink;
+		return $postLink;
 		}
 	}
 	}
@@ -1391,6 +1418,18 @@ function thankyoulike_memprofile()
 		$tylpd_percent_total = $lang->sprintf($lang->tyl_tylpd_percent_total, my_number_format($tylpd), $percent, $totalgiv);
 		$tylrcvpd_percent_total = $lang->sprintf($lang->tyl_tylpd_percent_total, my_number_format($tylrcvpd), $percent_rcv, $totalrcv);
 		eval("\$tyl_memprofile = \"".$templates->get("thankyoulike_member_profile")."\";");
+
+		// Member Profile Box Start
+		if($mybb->settings['show_memberprofile_box'] != 0)
+		{
+
+			$memprofile['tylsubject'] = $post['subject'];
+			$memprofile['tylcount'] = $post['tylcount'];
+			$memprofile['tylmessage'] = $post['message'];
+
+			eval("\$tyl_profile_box = \"".$templates->get("thankyoulike_member_profile_box")."\";");
+		}
+		// Member Profile Box End
 	}
 }
 
