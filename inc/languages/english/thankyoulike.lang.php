@@ -52,6 +52,11 @@ $l['tyl_find_ty_posts_for'] = "Find All Posts Thanked For";
 $l['tyl_find_l_threads_for'] = "Find All Threads Liked For";
 $l['tyl_find_l_posts_for'] = "Find All Posts Liked For";
 
+$l['tyl_profile_box_thead'] = "{1}'s Most {2} Post";
+$l['tyl_profile_box_subject'] = "Post Subject";
+$l['tyl_profile_box_number'] = "Numbers of {1}";
+$l['tyl_profile_box_message'] = "Post Message";
+
 $l['tyl_wol_searching'] = "<a href=\"{1}\">Searching {2}</a>";
 
 $l['tyl_error'] = "Thank You/Like System Error Message";

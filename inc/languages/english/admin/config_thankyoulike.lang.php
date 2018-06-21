@@ -107,6 +107,9 @@ $l['tyl_limits_permissions_system'] = "Thanks/Likes limits";
 $l['tyl_limits_permissions_title'] = "Maximum Thanks/Likes allowed per 24 hours:";
 $l['tyl_limits_permissions_desc'] = "Here you can enter the maximum number of thanks/likes that users in this group can give per day (24 hours). To allow unlimited reputations per hour, enter 0.";
 
+$l['tyl_show_memberprofile_box_title'] = "Enable member profile box?";
+$l['tyl_show_memberprofile_box_desc'] = "Shows a box in member profile page with members most thanked/liked post - Choose YES to enable it!";
+
 $l['tyl_uninstall'] = 'Thank You/Like System - Uninstallation';
 $l['tyl_uninstall_message'] = 'Do you wish to drop all plugin data entries from the database?';
 
