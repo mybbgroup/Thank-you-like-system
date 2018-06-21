@@ -479,7 +479,7 @@ closed='.$lang->tyl_colldefault_op_2.'',
 <tr>
 	<td class=\"trow2\"><strong>{\$lang->tyl_total_tyls_given}</strong></td>
 	<td class=\"trow2\">{\$memprofile['tyl_unumtyls']} ({\$tylpd_percent_total})<br /><span class=\"smalltext\">(<a href=\"tylsearch.php?action=usertylthreads&amp;uid={\$uid}\">{\$lang->tyl_find_threads}</a> &mdash; <a href=\"tylsearch.php?action=usertylposts&amp;uid={\$uid}\">{\$lang->tyl_find_posts}</a>)</span></td>
-</tr>"
+</tr>",
 		'thankyoulike_member_profile_box'	=> "<table border=\"0\" cellspacing=\"{\$theme['borderwidth']}\" cellpadding=\"{\$theme['tablespace']}\" width=\"100%\" class=\"tborder\">
 <tr>
 <td colspan=\"2\" class=\"thead\"><strong>{\$lang->tyl_profile_box_thead}</strong></td>
@@ -1420,9 +1420,11 @@ function thankyoulike_memprofile()
 		eval("\$tyl_memprofile = \"".$templates->get("thankyoulike_member_profile")."\";");
 
 		// Member Profile Box Start
-		if($mybb->settings['show_memberprofile_box'] != 0)
+		if($mybb->settings[$prefix.'show_memberprofile_box'] != 0)
 		{
+			global $theme, $tyl_profile_box;
 
+			
 			$memprofile['tylsubject'] = $post['subject'];
 			$memprofile['tylcount'] = $post['tylcount'];
 			$memprofile['tylmessage'] = $post['message'];
