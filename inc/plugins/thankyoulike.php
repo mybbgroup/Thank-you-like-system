@@ -424,7 +424,37 @@ closed='.$lang->tyl_colldefault_op_2.'',
 				'title'				=> $lang->tyl_show_memberprofile_box_title,
 				'description'		=> $lang->tyl_show_memberprofile_box_desc,
 				'optionscode'		=> 'yesno',
-				'value'				=> '1')
+				'value'				=> '1'),
+		'profile_box_post_cutoff'	=> array(
+				'title'				=> $lang->tyl_profile_box_post_cutoff_title,
+				'description'		=> $lang->tyl_profile_box_post_cutoff_desc,
+				'optionscode'		=> 'numeric',
+				'value'				=> '0'),
+		'profile_box_post_allowhtml'	=> array(
+				'title'				=> $lang->tyl_profile_box_post_allowhtml_title,
+				'description'		=> $lang->tyl_profile_box_post_allowhtml_desc,
+				'optionscode'		=> 'yesno',
+				'value'				=> '0'),
+		'profile_box_post_allowmycode'	=> array(
+				'title'				=> $lang->tyl_profile_box_post_allowmycode_title,
+				'description'		=> $lang->tyl_profile_box_post_allowmycode_desc,
+				'optionscode'		=> 'yesno',
+				'value'				=> '1'),
+		'profile_box_post_allowsmilies'	=> array(
+				'title'				=> $lang->tyl_profile_box_post_allowsmilies_title,
+				'description'		=> $lang->tyl_profile_box_post_allowsmilies_desc,
+				'optionscode'		=> 'yesno',
+				'value'				=> '1'),
+		'profile_box_post_allowimgcode'	=> array(
+				'title'				=> $lang->tyl_profile_box_post_allowimgcode_title,
+				'description'		=> $lang->tyl_profile_box_post_allowimgcode_desc,
+				'optionscode'		=> 'yesno',
+				'value'				=> '0'),
+		'profile_box_post_allowvideocode'	=> array(
+				'title'				=> $lang->tyl_profile_box_post_allowvideocode_title,
+				'description'		=> $lang->tyl_profile_box_post_allowvideocode_desc,
+				'optionscode'		=> 'yesno',
+				'value'				=> '0')
 	);
 
 	$x = 1;
@@ -485,18 +515,32 @@ closed='.$lang->tyl_colldefault_op_2.'',
 <td colspan=\"2\" class=\"thead\"><strong>{\$lang->tyl_profile_box_thead}</strong></td>
 </tr>
 <tr>
-	<td class=\"tfoot\" width=\"80%\"><span class=\"smalltext\">{\$lang->tyl_profile_box_subject}</span></td>
-	<td class=\"tfoot\" width=\"20%\" align=\"center\"><span class=\"smalltext\">{\$lang->tyl_profile_box_number}</span></td>
+<td class=\"tfoot\" width=\"80%\"><span class=\"smalltext\">{\$lang->tyl_profile_box_subject}</span></td>
+<td class=\"tfoot\" width=\"20%\" align=\"center\"><span class=\"smalltext\">{\$lang->tyl_profile_box_number}</span></td>
 </tr>
 <tr>
-	<td class=\"trow1\">{\$memprofile['tylsubject']}</td>
-	<td class=\"trow1\"	 align=\"center\">{\$memprofile['tylcount']}</td>
+<td class=\"trow1\"><strong>{\$memprofile['tylsubject']}</strong></td>
+<td class=\"trow1\" align=\"center\"><strong>{\$memprofile['tylcount']}</strong></td>
 </tr>
 <tr>
-	<td class=\"tfoot\"	 colspan=\"2\"><span class=\"smalltext\">{\$lang->tyl_profile_box_message}</span></td>
+<td class=\"trow1\" colspan=\"2\" style=\"padding: 0; border: 0;\">
+<table border=\"0\" cellspacing=\"{\$theme['borderwidth']}\" cellpadding=\"{\$theme['tablespace']}\" width=\"100%\">
+<tr>
+<td class=\"tfoot\" width=\"50%\"><span class=\"smalltext\">{\$lang->tyl_profile_box_thread}</span></td>
+<td class=\"tfoot\" width=\"50%\"><span class=\"smalltext\">{\$lang->tyl_profile_box_forum}</span></td>
 </tr>
 <tr>
-	<td class=\"trow1\" colspan=\"2\">{\$memprofile['tylmessage']}</td>
+<td class=\"trow1\">{\$memprofile['tylthreadname']}</td>
+<td class=\"trow1\">{\$memprofile['tylforumname']}</td>
+</tr>
+</table>
+</td>
+</tr>
+<tr>
+<td class=\"tfoot\" colspan=\"2\"><span class=\"smalltext\">{\$lang->tyl_profile_box_message}</span></td>
+</tr>
+<tr>
+<td class=\"trow1 scaleimages\" colspan=\"2\">{\$memprofile['tylmessage']}</td>
 </tr>
 </table>
 <br />"
@@ -518,7 +562,7 @@ closed='.$lang->tyl_colldefault_op_2.'',
 	$css = array(
 	"name" => "thankyoulike.css",
 	"tid" => 1,
-	"attachedto" => "showthread.php|member.php",
+	"attachedto" => "showthread.php",
 	"stylesheet" => "div[id^=tyl_btn_] {
 	display: inline-block;
 }
@@ -558,14 +602,6 @@ img[id^=tyl_i_expcol_]{
 	border-radius: 3px;
 	border-color: rgba(112,202,47,0.5);
 	background-color: rgba(139,195,74,0.3);
-}
-
-.profile_box_read_more {
-	text-align: right;
-}
-
-.profile_box_read_more span {
-	background-position: 0 -200px;
 }",
 	"cachefile" => $db->escape_string(str_replace('/', '', thankyoulike.css)),
 	"lastmodified" => TIME_NOW
@@ -864,7 +900,7 @@ function thankyoulike_templatelist()
 		}
 		if (THIS_SCRIPT == 'member.php')
 		{
-			$template_list = "thankyoulike_member_profile";
+			$template_list = "thankyoulike_member_profile,thankyoulike_member_profile_box";
 		}
 		if (THIS_SCRIPT == 'announcements.php')
 		{
@@ -1456,7 +1492,7 @@ function thankyoulike_memprofile()
 			}
 
 			$query = $db->query("
-					SELECT l.pid, count( * ) AS tylcount, p.subject, p.username, p.message, p.tid
+					SELECT l.pid, count( * ) AS tylcount, p.subject, p.username, p.message, p.tid, p.fid
 					FROM ".TABLE_PREFIX."g33k_thankyoulike_thankyoulike l
 					LEFT JOIN ".TABLE_PREFIX."posts p ON (l.pid=p.pid)
 					WHERE p.visible='1' AND l.puid = {$memprofile['uid']}{$unviewwhere}
@@ -1474,32 +1510,39 @@ function thankyoulike_memprofile()
 				}
 
 				$parser_options = array(
-					"allow_html" => 0,
-					"allow_mycode" => 1,
-					"allow_smilies" => 1,
-					"allow_imgcode" => 0,
-					"allow_videocode" => 0,
+					"allow_html" => (int)$mybb->settings[$prefix.'profile_box_post_allowhtml'],
+					"allow_mycode" => (int)$mybb->settings[$prefix.'profile_box_post_allowmycode'],
+					"allow_smilies" => (int)$mybb->settings[$prefix.'profile_box_post_allowsmilies'],
+					"allow_imgcode" => (int)$mybb->settings[$prefix.'profile_box_post_allowimgcode'],
+					"allow_videocode" => (int)$mybb->settings[$prefix.'profile_box_post_allowvideocode'],
 					"nofollow_on" => 1,
 					"filter_badwords" => 1
 				);
 
-				$memprofile['tylsubject'] = $parser->parse_badwords($post['subject']);
-				$memprofile['tylcount'] = (int)$post['tylcount'];
-				
-				$shorted = 0;
-				if(my_strlen($post['message']) > 600)
-				{
-					$post['message'] = my_substr($post['message'], 0, 597, 0)."...";
-					$shorted = 1;
-				}
+				$postlink = get_post_link($post['pid'], $post['tid'])."#pid".$post['pid'];
 
+				$thread = get_thread($post['tid']);
+				$threadlink = get_thread_link($post['tid']);
+
+				$forum = get_forum($post['fid']);
+				$forumlink = get_forum_link($post['fid']);
+
+				$memprofile['tylsubject'] = "<a href=\"{$postlink}\"><span>{$parser->parse_badwords($post['subject'])}</span></a>";
+
+				$memprofile['tylcount'] = (int)$post['tylcount'];
+
+				if($mybb->settings[$prefix.'profile_box_post_cutoff'] > 0 && my_strlen($post['message']) > $mybb->settings[$prefix.'profile_box_post_cutoff'])
+				{
+					if($mybb->settings[$prefix.'profile_box_post_cutoff'] < 4)
+					{
+						$mybb->settings[$prefix.'profile_box_post_cutoff'] = 4;
+					}
+					$post['message'] = my_substr($post['message'], 0, $mybb->settings[$prefix.'profile_box_post_cutoff']-3, 0)."...";
+				}
 				$memprofile['tylmessage'] = $parser->parse_message($post['message'], $parser_options);
 
-				if($shorted == 1)
-				{
-					$postlink = get_post_link($post['pid'], $post['tid'])."#pid".$post['pid'];
-					$memprofile['tylmessage'] = $memprofile['tylmessage']."<br /><div class=\"postbit_buttons profile_box_read_more\"><a href=\"{$postlink}\"><span>{$lang->tyl_profile_box_message_read_more}</span></a></div>";
-				}
+				$memprofile['tylthreadname'] = "<a href=\"{$threadlink}\"><span>{$parser->parse_badwords($thread['subject'])}</span></a>";
+				$memprofile['tylforumname'] = "<a href=\"{$forumlink}\"><span>{$parser->parse_badwords($forum['name'])}</span></a>";
 
 				eval("\$tyl_profile_box = \"".$templates->get("thankyoulike_member_profile_box")."\";");
 			}
@@ -1952,7 +1995,8 @@ function thankyoulike_settings_peeker()
 			new Peeker($(".setting_'.$prefix.'reputation_add"), $("#row_setting_'.$prefix.'reputation_add_reppoints, #row_setting_'.$prefix.'reputation_add_repcomment"), 1, true),
 			new Peeker($(".setting_'.$prefix.'showdt"), $("#row_setting_'.$prefix.'dtformat"),/^(?!none)/, true),
 			new Peeker($(".setting_'.$prefix.'collapsible"), $("#row_setting_'.$prefix.'colldefault"), 1, true),
-			new Peeker($(".setting_'.$prefix.'highlight_popular_posts"), $("#row_setting_'.$prefix.'highlight_popular_posts_count"), 1, true)
+			new Peeker($(".setting_'.$prefix.'highlight_popular_posts"), $("#row_setting_'.$prefix.'highlight_popular_posts_count"), 1, true),
+			new Peeker($(".setting_'.$prefix.'show_memberprofile_box"), $("#row_setting_'.$prefix.'profile_box_post_cutoff, #row_setting_'.$prefix.'profile_box_post_allowhtml, #row_setting_'.$prefix.'profile_box_post_allowmycode, #row_setting_'.$prefix.'profile_box_post_allowsmilies, #row_setting_'.$prefix.'profile_box_post_allowimgcode, #row_setting_'.$prefix.'profile_box_post_allowvideocode"), 1, true)
 		});
 		</script>';
 	}
