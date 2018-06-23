@@ -6,6 +6,7 @@
 
 $l['tyl_thankyou'] = "Thank You";
 $l['tyl_thanked'] = "Thanked";
+$l['tyl_thanked_sm'] = "thanked";
 $l['tyl_thanks'] = "Thanks";
 $l['tyl_thanks_given'] = "Thanks Given";
 $l['tyl_thanks_rcvd'] = "Thanks Received";
@@ -16,6 +17,7 @@ $l['tyl_likes_given'] = "Likes Given";
 $l['tyl_likes_rcvd'] = "Likes Received";
 $l['tyl_likes_rcvd_bit'] = "{1} in {2} posts";
 $l['tyl_liked'] = "Liked";
+$l['tyl_liked_sm'] = "liked";
 
 $l['tyl_users'] = "users";
 $l['tyl_user'] = "user";
@@ -58,6 +60,8 @@ $l['tyl_profile_box_number'] = "Numbers of {1}";
 $l['tyl_profile_box_message'] = "Post Message";
 $l['tyl_profile_box_thread'] = "Thread Subject";
 $l['tyl_profile_box_forum'] = "Forum Name";
+
+$l['tyl_profile_box_content_none'] = "Sorry, {1} has no {2} post at the moment.";
 
 $l['tyl_wol_searching'] = "<a href=\"{1}\">Searching {2}</a>";
 

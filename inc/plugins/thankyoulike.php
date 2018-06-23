@@ -514,7 +514,10 @@ closed='.$lang->tyl_colldefault_op_2.'',
 <tr>
 <td colspan=\"2\" class=\"thead\"><strong>{\$lang->tyl_profile_box_thead}</strong></td>
 </tr>
-<tr>
+{\$tyl_profile_box_content}
+</table>
+<br />",
+		'thankyoulike_member_profile_box_content'	=> "<tr>
 <td class=\"tfoot\" width=\"80%\"><span class=\"smalltext\">{\$lang->tyl_profile_box_subject}</span></td>
 <td class=\"tfoot\" width=\"20%\" align=\"center\"><span class=\"smalltext\">{\$lang->tyl_profile_box_number}</span></td>
 </tr>
@@ -541,9 +544,10 @@ closed='.$lang->tyl_colldefault_op_2.'',
 </tr>
 <tr>
 <td class=\"trow1 scaleimages\" colspan=\"2\">{\$memprofile['tylmessage']}</td>
-</tr>
-</table>
-<br />"
+</tr>",
+		'thankyoulike_member_profile_box_content_none'	=> "<tr>
+<td class=\"trow1\" colspan=\"2\">{\$lang->tyl_profile_box_content_none}</td>
+</tr>"
 	);
 
 	foreach($tyl_templates as $template_title => $template_data)
@@ -900,7 +904,7 @@ function thankyoulike_templatelist()
 		}
 		if (THIS_SCRIPT == 'member.php')
 		{
-			$template_list = "thankyoulike_member_profile,thankyoulike_member_profile_box";
+			$template_list = "thankyoulike_member_profile,thankyoulike_member_profile_box,thankyoulike_member_profile_box_content,thankyoulike_member_profile_box_content_none";
 		}
 		if (THIS_SCRIPT == 'announcements.php')
 		{
@@ -1466,19 +1470,22 @@ function thankyoulike_memprofile()
 		// Member Profile Box Start
 		if($mybb->settings[$prefix.'show_memberprofile_box'] != 0)
 		{
-			global $theme, $tyl_profile_box;
+			global $theme, $tyl_profile_box, $tyl_profile_box_content;
 
+			$tyl_profile_box = $tyl_profile_box_content = "";
 			if($mybb->settings[$prefix.'thankslike'] == "like")
 			{
 				$lang->tyl_profile_box_thead = $lang->sprintf($lang->tyl_profile_box_thead, $memprofile['username'], $lang->tyl_liked);
 				$lang->tyl_profile_box_number = $lang->sprintf($lang->tyl_profile_box_number, $lang->tyl_likes);
+				$lang->tyl_profile_box_content_none = $lang->sprintf($lang->tyl_profile_box_content_none, $memprofile['username'], $lang->tyl_liked_sm);
 			}
 			elseif($mybb->settings[$prefix.'thankslike'] == "thanks")
 			{
 				$lang->tyl_profile_box_thead = $lang->sprintf($lang->tyl_profile_box_thead, $memprofile['username'], $lang->tyl_thanked);
 				$lang->tyl_profile_box_number = $lang->sprintf($lang->tyl_profile_box_number, $lang->tyl_thanks);
+				$lang->tyl_profile_box_content_none = $lang->sprintf($lang->tyl_profile_box_content_none, $memprofile['username'], $lang->tyl_thanked_sm);
 			}
-			
+
 			$unviewwhere = '';
 			$unviewable = get_unviewable_forums(true);
 			if($unviewable)
@@ -1544,12 +1551,14 @@ function thankyoulike_memprofile()
 				$memprofile['tylthreadname'] = "<a href=\"{$threadlink}\"><span>{$parser->parse_badwords($thread['subject'])}</span></a>";
 				$memprofile['tylforumname'] = "<a href=\"{$forumlink}\"><span>{$parser->parse_badwords($forum['name'])}</span></a>";
 
-				eval("\$tyl_profile_box = \"".$templates->get("thankyoulike_member_profile_box")."\";");
+				eval("\$tyl_profile_box_content = \"".$templates->get("thankyoulike_member_profile_box_content")."\";");
 			}
 			else
 			{
-				$tyl_profile_box = "";
+				eval("\$tyl_profile_box_content = \"".$templates->get("thankyoulike_member_profile_box_content_none")."\";");
 			}
+
+			eval("\$tyl_profile_box = \"".$templates->get("thankyoulike_member_profile_box")."\";");
 		}
 		// Member Profile Box End
 	}
