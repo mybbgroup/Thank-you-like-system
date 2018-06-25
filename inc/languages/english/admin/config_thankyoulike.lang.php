@@ -108,19 +108,19 @@ $l['tyl_limits_permissions_title'] = "Maximum Thanks/Likes allowed per 24 hours:
 $l['tyl_limits_permissions_desc'] = "Here you can enter the maximum number of thanks/likes that users in this group can give per day (24 hours). To allow unlimited reputations per hour, enter 0.";
 
 $l['tyl_show_memberprofile_box_title'] = "Enable member profile box?";
-$l['tyl_show_memberprofile_box_desc'] = "Shows a box in member profile page with members most thanked/liked post - Choose YES to enable it!";
+$l['tyl_show_memberprofile_box_desc'] = "Shows a box in member profile page with user most thanked/liked post - Choose YES to enable it.";
 $l['tyl_profile_box_post_cutoff_title'] = "Cut off post message";
-$l['tyl_profile_box_post_cutoff_desc'] = "Choose how many vars you want show in post message (0 disables function)";
+$l['tyl_profile_box_post_cutoff_desc'] = "Set how many vars (symbols) you want to display in post message (set 0 for no limit)";
 $l['tyl_profile_box_post_allowhtml_title'] = "Allow HTML";
-$l['tyl_profile_box_post_allowhtml_desc'] = "Selecting Yes will allow HTML to be used in post message.";
+$l['tyl_profile_box_post_allowhtml_desc'] = "Selecting YES will allow HTML to be used in post message.";
 $l['tyl_profile_box_post_allowmycode_title'] = "Allow MyCode";
-$l['tyl_profile_box_post_allowmycode_desc'] = "Selecting Yes will allow MyCode to be used in post message.";
+$l['tyl_profile_box_post_allowmycode_desc'] = "Selecting YES will allow MyCode to be used in post message.";
 $l['tyl_profile_box_post_allowsmilies_title'] = "Allow Smilies";
-$l['tyl_profile_box_post_allowsmilies_desc'] = "Selecting Yes will allow Smilies to be used in post message.";
+$l['tyl_profile_box_post_allowsmilies_desc'] = "Selecting YES will allow Smilies to be used in post message.";
 $l['tyl_profile_box_post_allowimgcode_title'] = "Allow [img] Code";
-$l['tyl_profile_box_post_allowimgcode_desc'] = "Selecting Yes will allow [img] Code to be used in post message.";
+$l['tyl_profile_box_post_allowimgcode_desc'] = "Selecting YES will allow [img] Code to be used in post message.";
 $l['tyl_profile_box_post_allowvideocode_title'] = "Allow [video] Code";
-$l['tyl_profile_box_post_allowvideocode_desc'] = "Selecting Yes will allow [video] Code to be used in post message.";
+$l['tyl_profile_box_post_allowvideocode_desc'] = "Selecting YES will allow [video] Code to be used in post message.";
 
 $l['tyl_uninstall'] = 'Thank You/Like System - Uninstallation';
 $l['tyl_uninstall_message'] = 'Do you wish to drop all plugin data entries from the database?';
