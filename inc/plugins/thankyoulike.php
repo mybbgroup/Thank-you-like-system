@@ -2135,6 +2135,20 @@ function acp_tyl_do_recounting()
 			$start = ($page-1) * $per_page;
 			$end = $start + $per_page;
 
+			$excl_forums = trim($mybb->settings[$prefix.'exclude']);
+			if($excl_forums == -1)
+			{
+				$where = "WHERE 0=1";
+			}
+			else if($excl_forums == '')
+			{
+				$where = '';
+			}
+			else
+			{
+				$where = "WHERE p.fid NOT IN (".$excl_forums.")";
+			}
+
 			if ($page == 1)
 			{
 				$db->write_query("UPDATE ".TABLE_PREFIX.$prefix."stats SET value=0 WHERE title='total'");
@@ -2167,8 +2181,11 @@ function acp_tyl_do_recounting()
 							SET tyl.puid=p.uid");
 				// Update the number of tyled posts for the post owners, we do this here because this needs to be done in one swoop and will break if done in parts
 				$db->write_query("UPDATE ".TABLE_PREFIX."users u
-							JOIN (SELECT puid, COUNT(DISTINCT(pid)) AS pidcount
-							FROM ".TABLE_PREFIX.$prefix."thankyoulike
+							JOIN (SELECT puid, COUNT(DISTINCT(t.pid)) AS pidcount
+							FROM ".TABLE_PREFIX.$prefix."thankyoulike t
+							LEFT JOIN ".TABLE_PREFIX."posts p
+							ON p.pid=t.pid
+							$where
 							GROUP BY puid) tyl
 							ON ( u.uid=tyl.puid )
 							SET u.tyl_unumptyls=tyl.pidcount");
@@ -2181,6 +2198,7 @@ function acp_tyl_do_recounting()
 					SELECT tyl.*, p.tid
 					FROM ".TABLE_PREFIX.$prefix."thankyoulike tyl
 					LEFT JOIN ".TABLE_PREFIX."posts p ON (p.pid=tyl.pid)
+					$where
 					ORDER BY tyl.dateline ASC
 					LIMIT $start, $per_page
 				");
