@@ -2183,7 +2183,7 @@ function acp_tyl_do_recounting()
 				$db->write_query("UPDATE ".TABLE_PREFIX."users u
 							JOIN (SELECT puid, COUNT(DISTINCT(t.pid)) AS pidcount
 							FROM ".TABLE_PREFIX.$prefix."thankyoulike t
-							LEFT JOIN mybb_posts p
+							LEFT JOIN ".TABLE_PREFIX."posts p
 							ON p.pid=t.pid
 							$where
 							GROUP BY puid) tyl
