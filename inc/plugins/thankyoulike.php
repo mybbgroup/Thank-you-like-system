@@ -2135,18 +2135,18 @@ function acp_tyl_do_recounting()
 			$start = ($page-1) * $per_page;
 			$end = $start + $per_page;
 
-			$forums = trim($mybb->settings[$prefix.'exclude']);
-			if ($forums == -1)
+			$excl_forums = trim($mybb->settings[$prefix.'exclude']);
+			if($excl_forums == -1)
 			{
 				$where = "WHERE 0=1";
 			}
-			else if ($forums == '')
+			else if($excl_forums == '')
 			{
 				$where = '';
 			}
 			else
 			{
-				$where = "WHERE p.fid NOT IN (".$forums.")";
+				$where = "WHERE p.fid NOT IN (".$excl_forums.")";
 			}
 
 			if ($page == 1)
