@@ -25,7 +25,6 @@ $prefix = "g33k_thankyoulike_";
 $templatelist = "thankyoulike_users,thankyoulike_postbit,thankyoulike_postbit_classic,thankyoulike_button_add,thankyoulike_button_del";
 
 require_once "./global.php";
-require_once MYBB_ROOT."/inc/plugins/thankyoulike-utils.php";
 
 // Load global language phrases
 $lang->load("thankyoulike");
