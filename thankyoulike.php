@@ -149,6 +149,8 @@ if ($excluded)
 	error($lang->tyl_error_excluded);
 }
 
+$msg_num_left = '';
+
 if($mybb->input['action'] == "add")
 {
 	$message = '';
@@ -170,6 +172,12 @@ if($mybb->input['action'] == "add")
 			{
 				$tyltimeleft = my_date("H", $tyltimediff).'h '.my_date("i", $tyltimediff).'m '.my_date("s", $tyltimediff).'s';
 			}
+
+			$msg_num_left = $lang->sprintf($lang->tyl_num_left_for, $mybb->usergroup['tyl_limits_max'], $pre2, $tyltimeleft);
+		}
+		else
+		{
+			$msg_num_left = $lang->sprintf($lang->tyl_num_left, $mybb->usergroup['tyl_limits_max'], $pre2);
 		}
 
 		// Reached the quota - error.
@@ -555,10 +563,12 @@ if($mybb->input['ajax'])
 		}
 		// Cleanup for JSON
 		$thankyoulike = thankyoulike_cleanup_json($thankyoulike);
+		$msg_num_left = thankyoulike_cleanup_json($msg_num_left);
 
 		echo '{';
 		echo '"tylButton":"'.$button_tyl.'",';
-		echo '"tylData":"'.$thankyoulike.'"';
+		echo '"tylData":"'.$thankyoulike.'",';
+		echo '"tylMsgNumLeft":"'.$msg_num_left.'"';
 		echo '}';
 	}
 	else

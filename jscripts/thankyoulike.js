@@ -81,7 +81,15 @@ var thankyoulike = {
 		{
 			if(tylDisplayGrowl == 1)
 			{
-				$.jGrowl(tylSend, {theme:'jgrowl_success'});			
+				var msg = tylSend;
+				var options = {theme:'jgrowl_success'};
+				if (data.tylMsgNumLeft)
+				{
+					msg += "<br />\n<br />\n" + data.tylMsgNumLeft;
+					// Allow 12 seconds (9 more than default) to give the member the time to process the extra info.
+					options.life = 12000;
+				}
+				$.jGrowl(msg, options);
 			}
 			$("#tyl_"+pid).html(data.tylData);
 			$("#tyl_"+pid).css('display', "");
