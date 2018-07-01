@@ -86,8 +86,10 @@ var thankyoulike = {
 				if (data.tylMsgNumLeft)
 				{
 					msg += "<br />\n<br />\n" + data.tylMsgNumLeft;
-					// Allow 12 seconds (9 more than default) to give the member the time to process the extra info.
-					options.life = 12000;
+					if (data.tylMsgLife)
+					{
+						options.life = data.tylMsgLife;
+					}
 				}
 				$.jGrowl(msg, options);
 			}

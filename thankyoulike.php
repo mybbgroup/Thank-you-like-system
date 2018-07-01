@@ -162,6 +162,9 @@ if($mybb->input['action'] == "add")
 		$query = $db->simple_select($prefix."thankyoulike", "*", "uid='{$mybb->user['uid']}' AND dateline>'$timesearch'");
 		$numtoday = $db->num_rows($query);
 
+		// (For AJAX) Allow 12 seconds (9 more than default) for the popup, to give the member the time to process the extra info especially time remaining.
+		$msg_num_left_life = '12000';
+
 		// Time left to next thankyou/like
 		if($numtoday>0)
 		{
@@ -200,6 +203,10 @@ if($mybb->input['action'] == "add")
 				}
 			}
 		}
+	}
+	else
+	{
+		$msg_num_left = $lang->sprintf($lang->tyl_num_left_unlimited, $pre2);
 	}
 
 	// Can't thank/like own post
@@ -569,6 +576,10 @@ if($mybb->input['ajax'])
 		echo '"tylButton":"'.$button_tyl.'",';
 		echo '"tylData":"'.$thankyoulike.'",';
 		echo '"tylMsgNumLeft":"'.$msg_num_left.'"';
+		if (isset($msg_num_left_life))
+		{
+			echo ',"tylMsgLife":'.$msg_num_left_life.'';
+		}
 		echo '}';
 	}
 	else
