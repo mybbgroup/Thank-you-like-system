@@ -351,6 +351,11 @@ all='.$lang->tyl_firstall_op_2.'',
 				'description'		=> $lang->tyl_exclude_desc,
 				'optionscode'		=> 'forumselect',
 				'value'				=> ''),
+		'exclude_count'				=> array(
+				'title'				=> $lang->tyl_exclude_count_title,
+				'description'		=> $lang->tyl_exclude_count_desc,
+				'optionscode'		=> 'forumselect',
+				'value'				=> ''),
 		'unameformat'			=> array(
 				'title'				=> $lang->tyl_unameformat_title,
 				'description'		=> $lang->tyl_unameformat_desc,
@@ -2103,6 +2108,7 @@ function thankyoulike_promotion_task(&$args)
 function acp_tyl_do_recounting()
 {
 	global $db, $mybb, $lang;
+	require_once MYBB_ROOT."/inc/plugins/thankyoulike-utils.php";
 	$prefix = "g33k_thankyoulike_";
 	$lang->load("config_thankyoulike");
 
@@ -2149,6 +2155,20 @@ function acp_tyl_do_recounting()
 				$where = "WHERE p.fid NOT IN (".$excl_forums.")";
 			}
 
+			$excl_count_forums = trim($mybb->settings[$prefix.'exclude_count']);
+			if($excl_count_forums == -1)
+			{
+				$where_post_owner = ($where ? $where." AND" : "WHERE")." 0=1";
+			}
+			else if($excl_count_forums != '')
+			{
+				$where_post_owner = ($where ? $where." AND" : "WHERE")." p.fid NOT IN (".$excl_count_forums.")";
+			}
+			else
+			{
+				$where_post_owner = $where;
+			}
+
 			if ($page == 1)
 			{
 				$db->write_query("UPDATE ".TABLE_PREFIX.$prefix."stats SET value=0 WHERE title='total'");
@@ -2185,7 +2205,7 @@ function acp_tyl_do_recounting()
 							FROM ".TABLE_PREFIX.$prefix."thankyoulike t
 							LEFT JOIN ".TABLE_PREFIX."posts p
 							ON p.pid=t.pid
-							$where
+							$where_post_owner
 							GROUP BY puid) tyl
 							ON ( u.uid=tyl.puid )
 							SET u.tyl_unumptyls=tyl.pidcount");
@@ -2195,7 +2215,7 @@ function acp_tyl_do_recounting()
 			$num_tyls = $db->fetch_field($query1, 'num_tyls');
 
 			$query2 = $db->query("
-					SELECT tyl.*, p.tid
+					SELECT tyl.*, p.tid, p.fid
 					FROM ".TABLE_PREFIX.$prefix."thankyoulike tyl
 					LEFT JOIN ".TABLE_PREFIX."posts p ON (p.pid=tyl.pid)
 					$where
@@ -2228,21 +2248,24 @@ function acp_tyl_do_recounting()
 				{
 					$thread_tyls[$tyl['tid']] = 1;
 				}
-				if($user_tyls[$tyl['uid']])
+				if(!is_forum_id_in_setting($tyl['fid'], $mybb->settings[$prefix.'exclude_count']))
 				{
-					$user_tyls[$tyl['uid']]++;
-				}
-				else
-				{
-					$user_tyls[$tyl['uid']] = 1;
-				}
-				if($user_rcvtyls[$tyl['puid']])
-				{
-					$user_rcvtyls[$tyl['puid']]++;
-				}
-				else
-				{
-					$user_rcvtyls[$tyl['puid']] = 1;
+					if($user_tyls[$tyl['uid']])
+					{
+						$user_tyls[$tyl['uid']]++;
+					}
+					else
+					{
+						$user_tyls[$tyl['uid']] = 1;
+					}
+					if($user_rcvtyls[$tyl['puid']])
+					{
+						$user_rcvtyls[$tyl['puid']]++;
+					}
+					else
+					{
+						$user_rcvtyls[$tyl['puid']] = 1;
+					}
 				}
 			}
 			// Update the counts
