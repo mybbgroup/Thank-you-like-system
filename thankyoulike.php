@@ -24,6 +24,10 @@ $prefix = "g33k_thankyoulike_";
 
 $templatelist = "thankyoulike_users,thankyoulike_postbit,thankyoulike_postbit_classic,thankyoulike_button_add,thankyoulike_button_del";
 
+// (For AJAX) The extended duration in milliseconds for the popup when extra info, especially time remaining, is shown on adding a like.
+// This is to give the human viewer enough time to read and process that extra info.
+const c_long_life_popup_duration_ms = '12000';
+
 require_once "./global.php";
 
 // Load global language phrases
@@ -162,8 +166,9 @@ if($mybb->input['action'] == "add")
 		$query = $db->simple_select($prefix."thankyoulike", "*", "uid='{$mybb->user['uid']}' AND dateline>'$timesearch'");
 		$numtoday = $db->num_rows($query);
 
-		// (For AJAX) Allow 12 seconds (9 more than default) for the popup, to give the member the time to process the extra info especially time remaining.
-		$msg_num_left_life = '12000';
+		$msg_num_left_life = c_long_life_popup_duration_ms;
+
+		$num_left_after_add = $mybb->usergroup['tyl_limits_max'] - $numtoday - 1;
 
 		// Time left to next thankyou/like
 		if($numtoday>0)
@@ -176,11 +181,11 @@ if($mybb->input['action'] == "add")
 				$tyltimeleft = my_date("H", $tyltimediff).'h '.my_date("i", $tyltimediff).'m '.my_date("s", $tyltimediff).'s';
 			}
 
-			$msg_num_left = $lang->sprintf($lang->tyl_num_left_for, $mybb->usergroup['tyl_limits_max'], $pre2, $tyltimeleft);
+			$msg_num_left = $lang->sprintf($lang->tyl_num_left_for, $num_left_after_add, $pre2, $tyltimeleft);
 		}
 		else
 		{
-			$msg_num_left = $lang->sprintf($lang->tyl_num_left, $mybb->usergroup['tyl_limits_max'], $pre2);
+			$msg_num_left = $lang->sprintf($lang->tyl_num_left, $num_left_after_add, $pre2);
 		}
 
 		// Reached the quota - error.
