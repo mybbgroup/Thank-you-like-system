@@ -259,13 +259,20 @@ if($mybb->input['action'] == "add")
 		// Update tyl count in posts and threads and users and total
 		if($post['tyl_pnumtyls'] == 0)
 		{
-			// Post thanks were previously 0, so add this post to user's thanked posts
-			$db->write_query("UPDATE ".TABLE_PREFIX."users SET tyl_unumptyls=tyl_unumptyls+1 WHERE uid='".intval($post['uid'])."'");
+			if(!is_forum_id_in_setting($fid, $mybb->settings[$prefix.'exclude_count']))
+			{
+				// Post thanks were previously 0, so add this post to user's thanked posts
+				$db->write_query("UPDATE ".TABLE_PREFIX."users SET tyl_unumptyls=tyl_unumptyls+1 WHERE uid='".intval($post['uid'])."'");
+			}
 		}
 		$db->write_query("UPDATE ".TABLE_PREFIX."posts SET tyl_pnumtyls=tyl_pnumtyls+1 WHERE pid='".intval($pid)."'");
 		$db->write_query("UPDATE ".TABLE_PREFIX."threads SET tyl_tnumtyls=tyl_tnumtyls+1 WHERE tid='".intval($tid)."'");
-		$db->write_query("UPDATE ".TABLE_PREFIX."users SET tyl_unumtyls=tyl_unumtyls+1 WHERE uid='".intval($mybb->user['uid'])."'");
-		$db->write_query("UPDATE ".TABLE_PREFIX."users SET tyl_unumrcvtyls=tyl_unumrcvtyls+1 WHERE uid='".intval($post['uid'])."'");
+
+		if(!is_forum_id_in_setting($fid, $mybb->settings[$prefix.'exclude_count']))
+		{
+			$db->write_query("UPDATE ".TABLE_PREFIX."users SET tyl_unumtyls=tyl_unumtyls+1 WHERE uid='".intval($mybb->user['uid'])."'");
+			$db->write_query("UPDATE ".TABLE_PREFIX."users SET tyl_unumrcvtyls=tyl_unumrcvtyls+1 WHERE uid='".intval($post['uid'])."'");
+		}
 		$db->write_query("UPDATE ".TABLE_PREFIX.$prefix."stats SET value=value+1 WHERE title='total'");
 		if($mybb->input['ajax'])
 		{
@@ -342,13 +349,19 @@ if($mybb->input['action'] == "del")
 			// Update counts
 			if($post['tyl_pnumtyls'] == 1)
 			{
-				// This was the last thanks in the post, so remove this post from user's thanked posts
-				$db->write_query("UPDATE ".TABLE_PREFIX."users SET tyl_unumptyls=tyl_unumptyls-1 WHERE uid='".intval($post['uid'])."'");
+				if(!is_forum_id_in_setting($fid, $mybb->settings[$prefix.'exclude_count']))
+				{
+					// This was the last thanks in the post, so remove this post from user's thanked posts
+					$db->write_query("UPDATE ".TABLE_PREFIX."users SET tyl_unumptyls=tyl_unumptyls-1 WHERE uid='".intval($post['uid'])."'");
+				}
 			}
 			$db->write_query("UPDATE ".TABLE_PREFIX."posts SET tyl_pnumtyls=tyl_pnumtyls-1 WHERE pid='".intval($pid)."'");
 			$db->write_query("UPDATE ".TABLE_PREFIX."threads SET tyl_tnumtyls=tyl_tnumtyls-1 WHERE tid='".intval($tid)."'");
-			$db->write_query("UPDATE ".TABLE_PREFIX."users SET tyl_unumtyls=tyl_unumtyls-1 WHERE uid='".intval($mybb->user['uid'])."'");
-			$db->write_query("UPDATE ".TABLE_PREFIX."users SET tyl_unumrcvtyls=tyl_unumrcvtyls-1 WHERE uid='".intval($post['uid'])."'");
+			if(!is_forum_id_in_setting($fid, $mybb->settings[$prefix.'exclude_count']))
+			{
+				$db->write_query("UPDATE ".TABLE_PREFIX."users SET tyl_unumtyls=tyl_unumtyls-1 WHERE uid='".intval($mybb->user['uid'])."'");
+				$db->write_query("UPDATE ".TABLE_PREFIX."users SET tyl_unumrcvtyls=tyl_unumrcvtyls-1 WHERE uid='".intval($post['uid'])."'");
+			}
 			$db->write_query("UPDATE ".TABLE_PREFIX.$prefix."stats SET value=value-1 WHERE title='total'");
 
 			if($mybb->input['ajax'])
