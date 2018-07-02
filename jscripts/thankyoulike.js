@@ -81,7 +81,17 @@ var thankyoulike = {
 		{
 			if(tylDisplayGrowl == 1)
 			{
-				$.jGrowl(tylSend, {theme:'jgrowl_success'});			
+				var msg = tylSend;
+				var options = {theme:'jgrowl_success'};
+				if (data.tylMsgNumLeft)
+				{
+					msg += "<br />\n<br />\n" + data.tylMsgNumLeft;
+					if (data.tylMsgLife)
+					{
+						options.life = data.tylMsgLife;
+					}
+				}
+				$.jGrowl(msg, options);
 			}
 			$("#tyl_"+pid).html(data.tylData);
 			$("#tyl_"+pid).css('display', "");

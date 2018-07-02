@@ -24,6 +24,10 @@ $prefix = "g33k_thankyoulike_";
 
 $templatelist = "thankyoulike_users,thankyoulike_postbit,thankyoulike_postbit_classic,thankyoulike_button_add,thankyoulike_button_del";
 
+// (For AJAX) The extended duration in milliseconds for the popup when extra info, especially time remaining, is shown on adding a like.
+// This is to give the human viewer enough time to read and process that extra info.
+const c_long_life_popup_duration_ms = '12000';
+
 require_once "./global.php";
 
 // Load global language phrases
@@ -149,6 +153,8 @@ if ($excluded)
 	error($lang->tyl_error_excluded);
 }
 
+$msg_num_left = '';
+
 if($mybb->input['action'] == "add")
 {
 	$message = '';
@@ -160,6 +166,10 @@ if($mybb->input['action'] == "add")
 		$query = $db->simple_select($prefix."thankyoulike", "*", "uid='{$mybb->user['uid']}' AND dateline>'$timesearch'");
 		$numtoday = $db->num_rows($query);
 
+		$msg_num_left_life = c_long_life_popup_duration_ms;
+
+		$num_left_after_add = $mybb->usergroup['tyl_limits_max'] - $numtoday - 1;
+
 		// Time left to next thankyou/like
 		if($numtoday>0)
 		{
@@ -170,6 +180,12 @@ if($mybb->input['action'] == "add")
 			{
 				$tyltimeleft = my_date("H", $tyltimediff).'h '.my_date("i", $tyltimediff).'m '.my_date("s", $tyltimediff).'s';
 			}
+
+			$msg_num_left = $lang->sprintf($lang->tyl_num_left_for, $num_left_after_add, $pre2, $tyltimeleft);
+		}
+		else
+		{
+			$msg_num_left = $lang->sprintf($lang->tyl_num_left, $num_left_after_add, $pre2);
 		}
 
 		// Reached the quota - error.
@@ -192,6 +208,10 @@ if($mybb->input['action'] == "add")
 				}
 			}
 		}
+	}
+	else
+	{
+		$msg_num_left = $lang->sprintf($lang->tyl_num_left_unlimited, $pre2);
 	}
 
 	// Can't thank/like own post
@@ -568,10 +588,16 @@ if($mybb->input['ajax'])
 		}
 		// Cleanup for JSON
 		$thankyoulike = thankyoulike_cleanup_json($thankyoulike);
+		$msg_num_left = thankyoulike_cleanup_json($msg_num_left);
 
 		echo '{';
 		echo '"tylButton":"'.$button_tyl.'",';
-		echo '"tylData":"'.$thankyoulike.'"';
+		echo '"tylData":"'.$thankyoulike.'",';
+		echo '"tylMsgNumLeft":"'.$msg_num_left.'"';
+		if (isset($msg_num_left_life))
+		{
+			echo ',"tylMsgLife":'.$msg_num_left_life.'';
+		}
 		echo '}';
 	}
 	else
