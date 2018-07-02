@@ -17,13 +17,13 @@ Thank you/Like plugin - MyBB 1.8.x
 -----------------------------------------------------------------
 
 <strong>FAQ:</strong>
-- How to completely uninstall tyl_system including data from DB?
+- How to completely uninstall Thank You/Like System including data from DB?
 
-****** Click to deactivate and uninstall button in your ACP plugin tab -> choose "YES" to drop all tables from database.
+****** Click to deactivate and uninstall button in your ACP plugin tab -> choose "YES" to drop all tables from database. This cannot be reverted, all data is lost.
 - How to update plugin to a newer version without loosing data?
 
-****** Deactivate -> Copy new files and overwrite the old ones -> Activate 
+****** Deactivate -> Copy new files and overwrite the old ones -> Activate again. All data (received and given thanks/likes) are saved and restored, nothing is lost.
 
-- How to change icons shown in tyl buttons?
+- How to change icons displayed in buttons (postbit and postbit_classic)?
 
-****** Replace original tyl icons with yours - images/thankyoulike/thx_add.png and thx_del.png
+****** Replace both original icons with yours - images/thankyoulike/thx_add.png and thx_del.png
