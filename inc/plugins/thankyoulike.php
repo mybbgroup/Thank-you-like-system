@@ -65,13 +65,14 @@ $url_AT= '<a href="http://my-bb.ir" target="_blank">AliReza_Tofighi</a>';
 $url_SP = '<a href="https://community.mybb.com/user-91011.html" target="_blank">SvePu</a>';
 $url_E = '<a href="https://community.mybb.com/user-84065.html" target="_blank">Eldenroot</a>';
 $url_DN = '<a href="https://community.mybb.com/user-51493.html" target="_blank">Dark Neo</a>';
-$url_S = '<a href="https://github.com/Cu8eeeR/MyBB_Thank-you-like-plugin" target="_blank">GitHub</a>';
+$url_L = '<a href="https://community.mybb.com/user-116662.html" target="_blank">Laird</a>';
+$url_S = '<a href="https://github.com/Eldenroot/MyBB_Thank-you-like-plugin" target="_blank">GitHub</a>';
 
 	$info = array(
 		"name"		=> $db->escape_string($lang->tyl_info_title),
-		"description"	=> $db->escape_string($lang->tyl_info_desc) . $lang->sprintf($lang->tyl_info_desc_url,$url_AT,$url_SP,$url_E,$url_DN,$url_S),
+		"description"	=> $db->escape_string($lang->tyl_info_desc) . $lang->sprintf($lang->tyl_info_desc_url,$url_AT,$url_SP,$url_E,$url_DN,$url_L,$url_S),
 		"website"	=> "https://community.mybb.com/thread-169382.html",
-		"author"	=> "- G33K -, Eldenroot, SvePu",
+		"author"	=> "- G33K -, Eldenroot, SvePu, Dark Neo, Laird",
 		"authorsite"	=> "https://community.mybb.com/thread-169382.html",
 		"version"	=> "2.3.0",
 		"codename"	=> "thankyoulikesystem",
