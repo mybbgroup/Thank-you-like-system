@@ -1,6 +1,6 @@
 <strong>Thank you/like plugin</strong>
 ====================
-- This is one of the best plugin for MyBB. It needs some love, so we (<strong>@Eldenroot</strong>, <strong>@SvePu</strong>, strong>@Whiteneo</strong> and <strong>@Laird</strong>) decided to fix known bugs and make it even better. We added a lot of useful  features including MyAlerts support and even more, just try and let us know!
+- This is one of the best plugin for MyBB. It needs some love, so we (<strong>Eldenroot</strong>, <strong>SvePu</strong>, <strong>Whiteneo</strong> and <strong>Laird</strong>) decided to fix known bugs and make it even better. We added a lot of useful  features including MyAlerts support and even more, just try and let us know!
 
 
 - </strong>MyBB MOD SITE link: http://community.mybb.com/mods.php?action=view&pid=360 </strong>
