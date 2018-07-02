@@ -58,10 +58,10 @@ $l['tyl_closedthreads_title'] = "Allow in closed threads";
 $l['tyl_closedthreads_desc'] = "Do you want to allow to give Thanks/Likes in closed threads?";
 
 $l['tyl_exclude_title'] = "Excluded forums";
-$l['tyl_exclude_desc'] = "Select forums where you do not want the threads and posts to use the Thank you/Like system (only forums - no categories!).";
+$l['tyl_exclude_desc'] = "Select forums where you do not want the threads and posts to use the Thank you/Like system (only forums - no categories!).<br />Note: Recount of Thanks/Likes is not automatic, you have to do it manually through Recount & Rebuild in ACP after you change and save this setting.";
 
 $l['tyl_exclude_count_title'] = "Forums excluded from counts";
-$l['tyl_exclude_count_desc'] = "Select forums in which you do not want any Thank yous/Likes to count towards any member's publicly visible count of given and received Thank yous/Likes (only forums - no categories!).";
+$l['tyl_exclude_count_desc'] = "Select forums in which you do not want any Thanks/Likes to count towards any member's publicly visible count of given and received Thanks/Likes (only forums - no categories!).<br />Note: Recount of Thanks/Likes is not automatic, you have to do it manually through Recount & Rebuild in ACP after you change and save this setting.";
 
 $l['tyl_unameformat_title'] = "Format usernames";
 $l['tyl_unameformat_desc'] = "Do you want to format the author's username and usernames in the Thank/Like list under the post according to their groups?";
