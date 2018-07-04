@@ -200,7 +200,7 @@ function thankyoulike_install()
 
 	if(!$db->field_exists('tyl_lastadddeldate', 'users'))
 	{
-		$db->query("ALTER TABLE ".TABLE_PREFIX."users ADD `tyl_lastadddeldate` bigint(30) NOT NULL default '0'");
+		$db->query("ALTER TABLE ".TABLE_PREFIX."users ADD `tyl_lastadddeldate` int unsigned NOT NULL default '0'");
 	}
 
 	if(!$db->table_exists($prefix.'thankyoulike'))
