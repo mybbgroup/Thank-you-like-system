@@ -198,6 +198,11 @@ function thankyoulike_install()
 		$db->query("ALTER TABLE ".TABLE_PREFIX."users ADD `tyl_unumptyls` int(100) NOT NULL default '0'");
 	}
 
+	if(!$db->field_exists('tyl_lastadddeldate', 'users'))
+	{
+		$db->query("ALTER TABLE ".TABLE_PREFIX."users ADD `tyl_lastadddeldate` bigint(30) NOT NULL default '0'");
+	}
+
 	if(!$db->table_exists($prefix.'thankyoulike'))
 	{
 		$db->query("CREATE TABLE ".TABLE_PREFIX.$prefix."thankyoulike (
@@ -415,6 +420,11 @@ closed='.$lang->tyl_colldefault_op_2.'',
 				'title'				=> $lang->tyl_limits_title,
 				'description'		=> $lang->tyl_limits_desc,
 				'optionscode'		=> 'yesno',
+				'value'				=> '0'),
+		'flood_interval'		=> array(
+				'title'				=> $lang->tyl_flood_interval_title,
+				'description'		=> $lang->tyl_flood_interval_desc,
+				'optionscode'		=> 'numeric',
 				'value'				=> '0'),
 		'highlight_popular_posts'		=> array(
 				'title'				=> $lang->tyl_highlight_popular_posts_title,
@@ -641,7 +651,7 @@ function thankyoulike_is_installed()
 	$result = $db->simple_select('templategroups', 'gid', "prefix in ('thankyoulike')", array('limit' => 1));
 	$templategroup = $db->fetch_array($result);
 
-	if($db->table_exists($prefix.'thankyoulike') && $db->table_exists($prefix.'stats') && $db->field_exists('tyl_pnumtyls', 'posts') && $db->field_exists('tyl_tnumtyls', 'threads') && $db->field_exists('tyl_unumtyls', 'users') && $db->field_exists('tyl_unumrcvtyls', 'users') && $db->field_exists('tyl_unumptyls', 'users') && !empty($templategroup['gid']))
+	if($db->table_exists($prefix.'thankyoulike') && $db->table_exists($prefix.'stats') && $db->field_exists('tyl_pnumtyls', 'posts') && $db->field_exists('tyl_tnumtyls', 'threads') && $db->field_exists('tyl_unumtyls', 'users') && $db->field_exists('tyl_unumrcvtyls', 'users') && $db->field_exists('tyl_unumptyls', 'users') && $db->field_exists('tyl_lastadddeldate', 'users') && !empty($templategroup['gid']))
 	{
 		return true;
 	}
@@ -801,6 +811,10 @@ function thankyoulike_uninstall()
 		if($db->field_exists('tyl_unumptyls', 'users'))
 		{
 			$db->query("ALTER TABLE ".TABLE_PREFIX."users DROP column `tyl_unumptyls`");
+		}
+		if($db->field_exists('tyl_lastadddeldate', 'users'))
+		{
+			$db->query("ALTER TABLE ".TABLE_PREFIX."users DROP column `tyl_lastadddeldate`");
 		}
 		if($db->field_exists('tyl_pnumtyls', 'posts'))
 		{
