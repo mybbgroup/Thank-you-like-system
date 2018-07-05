@@ -271,6 +271,10 @@ function thankyoulike_install()
 	{
 		$db->add_column("usergroups", "tyl_limits_max", "int(10) NOT NULL DEFAULT '10'");
 	}
+	if(!$db->field_exists("tyl_flood_interval", "usergroups"))
+	{
+		$db->add_column("usergroups", "tyl_flood_interval", "int unsigned NOT NULL DEFAULT '10'");
+	}
 
 
 	// Insert settings into the database
@@ -420,11 +424,6 @@ closed='.$lang->tyl_colldefault_op_2.'',
 				'title'				=> $lang->tyl_limits_title,
 				'description'		=> $lang->tyl_limits_desc,
 				'optionscode'		=> 'yesno',
-				'value'				=> '0'),
-		'flood_interval'		=> array(
-				'title'				=> $lang->tyl_flood_interval_title,
-				'description'		=> $lang->tyl_flood_interval_desc,
-				'optionscode'		=> 'numeric',
 				'value'				=> '0'),
 		'highlight_popular_posts'		=> array(
 				'title'				=> $lang->tyl_highlight_popular_posts_title,
@@ -866,6 +865,10 @@ function thankyoulike_uninstall()
 		if($db->field_exists("tyl_limits_max", "usergroups"))
 		{
 			$db->drop_column("usergroups", "tyl_limits_max");
+		}
+		if($db->field_exists("tyl_flood_interval", "usergroups"))
+		{
+			$db->drop_column("usergroups", "tyl_flood_interval");
 		}
 
 
@@ -2354,8 +2357,10 @@ function tyl_limits_usergroup_permission()
 		if(!empty($form_container->_title) & !empty($lang->users_permissions) & $form_container->_title == $lang->users_permissions)
 		{
 			$tyl_limits_options = array(
-			"{$lang->tyl_limits_permissions_title}<br /><small class=\"input\">{$lang->tyl_limits_permissions_desc}</small><br />".$form->generate_numeric_field('tyl_limits_max', $mybb->input['tyl_limits_max'], array('id' => 'max_tyl_limits', 'class' => 'field50', 'min' => 0))
+			"{$lang->tyl_limits_permissions_title}<br /><small class=\"input\">{$lang->tyl_limits_permissions_desc}</small><br />".$form->generate_numeric_field('tyl_limits_max', $mybb->input['tyl_limits_max'], array('id' => 'max_tyl_limits', 'class' => 'field50', 'min' => 0)),
+			"{$lang->tyl_flood_interval_title}<br /><small class=\"input\">{$lang->tyl_flood_interval_desc}</small><br />".$form->generate_numeric_field('tyl_flood_interval', $mybb->input['tyl_flood_interval'], array('id' => 'max_flood_interval', 'class' => 'field50', 'min' => 0))
 			);
+
 			$form_container->output_row($lang->tyl_limits_permissions_system, "", "<div class=\"group_settings_bit\">".implode("</div><div class=\"group_settings_bit\">", $tyl_limits_options)."</div>");
 		}
 	}
@@ -2365,6 +2370,7 @@ function tyl_limits_usergroup_permission_commit()
 {
 	global $db, $mybb, $updated_group;
 	$updated_group['tyl_limits_max'] = $db->escape_string((int)$mybb->input['tyl_limits_max']);
+	$updated_group['tyl_flood_interval'] = $db->escape_string((int)$mybb->input['tyl_flood_interval']);
 }
 
 function tyl_preinstall_cleanup()

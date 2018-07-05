@@ -68,10 +68,10 @@ if($mybb->input['action'] != "add" && $mybb->input['action'] != "del")
 	error($lang->tyl_error_invalid_action);
 }
 
-if ($mybb->settings[$prefix.'flood_interval'] > 0) {
+if ($mybb->usergroup['tyl_flood_interval'] > 0) {
 	$lastadddeldate =  $db->fetch_array($db->simple_select("users", "tyl_lastadddeldate", "uid='{$mybb->user['uid']}'"))['tyl_lastadddeldate'];
-	if (TIME_NOW <= $lastadddeldate + $mybb->settings[$prefix.'flood_interval']) {
-		$secondsleft = $lastadddeldate + $mybb->settings[$prefix.'flood_interval'] - TIME_NOW;
+	if (TIME_NOW <= $lastadddeldate + $mybb->usergroup['tyl_flood_interval']) {
+		$secondsleft = $lastadddeldate + $mybb->usergroup['tyl_flood_interval'] - TIME_NOW;
 		error($lang->sprintf($lang->tyl_error_flood_interval_exceeded, $pre2, $secondsleft, $pre));
 	}
 }
