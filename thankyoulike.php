@@ -68,6 +68,14 @@ if($mybb->input['action'] != "add" && $mybb->input['action'] != "del")
 	error($lang->tyl_error_invalid_action);
 }
 
+if ($mybb->usergroup['tyl_flood_interval'] > 0) {
+	$lastadddeldate =  $db->fetch_array($db->simple_select("users", "tyl_lastadddeldate", "uid='{$mybb->user['uid']}'"))['tyl_lastadddeldate'];
+	if (TIME_NOW <= $lastadddeldate + $mybb->usergroup['tyl_flood_interval']) {
+		$secondsleft = $lastadddeldate + $mybb->usergroup['tyl_flood_interval'] - TIME_NOW;
+		error($lang->sprintf($lang->tyl_error_flood_interval_exceeded, $pre2, $secondsleft, $pre));
+	}
+}
+
 // Verify post key
 verify_post_check($mybb->input['my_post_key']);
 
@@ -256,6 +264,10 @@ if($mybb->input['action'] == "add")
 	);
 
 	$tlid = $db->insert_query($prefix."thankyoulike", $tyl_data);
+
+	// Update user's last like add/del date
+	$db->update_query('users', array('tyl_lastadddeldate' => TIME_NOW), 'uid='.intval($mybb->user['uid']));
+
 	// Verify if myalerts exists and if compatible with 1.8.x then add alert type
 	include_once('inc/plugins/thankyoulike.php');
 	if(function_exists("myalerts_info")){
@@ -366,6 +378,8 @@ if($mybb->input['action'] == "del")
 			if((function_exists('myalerts_is_activated') && myalerts_is_activated()) && $mybb->user['uid']){
 				$db->query("DELETE FROM ".TABLE_PREFIX."alerts WHERE from_user_id={$mybb->user['uid']} AND object_id='{$pid}' AND unread=1 LIMIT 1");
 			}
+			// Update user's last like add/del date
+			$db->update_query('users', array('tyl_lastadddeldate' => TIME_NOW), 'uid='.intval($mybb->user['uid']));
 			// Update counts
 			if($post['tyl_pnumtyls'] == 1)
 			{

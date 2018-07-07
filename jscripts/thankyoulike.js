@@ -79,23 +79,30 @@ var thankyoulike = {
 		}
 		else
 		{
-			if(tylDisplayGrowl == 1)
+			if (data.errors)
 			{
-				var msg = tylSend;
-				var options = {theme:'jgrowl_success'};
-				if (data.tylMsgNumLeft)
-				{
-					msg += "<br />\n<br />\n" + data.tylMsgNumLeft;
-					if (data.tylMsgLife)
-					{
-						options.life = data.tylMsgLife;
-					}
-				}
-				$.jGrowl(msg, options);
+				$.jGrowl(data.errors.join(' '), {theme:'jgrowl_error'});
 			}
-			$("#tyl_"+pid).html(data.tylData);
-			$("#tyl_"+pid).css('display', "");
-			$("#tyl_btn_"+pid).html(data.tylButton);
+			else
+			{
+				if(tylDisplayGrowl == 1)
+				{
+					var msg = tylSend;
+					var options = {theme:'jgrowl_success'};
+					if (data.tylMsgNumLeft)
+					{
+						msg += "<br />\n<br />\n" + data.tylMsgNumLeft;
+						if (data.tylMsgLife)
+						{
+							options.life = data.tylMsgLife;
+						}
+					}
+					$.jGrowl(msg, options);
+				}
+				$("#tyl_"+pid).html(data.tylData);
+				$("#tyl_"+pid).css('display', "");
+				$("#tyl_btn_"+pid).html(data.tylButton);
+			}
 		}
 		document.body.style.cursor = 'default';
 	},
@@ -144,13 +151,20 @@ var thankyoulike = {
 		}
 		else
 		{
-			if(tylDisplayGrowl == 1)
+			if (data.errors)
 			{
-				$.jGrowl(tylRemove, {theme:'jgrowl_success'});			
+				$.jGrowl(data.errors.join(' '), {theme:'jgrowl_error'});
 			}
-			$("#tyl_"+pid).html(data.tylData);
-			$("#tyl_"+pid).css('display', "");
-			$("#tyl_btn_"+pid).html(data.tylButton);
+			else
+			{
+				if(tylDisplayGrowl == 1)
+				{
+					$.jGrowl(tylRemove, {theme:'jgrowl_success'});
+				}
+				$("#tyl_"+pid).html(data.tylData);
+				$("#tyl_"+pid).css('display', "");
+				$("#tyl_btn_"+pid).html(data.tylButton);
+			}
 		}
 		document.body.style.cursor = 'default';
 	}

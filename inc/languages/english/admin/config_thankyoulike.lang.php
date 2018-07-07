@@ -101,6 +101,8 @@ $l['tyl_displaygrowl_desc'] = "Choose ON to enable the Ajax notification popup w
 
 $l['tyl_limits_title'] = "Enable usergroup based thanks/likes limits?";
 $l['tyl_limits_desc'] = "Choose YES to enable this feature and check the usergroup settings.";
+$l['tyl_flood_interval_title'] = "Flood prevention interval";
+$l['tyl_flood_interval_desc'] = "Enter the minimum number of seconds a member must wait between adding/removing thanks/likes. Set to zero to disable the requirement to wait at all.";
 $l['tyl_highlight_popular_posts_title'] = "Highlight posts with X numbers of thanks/likes?";
 $l['tyl_highlight_popular_posts_desc'] = "Choose YES to enable this feature and define your style of CSS class <strong>.popular_post</strong> in thankyoulike.css (in your theme).";
 $l['tyl_highlight_popular_posts_count_title'] = "Numbers of thanks/likes to highlight posts";

@@ -79,6 +79,7 @@ $l['tyl_error_removal_disabled'] = "You can not remove your {1} because removal 
 $l['tyl_error_own_delete'] = "This {1} can not be removed because you are not the user who posted this {1}. You can only delete {1} that YOU added to posts.";
 $l['tyl_error_not_found'] = "The {1} can not be removed because it can not be found. Its possible that it has already been removed.";
 $l['tyl_error_threadclosed'] = "You cannot {1} this post because it has been closed.";
+$l['tyl_error_flood_interval_exceeded'] = "You are adding/removing {1} faster than permitted. You must wait another {2} seconds before adding/removing another {3}.";
 
 $l['tyl_redirect_tyled'] = "Your {1} has been added to the post";
 $l['tyl_redirect_deleted'] = "Your {1} has been removed from the post";
