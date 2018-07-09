@@ -948,6 +948,48 @@ function thankyoulike_templatelist()
 	}
 }
 
+function thankyoulike_getownsingletylpostcount($prefix, $uid)
+{
+	global $db;
+
+	// Cache results as we may need them again
+	// e.g. on a thread page where the same user has posted multiple times.
+	static $owntylpostcounts = array();
+
+	if(!isset($owntylpostcounts[$uid]))
+	{
+		$query = $db->query("SELECT
+			COUNT(pid) AS owntylposts
+			FROM ".TABLE_PREFIX.$prefix."thankyoulike
+			WHERE uid='$uid' AND uid=puid AND pid NOT IN (
+				SELECT pid FROM ".TABLE_PREFIX.$prefix."thankyoulike
+				WHERE puid='$uid'
+				GROUP BY pid
+				HAVING COUNT(pid) > 1
+				)
+			");
+		$owntylpostcounts[$uid] = $db->fetch_field($query, 'owntylposts');
+	}
+
+	return $owntylpostcounts[$uid];
+}
+
+function thankyoulike_check_removeownlikesfrompostarray($prefix, &$post, $skip_postcounts = false)
+{
+	global $mybb;
+
+	if($mybb->settings[$prefix.'remowntylfromc'] == 1)
+	{
+		$owntylusercount = thankyoulike_getowntylcount($prefix, $post['uid']);
+		$post['tyl_unumtyls']    -= $owntylusercount;
+		$post['tyl_unumrcvtyls'] -= $owntylusercount;
+		if(!$skip_postcounts)
+		{
+			$post['tyl_unumptyls'] -= thankyoulike_getownsingletylpostcount($prefix, $post['uid']);
+		}
+	}
+}
+
 function thankyoulike_postbit(&$post)
 {
 	global $db, $mybb, $theme, $templates, $lang, $pids, $g33k_pcache;
@@ -968,22 +1010,7 @@ function thankyoulike_postbit(&$post)
 			}
 		}
 
-		if ($mybb->settings[$prefix.'remowntylfromc'] == 1)
-		{
-			$query = $db->simple_select($prefix."thankyoulike", "*", "uid=puid");
-			while($result = $db->fetch_array($query))
-			{
-				if($result['uid'] == $post['uid'])
-				{
-					$post['tyl_unumtyls'] = $post['tyl_unumtyls'] - count($result['tlid']);
-				}
-
-				if($result['puid'] == $post['uid'])
-				{
-					$post['tyl_unumrcvtyls'] = $post['tyl_unumrcvtyls'] - count($result['tlid']);
-				}
-			}
-		}
+		thankyoulike_check_removeownlikesfrompostarray($prefix, $post);
 
 		// Setup stats in postbit
 		if ($mybb->settings[$prefix.'thankslike'] == "like")
@@ -1240,6 +1267,29 @@ function thankyoulike_postbit(&$post)
 	return $post;
 }
 
+function thankyoulike_getowntylcount($prefix, $uid = null) {
+	global $db;
+
+	// Cache results as we may need them again
+	// e.g. on a thread page where the same user has posted multiple times.
+	static $owntylcounts = array();
+
+	if(!isset($owntylcounts[$uid]))
+	{
+		$where = "uid=puid";
+		// $uid of null means to count the self-likes of ALL users
+		if(!is_null($uid))
+		{
+			$where .= " AND uid='$uid'";
+		}
+		$query = $db->simple_select($prefix."thankyoulike", "COUNT(tlid) AS owntyluser", $where);
+
+		$owntylcounts[$uid] = $db->fetch_field($query, 'owntyluser');
+	}
+
+	return $owntylcounts[$uid];
+}
+
 function thankyoulike_postbit_udetails(&$post)
 {
 	global $mybb, $db, $templates, $lang;
@@ -1248,31 +1298,7 @@ function thankyoulike_postbit_udetails(&$post)
 
 	if ($mybb->settings[$prefix.'enabled'] == "1")
 	{
-		if ($mybb->settings[$prefix.'remowntylfromc'] == 1)
-		{
-			$query = $db->simple_select($prefix."thankyoulike", "COUNT(tlid) AS owntyluser", "uid='".$post['uid']."' AND uid=puid");
-			$owntyluser = $db->fetch_field($query, 'owntyluser');
-			if($owntyluser)
-			{
-				$post['tyl_unumtyls'] = $post['tyl_unumtyls'] - $owntyluser;
-				$post['tyl_unumrcvtyls'] = $post['tyl_unumrcvtyls'] - $owntyluser;
-			}
-			$query1 = $db->query("SELECT
-				COUNT(pid) AS owntylposts
-				FROM ".TABLE_PREFIX.$prefix."thankyoulike
-				WHERE uid='".$post['uid']."' AND uid=puid AND pid NOT IN (
-					SELECT pid FROM ".TABLE_PREFIX.$prefix."thankyoulike
-					WHERE puid='".$post['uid']."'
-					GROUP BY pid
-					HAVING COUNT(pid) > 1
-					)
-				");
-			$owntylposts = $db->fetch_field($query1, 'owntylposts');
-			if($owntylposts)
-			{
-				$post['tyl_unumptyls'] = $post['tyl_unumptyls'] - $owntylposts;
-			}
-		}
+ 		thankyoulike_check_removeownlikesfrompostarray($prefix, $post);
 
 		if ($mybb->settings[$prefix.'thankslike'] == "like")
 		{
@@ -1412,16 +1438,7 @@ function thankyoulike_memprofile()
 			$tyl_thankslikes = $lang->tyl_thanks;
 		}
 
-		if ($mybb->settings[$prefix.'remowntylfromc'] == 1)
-		{
-			$query = $db->simple_select($prefix."thankyoulike", "COUNT(tlid) AS owntyl_user", "uid='".$memprofile['uid']."' AND uid=puid");
-			$owntyluser = $db->fetch_field($query, 'owntyl_user');
-			if($owntyluser)
-			{
-				$memprofile['tyl_unumtyls'] = $memprofile['tyl_unumtyls'] - $owntyluser;
-				$memprofile['tyl_unumrcvtyls'] = $memprofile['tyl_unumrcvtyls'] - $owntyluser;
-			}
-		}
+		thankyoulike_check_removeownlikesfrompostarray($prefix, $memprofile, true);
 
 		$daysreg = (TIME_NOW - $memprofile['regdate']) / (24*3600);
 		$tylpd = $memprofile['tyl_unumtyls'] / $daysreg;
@@ -1447,13 +1464,9 @@ function thankyoulike_memprofile()
 
 		if($mybb->settings[$prefix.'remowntylfromc'] == 1)
 		{
-			$query = $db->simple_select($prefix."thankyoulike", "COUNT(tlid) AS owntyl_total", "uid=puid");
-			$owntyltotal = $db->fetch_field($query, 'owntyl_total');
-			if($owntyltotal)
-			{
-				$totalgiv = $totalgiv - $owntyltotal;
-				$totalrcv = $totalrcv - $owntyltotal;
-			}
+			$owntyltotalcount = thankyoulike_getowntylcount($prefix);
+			$totalgiv -= $owntyltotalcount;
+			$totalrcv -= $owntyltotalcount;
 		}
 
 		if($totalgiv > 0)
