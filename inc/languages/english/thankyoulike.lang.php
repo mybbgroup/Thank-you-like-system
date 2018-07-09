@@ -69,10 +69,12 @@ $l['tyl_error'] = "Thank You/Like System Error Message";
 $l['tyl_error_invalid_action'] = "You are trying to perform an invalid action.";
 $l['tyl_error_disabled'] = "{1} Feature has been disabled.";
 $l['tyl_error_not_allowed'] = "Not allowed for this post.";
+$l['tyl_error_first_post_only'] = "You may only add/remove a {1} for the first post of threads in this forum.";
 $l['tyl_error_excluded'] = "Not allowed for this post because this forum has been excluded.";
 $l['tyl_error_reached_max_limit'] = "Reached maximum {1} per day!";
 $l['tyl_error_reached_max_timeleft'] = "Next {1} possible in ";
 $l['tyl_error_own_post'] = "You cannot {1} your own post.";
+$l['tyl_error_hidden_from_group'] = "Members of your usergroup are not permitted to use the {1} system.";
 $l['tyl_error_already_tyled'] = "You have already {1} this post.";
 $l['tyl_error_unknown'] = "There was an unknown error and your {1} was not added.";
 $l['tyl_error_removal_disabled'] = "You cannot remove your {1} because removal has been disabled.";
@@ -93,8 +95,8 @@ $l['myalerts_setting_tyl'] = 'Receive an alert when someone adds a thank/like to
 $l['myalerts_setting_tyl_like'] = 'Receive an alert when someone adds a like to my post?';
 $l['myalerts_setting_tyl_thanks'] = 'Receive an alert when someone adds a thanks to my post?';
 
-$l['tyl_send'] = 'Adding {1} to this post';
-$l['tyl_remove'] = 'Removing {1} from this post';
+$l['tyl_send'] = 'Added {1} to this post';
+$l['tyl_remove'] = 'Removed {1} from this post';
 
 $l['tyl_num_left'] = "You have {1} {2} remaining to use for the next 24 hours.";
 $l['tyl_num_left_for'] = "You have {1} {2} remaining to use for another {3}.";

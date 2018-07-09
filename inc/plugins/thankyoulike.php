@@ -311,9 +311,9 @@ like='.$lang->tyl_thankslike_op_2.'',
 first='.$lang->tyl_firstall_op_1.'
 all='.$lang->tyl_firstall_op_2.'',
 				'value'				=> 'first'),
-		'firstalloverwrite'		=> array(
-				'title'				=> $lang->tyl_firstalloverwrite_title,
-				'description'		=> $lang->tyl_firstalloverwrite_desc,
+		'firstalloverride'		=> array(
+				'title'				=> $lang->tyl_firstalloverride_title,
+				'description'		=> $lang->tyl_firstalloverride_desc,
 				'optionscode'		=> 'forumselect',
 				'value'				=> ''),
 		'removing'				=> array(
@@ -948,9 +948,16 @@ function thankyoulike_templatelist()
 	}
 }
 
-function thankyoulike_getownsingletylpostcount($prefix, $uid)
+/**
+ * Count the number of the user's own posts that s/he has tyled and that
+ * nobody else has.
+ * @param integer The user's ID.
+ * @return integer The post count.
+ */
+function thankyoulike_getownsingletylpostcount($uid)
 {
 	global $db;
+	$prefix = 'g33k_thankyoulike_';
 
 	// Cache results as we may need them again
 	// e.g. on a thread page where the same user has posted multiple times.
@@ -974,9 +981,18 @@ function thankyoulike_getownsingletylpostcount($prefix, $uid)
 	return $owntylpostcounts[$uid];
 }
 
-function thankyoulike_check_removeownlikesfrompostarray($prefix, &$post, $skip_postcounts = false)
+/**
+ * Removes self-likes from like counts in a post if the applicable plugin setting is enabled.
+ *
+ * @param array &$post The database row of the post. (Potentially) modified by the function.
+ * @param boolean $skip_postcounts Whether, for efficiency when not needed, to skip removal
+ *                                 of the count of single-like self-liked posts from
+ *                                 the given-likes post count.
+ */
+function thankyoulike_check_remove_self_likes_from_post_array(&$post, $skip_postcounts = false)
 {
 	global $mybb;
+	$prefix = 'g33k_thankyoulike_';
 
 	if($mybb->settings[$prefix.'remowntylfromc'] == 1)
 	{
@@ -985,9 +1001,170 @@ function thankyoulike_check_removeownlikesfrompostarray($prefix, &$post, $skip_p
 		$post['tyl_unumrcvtyls'] -= $owntylusercount;
 		if(!$skip_postcounts)
 		{
-			$post['tyl_unumptyls'] -= thankyoulike_getownsingletylpostcount($prefix, $post['uid']);
+			$post['tyl_unumptyls'] -= thankyoulike_getownsingletylpostcount($post['uid']);
 		}
 	}
+}
+
+/**
+ * Checks whether tyl functionality is forbidden for various reasons, including:
+ * 1. The forum is password-protected and the user has not supplied the correct password.
+ * 2. The forum has been excluded in the plugin's ACP settings.
+ * 3. The thread is closed and the user is not a moderator with edit override permission.
+ * 4. The user is trying to (un)tyl his/her own post, but the plugin's ACP settings forbid this.
+ * 5. The user is a member of a usergroup whose members have had the tyl functionality
+ *    hidden from them in the plugin's ACP settings.
+ * 6. The user is trying to (un)tyl a post other than the first post in the thread
+ *    but this has been forbidden in the plugin's ACP settings.
+ * @param array $thread The database row of the thread of the potentially (un)tyled post.
+ * @param int $fid The ID of the forum within which the thread of the potentially (un)tyled post exists.
+ * @param int $pid The ID of the potentially (un)tyled post.
+ * @param int $post_userid The ID of the author of the potentially (un)tyled post.
+ * @param int $tyl_userid The ID of the user who potentially will (un)tyl the post.
+ * @param boolean $skip_forum_pw_protect_check Whether, to avoid potential database queries,
+ *                and assuming the check is not required, to skip the check for a password-protected forum.
+ * @param array &$err_msgs An array of error messages which can be displayed to the user
+ *              to explain why the tyl functionality is forbidden to him/her.
+ *              Will be filled if and only if the function returns true.
+ * @return boolean True if the tyl functionality is forbidden, false if it is not.
+ */
+function thankyoulike_is_liking_forbidden($thread, $fid, $pid, $post_userid, $tyl_userid, $skip_forum_pw_protect_check = true, &$err_msgs = array())
+{
+	global $mybb, $lang;
+	$prefix = 'g33k_thankyoulike_';
+
+	$err_msgs = array();
+	$pre = ($mybb->settings[$prefix.'thankslike'] == "like" ? $pre = $lang->tyl_like : $lang->tyl_thankyou);
+
+	if (!$skip_forum_pw_protect_check)
+	{
+		// Check whether this forum is password protected and we have a valid password.
+		$forbidden_due_to_forum_pw_protect = check_forum_password($fid, 0, true);
+		if ($forbidden_due_to_forum_pw_protect)
+		{
+			$err_msgs[] = $lang->error_nopermission_user_ajax;
+		}
+	} else	$forbidden_due_to_forum_pw_protect = false;
+
+	$forbidden_due_to_excluded_forum = thankyoulike_in_forums($fid, $mybb->settings[$prefix.'exclude']);
+	if ($forbidden_due_to_excluded_forum) {
+		$err_msgs[] = $lang->tyl_error_excluded;
+	}
+
+	$forbidden_due_to_thread_closure = ($thread['closed'] == 1 && $mybb->settings[$prefix.'closedthreads'] != "1" && !is_moderator($fid, "caneditposts"));
+	if ($forbidden_due_to_thread_closure)
+	{
+		$err_msgs[] = $lang->sprintf($lang->tyl_error_threadclosed, $pre);
+	}
+
+	$may_like_own_posts = ($mybb->settings[$prefix.'tylownposts'] == "1");
+	$is_own_post        = ($post_userid == $tyl_userid);
+	$forbidden_due_to_unlikeability_of_own_posts = (!$may_like_own_posts && $is_own_post);
+	if ($forbidden_due_to_unlikeability_of_own_posts)
+	{
+		$err_msgs[] = $lang->sprintf($lang->tyl_error_own_post, $pre);
+	}
+
+	$forbidden_due_to_group_membership = (is_member($mybb->settings[$prefix.'hideforgroups'], $tyl_userid) || $mybb->settings[$prefix.'hideforgroups'] == "-1");
+	if ($forbidden_due_to_group_membership)
+	{
+		$err_msgs[] = $lang->sprintf($lang->tyl_error_hidden_from_group, $pre);
+	}
+
+	$forum_override_for_may_like_all_posts = thankyoulike_in_forums($fid, $mybb->settings[$prefix.'firstalloverride']);
+	$may_like_all_posts_in_thread = ($mybb->settings[$prefix.'firstall'] == "all" || $forum_override_for_may_like_all_posts);
+	$is_first_post = ($thread['firstpost'] == $pid);
+
+	$forbidden_due_to_first_thread_post_restriction = (!$is_first_post && !$may_like_all_posts_in_thread);
+	if ($forbidden_due_to_first_thread_post_restriction)
+	{
+		$err_msgs[] = $lang->sprintf($lang->tyl_error_first_post_only, $pre);
+	}
+
+	return ($forbidden_due_to_forum_pw_protect           ||
+	        $forbidden_due_to_excluded_forum             ||
+	        $forbidden_due_to_thread_closure             ||
+	        $forbidden_due_to_unlikeability_of_own_posts ||
+	        $forbidden_due_to_group_membership           ||
+	        $forbidden_due_to_first_thread_post_restriction);
+}
+
+/**
+ * Determine which, if either, of the add/remove tyl buttons to show for this post.
+ * @param array $thread The database row of the thread of the potentially (un)tyled post.
+ * @param int $fid The ID of the forum within which the thread of the potentially (un)tyled post exists.
+ * @param int $pid The ID of the potentially (un)tyled post.
+ * @param int $post_userid The ID of the author of the potentially (un)tyled post.
+ * @param int $tyl_userid The ID of the user who potentially will (un)tyl the post.
+ * @param boolean $has_tyled_post Whether the user with ID $tyl_userid has already tyled the post.
+ * @return string One of 'del', 'add' or ''.
+ */
+function thankyoulike_get_which_btn($thread, $fid, $pid, $post_userid, $tyl_userid, $has_tyled_post)
+{
+	global $mybb, $lang;
+	$prefix = 'g33k_thankyoulike_';
+
+	// Default to not showing a button
+	$which_btn = '';
+
+	$liking_is_forbidden = thankyoulike_is_liking_forbidden($thread, $fid, $pid, $post_userid, $tyl_userid);
+
+	if(!$liking_is_forbidden)
+	{
+		$may_remove_tyls = ($mybb->settings[$prefix.'removing'] == "1");
+		if($has_tyled_post && $may_remove_tyls)
+		{
+			// Show a remove button.
+			$which_btn = 'del';
+		}
+		else if(!$has_tyled_post)
+		{
+			// Show an add button.
+			$which_btn = 'add';
+		}
+	}
+
+	return $which_btn;
+}
+
+/**
+ * Insert into the given post's 'user_details' field the user's tyl statistics
+ * by replacing the placeholder '%%TYL_NUMTHANKEDLIKED%%'.
+ * @param array &$post The database row of the post. Modified by this function.
+ */
+function thankyoulike_set_up_stats_in_postbit(&$post)
+{
+	global $mybb, $lang, $templates;
+	$prefix = 'g33k_thankyoulike_';
+
+	// If removal of self-likes from counts is enabled, then remove self-likes from counts.
+	thankyoulike_check_remove_self_likes_from_post_array($post);
+
+	$tyl = $mybb->settings[$prefix.'thankslike'];
+	if (substr($tyl, -1) != 's')
+	{
+		$tyl .= 's';
+	} // Now $tyl is set to either "likes" or "thanks".
+	$rcvd = "tyl_{$tyl}_rcvd";
+	$lang->tyl_rcvd = $lang->$rcvd;
+	$given = "tyl_{$tyl}_given";
+	$lang->tyl_given = $lang->$given;
+	$rcvd_bit = "tyl_{$tyl}_rcvd_bit";
+	$post['tyl_unumrtyls'] = $lang->sprintf($lang->$rcvd_bit, my_number_format($post['tyl_unumrcvtyls']), my_number_format($post['tyl_unumptyls']));
+	$post['tyl_unumtyls'] = my_number_format($post['tyl_unumtyls']);
+	eval("\$tyl_thankslikes = \"".$templates->get("thankyoulike_postbit_author_user", 1, 0)."\";");
+
+	$post['user_details'] = preg_replace("#".preg_quote('%%TYL_NUMTHANKEDLIKED%%')."#i", $tyl_thankslikes, $post['user_details']);
+}
+
+/**
+ * Remove from the supplied post's 'user_details' field
+ * the placeholder for the user's tyl statistics, '%%TYL_NUMTHANKEDLIKED%%'.
+ * @param array &$post The database row of the post. Updated by the function.
+ */
+function thankyoulike_remove_stats_in_postbit(&$post)
+{
+	$post['user_details'] = preg_replace("#".preg_quote('%%TYL_NUMTHANKEDLIKED%%<br />')."#i", "", $post['user_details']);
 }
 
 function thankyoulike_postbit(&$post)
@@ -997,46 +1174,14 @@ function thankyoulike_postbit(&$post)
 
 	$lang->load("thankyoulike");
 
-	if ($mybb->settings[$prefix.'enabled'] == "1" && $mybb->settings[$prefix.'exclude'] != "-1")
+	if ($mybb->settings[$prefix.'enabled'] == "1")
 	{
-		// Check first if this post is in an excluded forum, if it is end right here.
-		$forums = explode(",", $mybb->settings[$prefix.'exclude']);
-		$excluded = false;
-		foreach($forums as $forum)
+		// Set up stats in postbit
+		thankyoulike_set_up_stats_in_postbit($post);
+
+		// If this post is in an excluded forum, then end right here.
+		if (thankyoulike_in_forums($post['fid'], $mybb->settings[$prefix.'exclude']))
 		{
-			if (trim($forum) == $post['fid'])
-			{
-				$excluded = true;
-			}
-		}
-
-		thankyoulike_check_removeownlikesfrompostarray($prefix, $post);
-
-		// Setup stats in postbit
-		if ($mybb->settings[$prefix.'thankslike'] == "like")
-		{
-			$lang->tyl_rcvd = $lang->tyl_likes_rcvd;
-			$lang->tyl_given = $lang->tyl_likes_given;
-			$post['tyl_unumrtyls'] = $lang->sprintf($lang->tyl_likes_rcvd_bit, my_number_format($post['tyl_unumrcvtyls']), my_number_format($post['tyl_unumptyls']));
-			$post['tyl_unumtyls'] = my_number_format($post['tyl_unumtyls']);
-
-			eval("\$tyl_thankslikes = \"".$templates->get("thankyoulike_postbit_author_user", 1, 0)."\";");
-		}
-		else if ($mybb->settings[$prefix.'thankslike'] == "thanks")
-		{
-			$lang->tyl_rcvd = $lang->tyl_thanks_rcvd;
-			$lang->tyl_given = $lang->tyl_thanks_given;
-			$post['tyl_unumrtyls'] = $lang->sprintf($lang->tyl_thanks_rcvd_bit, my_number_format($post['tyl_unumrcvtyls']), my_number_format($post['tyl_unumptyls']));
-			$post['tyl_unumtyls'] = my_number_format($post['tyl_unumtyls']);
-
-			eval("\$tyl_thankslikes = \"".$templates->get("thankyoulike_postbit_author_user", 1, 0)."\";");
-		}
-		// Setup stats in postbit
-		$post['user_details'] = preg_replace("#".preg_quote('%%TYL_NUMTHANKEDLIKED%%')."#i", $tyl_thankslikes, $post['user_details']);
-
-		if ($excluded)
-		{
-			// We're in an excluded forum, end right here
 			return $post;
 		}
 
@@ -1188,35 +1333,11 @@ function thankyoulike_postbit(&$post)
 			$lang->tyl_title_collapsed = "";
 		}
 
-		// Setup stats in postbit
-		$post['user_details'] = preg_replace("#".preg_quote('%%TYL_NUMTHANKEDLIKED%%')."#i", $tyl_thankslikes, $post['user_details']);
-
-		// Determine whether we're showing tyl for this post:
 		$thread = get_thread($post['tid']);
-		$tyluserid = $mybb->settings[$prefix.'tylownposts'] == "1" ? "-1" : $mybb->user['uid'];
-
-		if(($tyled && $mybb->settings[$prefix.'removing'] != "1") || (!is_moderator($post['fid'], "caneditposts") && $thread['closed'] == 1 && $mybb->settings[$prefix.'closedthreads'] != "1") || $post['uid'] == $tyluserid || is_member($mybb->settings[$prefix.'hideforgroups']) || $mybb->settings[$prefix.'hideforgroups'] == "-1")
+		$post['button_tyl'] = '';
+		if (($which_btn = thankyoulike_get_which_btn($thread, $post['fid'], $post['pid'], $post['uid'], $mybb->user['uid'], $tyled)))
 		{
-			// Show no button for poster or user who has already thanked/liked and disabled removing.
-			$post['button_tyl'] = '';
-		}
-		else if($tyled && $mybb->settings[$prefix.'removing'] == "1" && (($mybb->settings[$prefix.'firstall'] == "first" && $thread['firstpost'] == $post['pid']) || $mybb->settings[$prefix.'firstall'] == "all"))
-		{
-			// Show remove button if removing already thanked/liked and removing enabled and is either the first post in thread if setting is for first or setting is all
-			eval("\$post['button_tyl'] = \"".$templates->get("thankyoulike_button_del")."\";");
-		}
-		else if(($mybb->settings[$prefix.'firstall'] == "first" && $thread['firstpost'] == $post['pid']) || $mybb->settings[$prefix.'firstall'] == "all")
-		{
-			if ((my_strpos($mybb->settings[$prefix.'firstalloverwrite'], $post['fid']) !== false || $mybb->settings[$prefix.'firstalloverwrite'] == "-1") && $thread['firstpost'] != $post['pid'])
-			{
-				// If all posts enabled, then show list and button...
-				eval("\$post['button_tyl'] = \"".$templates->get("thankyoulike_button_add")."\";");
-			}
-			else
-			{
-				// Same as above but show add button, to first post only, both have to been on that way or won't work...
-				eval("\$post['button_tyl'] = \"".$templates->get("thankyoulike_button_add")."\";");
-			}
+			eval("\$post['button_tyl'] = \"".$templates->get("thankyoulike_button_$which_btn")."\";");
 		}
 
 		if($count>0 && ((($mybb->settings[$prefix.'firstall'] == "first" && $thread['firstpost'] == $post['pid']) || $mybb->settings[$prefix.'firstall'] == "all") && !is_member($mybb->settings[$prefix.'hidelistforgroups']) && $mybb->settings[$prefix.'hidelistforgroups'] != "-1"))
@@ -1253,7 +1374,7 @@ function thankyoulike_postbit(&$post)
 	else
 	{
 		// Remove stats in postbit
-		$post['user_details'] = preg_replace("#".preg_quote('%%TYL_NUMTHANKEDLIKED%%<br />')."#i", "", $post['user_details']);
+		thankyoulike_remove_stats_in_postbit($post);
 	}
 	$post['styleclass'] = '';
 	if($mybb->settings[$prefix.'highlight_popular_posts'] == 1 && $mybb->settings[$prefix.'highlight_popular_posts_count'] > 0)
@@ -1267,6 +1388,11 @@ function thankyoulike_postbit(&$post)
 	return $post;
 }
 
+/**
+ * Count the number of self-liked posts for either the given user or for all users.
+ * @param mixed The given user's ID as an integer or null to count for all users.
+ * @return integer The self-like count.
+ */
 function thankyoulike_getowntylcount($prefix, $uid = null) {
 	global $db;
 
@@ -1298,33 +1424,13 @@ function thankyoulike_postbit_udetails(&$post)
 
 	if ($mybb->settings[$prefix.'enabled'] == "1")
 	{
- 		thankyoulike_check_removeownlikesfrompostarray($prefix, $post);
-
-		if ($mybb->settings[$prefix.'thankslike'] == "like")
-		{
-			$lang->tyl_rcvd = $lang->tyl_likes_rcvd;
-			$lang->tyl_given = $lang->tyl_likes_given;
-			$post['tyl_unumrtyls'] = $lang->sprintf($lang->tyl_likes_rcvd_bit, my_number_format($post['tyl_unumrcvtyls']), my_number_format($post['tyl_unumptyls']));
-			$post['tyl_unumtyls'] = my_number_format($post['tyl_unumtyls']);
-
-			eval("\$tyl_thankslikes = \"".$templates->get("thankyoulike_postbit_author_user", 1, 0)."\";");
-		}
-		else if ($mybb->settings[$prefix.'thankslike'] == "thanks")
-		{
-			$lang->tyl_rcvd = $lang->tyl_thanks_rcvd;
-			$lang->tyl_given = $lang->tyl_thanks_given;
-			$post['tyl_unumrtyls'] = $lang->sprintf($lang->tyl_thanks_rcvd_bit, my_number_format($post['tyl_unumrcvtyls']), my_number_format($post['tyl_unumptyls']));
-			$post['tyl_unumtyls'] = my_number_format($post['tyl_unumtyls']);
-
-			eval("\$tyl_thankslikes = \"".$templates->get("thankyoulike_postbit_author_user", 1, 0)."\";");
-		}
-		// Setup stats in postbit
-		$post['user_details'] = preg_replace("#".preg_quote('%%TYL_NUMTHANKEDLIKED%%')."#i", $tyl_thankslikes, $post['user_details']);
+		// Set up stats in postbit
+		thankyoulike_set_up_stats_in_postbit($post);
 	}
 	else
 	{
 		// Remove stats in postbit
-		$post['user_details'] = preg_replace("#".preg_quote('%%TYL_NUMTHANKEDLIKED%%<br />')."#i", "", $post['user_details']);
+		thankyoulike_remove_stats_in_postbit($post);
 	}
 	return $post;
 }
@@ -1438,7 +1544,7 @@ function thankyoulike_memprofile()
 			$tyl_thankslikes = $lang->tyl_thanks;
 		}
 
-		thankyoulike_check_removeownlikesfrompostarray($prefix, $memprofile, true);
+		thankyoulike_check_remove_self_likes_from_post_array($memprofile, true);
 
 		$daysreg = (TIME_NOW - $memprofile['regdate']) / (24*3600);
 		$tylpd = $memprofile['tyl_unumtyls'] / $daysreg;
@@ -2035,7 +2141,8 @@ function thankyoulike_settings_peeker()
 	{
 		echo '<script type="text/javascript">
 		$(document).ready(function(){
-			new Peeker($(".setting_'.$prefix.'enabled"), $("#row_setting_'.$prefix.'thankslike, #row_setting_'.$prefix.'firstall, #row_setting_'.$prefix.'firstalloverwrite, #row_setting_'.$prefix.'removing, #row_setting_'.$prefix.'tylownposts, #row_setting_'.$prefix.'remowntylfroms, #row_setting_'.$prefix.'remowntylfromc, #row_setting_'.$prefix.'closedthreads, #row_setting_'.$prefix.'exclude, #row_setting_'.$prefix.'unameformat, #row_setting_'.$prefix.'hideforgroups, #row_setting_'.$prefix.'showdt, #row_setting_'.$prefix.'dtformat, #row_setting_'.$prefix.'sortorder, #row_setting_'.$prefix.'collapsible, #row_setting_'.$prefix.'colldefault, #row_setting_'.$prefix.'hidelistforgroups, #row_setting_'.$prefix.'displaygrowl, #row_setting_'.$prefix.'limits"), 1, true),
+			new Peeker($(".setting_'.$prefix.'enabled"), $("#row_setting_'.$prefix.'thankslike, #row_setting_'.$prefix.'firstall, #row_setting_'.$prefix.'firstalloverride, #row_setting_'.$prefix.'removing, #row_setting_'.$prefix.'tylownposts, #row_setting_'.$prefix.'remowntylfroms, #row_setting_'.$prefix.'remowntylfromc, #row_setting_'.$prefix.'closedthreads, #row_setting_'.$prefix.'exclude, #row_setting_'.$prefix.'unameformat, #row_setting_'.$prefix.'hideforgroups, #row_setting_'.$prefix.'showdt, #row_setting_'.$prefix.'dtformat, #row_setting_'.$prefix.'sortorder, #row_setting_'.$prefix.'collapsible, #row_setting_'.$prefix.'colldefault, #row_setting_'.$prefix.'hidelistforgroups, #row_setting_'.$prefix.'displaygrowl, #row_setting_'.$prefix.'limits"), 1, true),
+			new Peeker($(".setting_'.$prefix.'firstall"), $("#row_setting_'.$prefix.'firstalloverride"), "first", true),
 			new Peeker($(".setting_'.$prefix.'tylownposts"), $("#row_setting_'.$prefix.'remowntylfroms, #row_setting_'.$prefix.'remowntylfromc"), 1, true),
 			new Peeker($(".setting_'.$prefix.'reputation_add"), $("#row_setting_'.$prefix.'reputation_add_reppoints, #row_setting_'.$prefix.'reputation_add_repcomment"), 1, true),
 			new Peeker($(".setting_'.$prefix.'showdt"), $("#row_setting_'.$prefix.'dtformat"),/^(?!none)/, true),
@@ -2278,7 +2385,7 @@ function acp_tyl_do_recounting()
 				{
 					$thread_tyls[$tyl['tid']] = 1;
 				}
-				if(!is_forum_id_in_setting($tyl['fid'], $mybb->settings[$prefix.'exclude_count']))
+				if(!thankyoulike_in_forums($tyl['fid'], $mybb->settings[$prefix.'exclude_count']))
 				{
 					if($user_tyls[$tyl['uid']])
 					{
@@ -2433,15 +2540,17 @@ function tyl_preinstall_cleanup()
 }
 
 /**
- * Check whether a forum ID is included in the value of a forum setting.
- * Note: Always returns true when the forum setting is "All", regardless of
- * whether or not the supplied ID exists.
+ * Checks whether the value of a forumselect setting is inclusive of
+ * the forum with ID $fid.
  *
- * @param int The forum ID to check for.
- * @param mixed The value of the forum setting to check within.
- * @return boolean True if the forum ID is included; false if not.
+ * Note: Always returns true when the forum setting is "All" (-1),
+ * regardless of whether or not the forum with the supplied ID exists.
+ *
+ * @param int The ID of the forum for which to check for inclusion.
+ * @param mixed The value of the forumselect setting to check within.
+ * @return boolean True if inclusive; false if not.
  */
-function is_forum_id_in_setting($fid, $forums)
+function thankyoulike_in_forums($fid, $forums)
 {
 	if($forums == -1)
 	{
