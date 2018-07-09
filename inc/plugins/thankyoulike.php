@@ -1007,7 +1007,28 @@ function thankyoulike_check_remove_self_likes_from_post_array(&$post, $skip_post
 }
 
 /**
- * Checks whether tyl functionality is forbidden for various reasons, including:
+ * Checks whether tyl functionality is forbidden because the potentially (un)tyled post
+ * is not the first post in the thread and in the plugin's ACP settings this has been
+ * generally forbidden and not overridden for the post's containing forum.
+ * @param integer $fid The ID of the forum containing the thread $thread.
+ * @param array $thread The database row of the thread containing the post with ID $pid.
+ * @param int $pid The ID of the potentially (un)tyled post.
+ * @return boolean True if the tyl functionality is forbidden, false if it is not.
+ */
+function thankyoulike_is_forbidden_due_to_first_thread_post_restriction($fid, $thread, $pid)
+{
+	global $mybb;
+	$prefix = 'g33k_thankyoulike_';
+
+	$forum_override_for_may_like_all_posts = thankyoulike_in_forums($fid, $mybb->settings[$prefix.'firstalloverride']);
+	$may_like_all_posts_in_thread = ($mybb->settings[$prefix.'firstall'] == "all" || $forum_override_for_may_like_all_posts);
+	$is_first_post = ($thread['firstpost'] == $pid);
+
+	return (!$is_first_post && !$may_like_all_posts_in_thread);
+}
+
+/**
+ * Checks whether tyl buttons functionality is forbidden for various reasons, including:
  * 1. The forum is password-protected and the user has not supplied the correct password.
  * 2. The forum has been excluded in the plugin's ACP settings.
  * 3. The thread is closed and the user is not a moderator with edit override permission.
@@ -1071,11 +1092,7 @@ function thankyoulike_is_liking_forbidden($thread, $fid, $pid, $post_userid, $ty
 		$err_msgs[] = $lang->sprintf($lang->tyl_error_hidden_from_group, $pre);
 	}
 
-	$forum_override_for_may_like_all_posts = thankyoulike_in_forums($fid, $mybb->settings[$prefix.'firstalloverride']);
-	$may_like_all_posts_in_thread = ($mybb->settings[$prefix.'firstall'] == "all" || $forum_override_for_may_like_all_posts);
-	$is_first_post = ($thread['firstpost'] == $pid);
-
-	$forbidden_due_to_first_thread_post_restriction = (!$is_first_post && !$may_like_all_posts_in_thread);
+	$forbidden_due_to_first_thread_post_restriction = thankyoulike_is_forbidden_due_to_first_thread_post_restriction($fid, $thread, $pid);
 	if ($forbidden_due_to_first_thread_post_restriction)
 	{
 		$err_msgs[] = $lang->sprintf($lang->tyl_error_first_post_only, $pre);
@@ -1340,7 +1357,9 @@ function thankyoulike_postbit(&$post)
 			eval("\$post['button_tyl'] = \"".$templates->get("thankyoulike_button_$which_btn")."\";");
 		}
 
-		if($count>0 && ((($mybb->settings[$prefix.'firstall'] == "first" && $thread['firstpost'] == $post['pid']) || $mybb->settings[$prefix.'firstall'] == "all") && !is_member($mybb->settings[$prefix.'hidelistforgroups']) && $mybb->settings[$prefix.'hidelistforgroups'] != "-1"))
+		$forbidden_due_to_first_thread_post_restriction = thankyoulike_is_forbidden_due_to_first_thread_post_restriction($post['fid'], $thread, $post['pid']);
+		$is_member_of_hidden_group = (is_member($mybb->settings[$prefix.'hidelistforgroups']) || $mybb->settings[$prefix.'hidelistforgroups'] == "-1");
+		if($count>0 && !$forbidden_due_to_first_thread_post_restriction && !$is_member_of_hidden_group)
 		{
 			// We have thanks/likes to show
 			$post['thankyoulike'] = $tyls;
