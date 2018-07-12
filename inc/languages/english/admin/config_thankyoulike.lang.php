@@ -30,8 +30,8 @@ $l['tyl_firstall_desc'] = "Do you want to allow thanks/likes to be given to the 
 $l['tyl_firstall_op_1'] = "First post only";
 $l['tyl_firstall_op_2'] = "All posts";
 
-$l['tyl_firstalloverwrite_title'] = "Special option to display thank/like buttons in ALL posts";
-$l['tyl_firstalloverwrite_desc'] = "Overwrite the above selected option All in certain forums (choose only forums, no categories!).";
+$l['tyl_firstalloverride_title'] = "'First post only' forums override";
+$l['tyl_firstalloverride_desc'] = "Select any forums for which you want to override the 'First post only' setting above so that thanks/likes may be given for ALL posts in those forums (select only forums - selecting categories will have no effect!).";
 
 $l['tyl_removing_title'] = "Allow removing";
 $l['tyl_removing_desc'] = "Do you want to allow the removing of a thank/like from a post already thanked/liked?";
@@ -40,10 +40,10 @@ $l['tyl_tylownposts_title'] = "Allow self thanks/likes";
 $l['tyl_tylownposts_desc'] = "Do you want to allow users to give thanks/likes to their own posts?";
 
 $l['tyl_remowntylfroms_title'] = "Hide self-given thanks/likes from search results";
-$l['tyl_remowntylfroms_desc'] = "Choose \"Yes\" to hide self-given thanks/likes from user-level thanks/likes search listings.";
+$l['tyl_remowntylfroms_desc'] = "Choose \"Yes\" to hide self-given thanks/likes from the result listings of searches for any given user's thanks/likes.";
 
 $l['tyl_remowntylfromc_title'] = "Remove self-given thanks/likes from counters";
-$l['tyl_remowntylfromc_desc'] = "Choose \"Yes\" to hide self-given thanks/likes from thanks/likes counters in posts and member profiles.";
+$l['tyl_remowntylfromc_desc'] = "Choose \"Yes\" to hide self-given thanks/likes from counters of thanks/likes.";
 
 $l['tyl_reputation_add_title'] = "Add reputation points for thanks/likes";
 $l['tyl_reputation_add_desc'] = "Do you want to add reputation points when thanks/likes are given?";

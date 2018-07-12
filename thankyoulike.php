@@ -68,6 +68,7 @@ if($mybb->input['action'] != "add" && $mybb->input['action'] != "del")
 	error($lang->tyl_error_invalid_action);
 }
 
+// Check whether the flood limit is enabled and the user added/removed this tyl too rapidly.
 if ($mybb->usergroup['tyl_flood_interval'] > 0) {
 	$lastadddeldate =  $db->fetch_array($db->simple_select("users", "tyl_lastadddeldate", "uid='{$mybb->user['uid']}'"))['tyl_lastadddeldate'];
 	if (TIME_NOW <= $lastadddeldate + $mybb->usergroup['tyl_flood_interval']) {
@@ -127,38 +128,10 @@ if($forumpermissions['canview'] == 0 || $forumpermissions['canpostreplys'] == 0 
 	error_no_permission();
 }
 
-// Check if this forum is password protected and we have a valid password
-check_forum_password($forum['fid']);
-
-// Check to see if the thread is closed, and if the user is a mod.
-if(!is_moderator($fid, "caneditposts"))
+$err_msgs = array();
+if (thankyoulike_is_liking_forbidden($thread, $fid, $pid, $post['uid'], $mybb->user['uid'], false, $err_msgs))
 {
-	if($thread['closed'] == 1 && $mybb->settings[$prefix.'closedthreads'] != "1")
-	{
-		error($lang->sprintf($lang->tyl_error_threadclosed, $pre));
-	}
-}
-
-// Check if setting is first post or not and if it is, whether its the first post
-if($mybb->settings[$prefix.'firstall'] == "first" && $thread['firstpost'] != $post['pid'])
-{
-	error($lang->tyl_error_not_allowed);
-}
-
-// Check if the post is in a forum that has been excluded
-// Check first if this post is in an exclued forum, if it is end right here.
-$exc_forums = explode(",", $mybb->settings[$prefix.'exclude']);
-$excluded = false;
-foreach($exc_forums as $exc_forum)
-{
-	if (trim($exc_forum) == $fid)
-	{
-		$excluded = true;
-	}
-}
-if ($excluded)
-{
-	error($lang->tyl_error_excluded);
+	error(implode('<br /><br />', $err_msgs));
 }
 
 $msg_num_left = '';
@@ -220,12 +193,6 @@ if($mybb->input['action'] == "add")
 	else
 	{
 		$msg_num_left = $lang->sprintf($lang->tyl_num_left_unlimited, $pre2);
-	}
-
-	// Can't thank/like own post
-	if($post['uid'] == $mybb->user['uid'] && $mybb->settings[$prefix.'tylownposts'] != "1")
-	{
-		$message = $lang->sprintf($lang->tyl_error_own_post, $pre);
 	}
 
 	if($message)
@@ -291,7 +258,7 @@ if($mybb->input['action'] == "add")
 		// Update tyl count in posts and threads and users and total
 		if($post['tyl_pnumtyls'] == 0)
 		{
-			if(!is_forum_id_in_setting($fid, $mybb->settings[$prefix.'exclude_count']))
+			if(!thankyoulike_in_forums($fid, $mybb->settings[$prefix.'exclude_count']))
 			{
 				// Post thanks were previously 0, so add this post to user's thanked posts
 				$db->write_query("UPDATE ".TABLE_PREFIX."users SET tyl_unumptyls=tyl_unumptyls+1 WHERE uid='".intval($post['uid'])."'");
@@ -300,7 +267,7 @@ if($mybb->input['action'] == "add")
 		$db->write_query("UPDATE ".TABLE_PREFIX."posts SET tyl_pnumtyls=tyl_pnumtyls+1 WHERE pid='".intval($pid)."'");
 		$db->write_query("UPDATE ".TABLE_PREFIX."threads SET tyl_tnumtyls=tyl_tnumtyls+1 WHERE tid='".intval($tid)."'");
 
-		if(!is_forum_id_in_setting($fid, $mybb->settings[$prefix.'exclude_count']))
+		if(!thankyoulike_in_forums($fid, $mybb->settings[$prefix.'exclude_count']))
 		{
 			$db->write_query("UPDATE ".TABLE_PREFIX."users SET tyl_unumtyls=tyl_unumtyls+1 WHERE uid='".intval($mybb->user['uid'])."'");
 			$db->write_query("UPDATE ".TABLE_PREFIX."users SET tyl_unumrcvtyls=tyl_unumrcvtyls+1 WHERE uid='".intval($post['uid'])."'");
@@ -383,7 +350,7 @@ if($mybb->input['action'] == "del")
 			// Update counts
 			if($post['tyl_pnumtyls'] == 1)
 			{
-				if(!is_forum_id_in_setting($fid, $mybb->settings[$prefix.'exclude_count']))
+				if(!thankyoulike_in_forums($fid, $mybb->settings[$prefix.'exclude_count']))
 				{
 					// This was the last thanks in the post, so remove this post from user's thanked posts
 					$db->write_query("UPDATE ".TABLE_PREFIX."users SET tyl_unumptyls=tyl_unumptyls-1 WHERE uid='".intval($post['uid'])."'");
@@ -391,7 +358,7 @@ if($mybb->input['action'] == "del")
 			}
 			$db->write_query("UPDATE ".TABLE_PREFIX."posts SET tyl_pnumtyls=tyl_pnumtyls-1 WHERE pid='".intval($pid)."'");
 			$db->write_query("UPDATE ".TABLE_PREFIX."threads SET tyl_tnumtyls=tyl_tnumtyls-1 WHERE tid='".intval($tid)."'");
-			if(!is_forum_id_in_setting($fid, $mybb->settings[$prefix.'exclude_count']))
+			if(!thankyoulike_in_forums($fid, $mybb->settings[$prefix.'exclude_count']))
 			{
 				$db->write_query("UPDATE ".TABLE_PREFIX."users SET tyl_unumtyls=tyl_unumtyls-1 WHERE uid='".intval($mybb->user['uid'])."'");
 				$db->write_query("UPDATE ".TABLE_PREFIX."users SET tyl_unumrcvtyls=tyl_unumrcvtyls-1 WHERE uid='".intval($post['uid'])."'");
@@ -559,29 +526,10 @@ if($mybb->input['ajax'])
 		$lang->tyl_title_collapsed = "";
 	}
 	$button_tyl = '';
-	$tyluserid = $mybb->settings[$prefix.'tylownposts'] == "1" ? "-1" : $mybb->user['uid'];
 
-	if(($tyled && $mybb->settings[$prefix.'removing'] != "1") || (!is_moderator($post['fid'], "caneditposts") && $thread['closed'] == 1 && $mybb->settings[$prefix.'closedthreads'] != "1") || $post['uid'] == $tyluserid || is_member($mybb->settings[$prefix.'hideforgroups']) || $mybb->settings[$prefix.'hideforgroups'] == "-1")
+	if (($which_btn = thankyoulike_get_which_btn($thread, $post['fid'], $post['pid'], $post['uid'], $mybb->user['uid'], $tyled)))
 	{
-		// Show no button for poster or user who has already thanked/liked or removing is disabled.
-		$button_tyl = '';
-	}
-	else if($tyled && $mybb->settings[$prefix.'removing'] == "1" && (($mybb->settings[$prefix.'firstall'] == "first" && $thread['firstpost'] == $post['pid']) || $mybb->settings[$prefix.'firstall'] == "all"))
-	{
-		// Show remove button if removing already thanked/liked and removing enabled and is either the first post in thread if setting is for first or setting is all
-		eval("\$button_tyl = \"".$templates->get("thankyoulike_button_del")."\";");
-	}
-	else if(($mybb->settings[$prefix.'firstall'] == "first" && $thread['firstpost'] == $post['pid']) || $mybb->settings[$prefix.'firstall'] == "all")
-	{
-		if ((my_strpos($mybb->settings[$prefix.'firstalloverwrite'], $post['fid']) !== false || $mybb->settings[$prefix.'firstalloverwrite'] == "-1") && $thread['firstpost'] != $post['pid'])
-		{
-			eval("\$button_tyl = \"".$templates->get("thankyoulike_button_add")."\";");
-		}
-		else
-		{
-			// Same as above but show add button
-			eval("\$button_tyl = \"".$templates->get("thankyoulike_button_add")."\";");
-		}
+		eval("\$button_tyl = \"".$templates->get("thankyoulike_button_$which_btn")."\";");
 	}
 
 	// Cleanup for JSON
