@@ -34,6 +34,7 @@ if(defined("IN_ADMINCP"))
 	$plugins->add_hook("admin_tools_recount_rebuild_output_list", "acp_tyl_recount_form");
 	$plugins->add_hook("admin_config_settings_change","thankyoulike_settings_page");
 	$plugins->add_hook("admin_page_output_footer","thankyoulike_settings_peeker");
+	$plugins->add_hook("admin_config_plugins_activate_commit", "tyl_plugins_activate_commit");
 }
 else
 {
@@ -56,10 +57,12 @@ else
 
 function thankyoulike_info()
 {
-	global $plugins_cache, $mybb, $db, $lang, $cache;
+	global $plugins_cache, $mybb, $db, $lang, $cache, $admin_session;
 	$lang->load('config_thankyoulike');
 	$prefix = 'g33k_thankyoulike_';
 	$codename = 'thankyoulike';
+
+	$changelog_url = 'https://github.com/mybbgroup/MyBB_Thank-you-like-plugin/releases';
 
 $url_AT= '<a href="https://community.mybb.com/user-69212.html" target="_blank">ATofighi</a>';
 $url_SP = '<a href="https://community.mybb.com/user-91011.html" target="_blank">SvePu</a>';
@@ -102,6 +105,22 @@ $url_S = '<a href="https://github.com/Eldenroot/MyBB_Thank-you-like-plugin" targ
 			}
 		}
 	}
+
+	if(is_array($plugins_cache) && is_array($plugins_cache['active']) && $plugins_cache['active'][$codename])
+	{
+		$msg = "<a href=\"".htmlspecialchars_uni($changelog_url)."\">".$lang->tyl_view_changelog."</a>";
+		if(!empty($admin_session['data']['tyl_plugin_info_upgrade_message']))
+		{
+			$msg = $admin_session['data']['tyl_plugin_info_upgrade_message'].' '.$msg;
+			$img_type = 'success';
+			$class = ' class="success"';
+			update_admin_session('tyl_plugin_info_upgrade_message', '');		}
+		else {
+			$img_type = 'default';
+			$class = '';
+		}
+		$info_desc .= "<ul><li style=\"list-style-image: url(styles/default/images/icons/{$img_type}.png)\"><div$class>$msg</div></li></ul>\n";
+	}
 	$result = $db->simple_select('settinggroups', 'gid', "name = '{$prefix}settings'", array('limit' => 1));
 	$group = $db->fetch_array($result);
 	if(!empty($group['gid']))
@@ -136,6 +155,16 @@ function thankyoulike_admin_load()
 	{
 		tyl_myalerts_integrate();
 		exit;
+	}
+}
+
+function tyl_plugins_activate_commit()
+{
+	global $message, $tyl_plugin_upgrade_message;
+
+	if (!empty($tyl_plugin_upgrade_message))
+	{
+		$message = $tyl_plugin_upgrade_message;
 	}
 }
 
@@ -787,10 +816,9 @@ function thankyoulike_is_installed()
  *
  * This functionality was not present in versions 2.3.0 and earlier, and this
  * function will return false for those versions.
- * @return The currently-installed (or last-installed if the user chose "No"
- *         to keep data when uninstalling the plugin) version of the plugin,
- *         or false if either the version <= 2.3.0 or if the plugin is not
- *         currently installed.
+ * @return integer The currently-installed version of the plugin, or false
+ *                 if either the version <= 2.3.0 or the plugin is not
+ *                 currently installed.
  */
 function tyl_get_installed_version()
 {
@@ -868,15 +896,18 @@ function tyl_upgrade($from_version, $to_version)
 
 function thankyoulike_activate()
 {
-	global $mybb, $db, $cache;
+	global $mybb, $db, $cache, $lang, $tyl_plugin_upgrade_message;
 	$prefix = 'g33k_thankyoulike_';
 
+	$info = thankyoulike_info();
 	$from_version = tyl_get_installed_version();
-	$to_version   = thankyoulike_info()['version_code'];
+	$to_version   = $info['version_code'];
 	if($from_version != $to_version)
 	{
 		// Do upgrade.
 		tyl_upgrade($from_version, $to_version);
+		$tyl_plugin_upgrade_message = $lang->sprintf($lang->tyl_successful_upgrade_msg, $lang->tyl_info_title, $info['version']);
+		update_admin_session('tyl_plugin_info_upgrade_message', $lang->sprintf($lang->tyl_successful_upgrade_msg_for_info, $info['version']));
 	}
 	else
 	{
@@ -1064,7 +1095,12 @@ function thankyoulike_uninstall()
 		{
 			$db->drop_table($prefix.'stats');
 		}
+	} else if($db->table_exists($prefix.'stats'))
+	{
+		// Remove the stored version so that upgrades are properly triggered when a downgrade is performed in-between.
+		$db->delete_query($prefix.'stats', "title='version'");
 	}
+
 	// Remove Thank You/Like Promotions Tables Fields
 		if($db->field_exists("tylreceived", "promotions"))
 		{
