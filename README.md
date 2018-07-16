@@ -8,6 +8,43 @@ For more information, see the plugin's:
 - [Extend MyBB page](http://community.mybb.com/mods.php?action=view&pid=360).
 - [MyBB Community Forums topic](http://community.mybb.com/thread-169382.html).
 
+Installing
+----------
+
+1. Download an archive of the plugin's files from its Extend MyBB page linked to above.
+2. Extract the files in that archive to a temporary location, and then copy them into the root of your MyBB installation. That is to say that "tylsearch.php" should be copied to your MyBB root, "jscripts/thankyoulike.js" should be copied to your MyBB root's "jscripts/" directory, etc.
+3. In a web browser, open the "Plugins" module in the Admin Control Panel (ACP) of your MyBB installation. You should see "Thank You/Like System" under "Inactive Plugins".
+4. Click "Install & Activate" next to it. You should then see the plugin listed under "Active Plugins" on the reloaded page.
+5. Click "Configure Settings" below the plugin and set up the plugin to your preferences.
+6. If you want to, you can also edit the plugin's stylesheet ("thankyoulike.css", accessible via the ACP under Templates & Style -> Themes) and its templates (under "Thank You/Like Templates", accessible via the ACP under Templates & Style -> Templates).
+
+Upgrading
+---------
+
+If you are upgrading to version 2.4.0 or above, then follow these steps:
+
+1. Click the "Deactivate" button beside the Thank You/Like System plugin in the ACP "Plugins" module.
+2. Copy the new version's files, overwriting the old ones.
+3. Activate the plugin again via the ACP. This will upgrade the plugin, retaining all data, including received and given thanks/likes, per-user counts of thanks/likes, overall thanks/likes statistics, the plugin's settings including per-usergroup settings, and any changes made to the plugin's CSS file.
+4. If you had modified plugin templates, then, as when upgrading MyBB core, go to "Find Updated Templates" in the ACP to see whether you need to perform any updates.
+5. If you had modified the plugin's CSS (thankyoulike.css) for any themes, then you might need to apply any changes to this file that came with the new version of the plugin. You can check whether there are any changes in the new Master version of thankyoulike.css that need to be applied by clicking "View the Master theme's thankyoulike.css" under the plugin's entry in the ACP "Plugins" module.
+
+If you are upgrading to version 2.3.0 or below, then:
+
+If the updated version of the plugin does not contain new settings or changes to its templates or stylesheet, then:
+
+1. Click the "Deactivate" button beside the Thank You/Like System plugin in the ACP "Plugins" module.
+2. Copy the new version's files, overwriting the old ones.
+3. Activate the plugin again via the ACP. All data will be retained, including received and given thanks/likes, per-user counts of thanks/likes, overall thanks/likes statistics, the plugin's settings including per-usergroup settings, and any changes made to the plugin's CSS file.
+
+If the updated version of the plugin <strong>does</strong> contain new settings or changes to its templates or stylesheet, then:
+
+1. Make a note of your ACP settings for this plugin including per-usergroup settings (applicable when the plugin's "Usergroup-based thanks/likes limits" setting is enabled) and any changes you have made to the plugin's stylesheet file ("thankyoulike.css", accessible via the ACP under Templates & Style -> Themes) and any changes you have to to the plugin's templates (under "Thank You/Like Templates", accessible via the ACP under Templates & Style -> Templates).
+2. Click the "Uninstall" button beside the Thank You/Like System plugin in the ACP "Plugins" module and choose "NO" when asked whether to drop plugin data from the database.
+3. Copy the new version's files, overwriting the old ones.
+4. Install and activate the plugin again via the ACP.
+5. Re-enter your settings for the plugin including any per-usergroup settings and any changes you had made to the plugin's CSS file and templates (this is why it is important to have made a note of them before uninstalling the plugin).
+
 Credits
 -------
 
@@ -27,22 +64,6 @@ FAQ
 
 Click the "Uninstall" button beside the Thank You/Like System plugin in the "Plugins" module of the ACP and choose "YES" to drop all plugin data from database. This cannot be reverted. <strong>All</strong> data will be lost, including received and given thanks/likes, per-user counts of thanks/likes, overall thanks/likes statistics, plugin settings including per-usergroup settings, and any changes made to the plugin's CSS file.
 
-<strong>How do I update the plugin to a newer version without losing data?</strong>
-
-If the updated version of the plugin does not contain new settings, then:
-
-1. Click the "Deactivate" button beside the Thank You/Like System plugin in the ACP "Plugins" module.
-2. Copy the new version's files, overwriting the old ones.
-3. Activate the plugin again via the ACP. All data will be retained: this includes received and given thanks/likes, per-user counts of thanks/likes, overall thanks/likes statistics, the plugin's settings including per-usergroup settings, and any changes made to the plugin's CSS file.
-
-If the updated version of the plugin <strong>does</strong> contain new settings, then:
-
-1. Make a note of your ACP settings for this plugin including per-usergroup settings (applicable when the plugin's "Usergroup-based thanks/likes limits" setting is enabled) and any changes you have made to the plugin's CSS file ("thankyoulike.css", accessible via the ACP under Templates & Style -> Themes).
-2. Click the "Uninstall" button beside the Thank You/Like System plugin in the ACP "Plugins" module and choose "NO" when asked whether to drop plugin data from the database.
-3. Copy the new version's files, overwriting the old ones.
-4. Install and activate the plugin again via the ACP.
-5. Reenter your settings for the plugin including any per-usergroup settings and any changes you had made to the plugin's CSS file (this is why it is important to have made a note of them before uninstalling the plugin).
-
 <strong>How do I change the icons of the buttons to add and remove thanks/likes?</strong>
 
-Replace the files thx_add.png and thx_del.png in the images/thankyoulike directory.
+Replace the files tyl_add.png and tyl_del.png in the images/thankyoulike directory.
