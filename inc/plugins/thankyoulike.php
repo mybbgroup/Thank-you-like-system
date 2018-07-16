@@ -34,6 +34,7 @@ if(defined("IN_ADMINCP"))
 	$plugins->add_hook("admin_tools_recount_rebuild_output_list", "acp_tyl_recount_form");
 	$plugins->add_hook("admin_config_settings_change","thankyoulike_settings_page");
 	$plugins->add_hook("admin_page_output_footer","thankyoulike_settings_peeker");
+	$plugins->add_hook("admin_config_plugins_activate_commit", "tyl_plugins_activate_commit");
 }
 else
 {
@@ -56,10 +57,12 @@ else
 
 function thankyoulike_info()
 {
-	global $plugins_cache, $mybb, $db, $lang, $cache;
+	global $plugins_cache, $mybb, $db, $lang, $cache, $admin_session;
 	$lang->load('config_thankyoulike');
 	$prefix = 'g33k_thankyoulike_';
 	$codename = 'thankyoulike';
+
+	$changelog_url = 'https://github.com/mybbgroup/MyBB_Thank-you-like-plugin/releases';
 
 $url_AT= '<a href="https://community.mybb.com/user-69212.html" target="_blank">ATofighi</a>';
 $url_SP = '<a href="https://community.mybb.com/user-91011.html" target="_blank">SvePu</a>';
@@ -74,7 +77,10 @@ $url_S = '<a href="https://github.com/Eldenroot/MyBB_Thank-you-like-plugin" targ
 		"website"	=> "https://community.mybb.com/thread-169382.html",
 		"author"	=> "- G33K -, ATofighi, Eldenroot, SvePu, Whiteneo, Laird",
 		"authorsite"	=> "https://community.mybb.com/thread-169382.html",
-		"version"	=> "2.3.0",
+		"version"	=> "2.4.0",
+		// Constructed by converting each digit of "version" above into two digits (zero-padded if necessary),
+		// then concatenating them, then removing any leading zero to avoid the value being interpreted as octal.
+		"version_code"  => 20400,
 		"codename"	=> "thankyoulikesystem",
 		"compatibility"	=> "18*"
 	);
@@ -99,6 +105,22 @@ $url_S = '<a href="https://github.com/Eldenroot/MyBB_Thank-you-like-plugin" targ
 			}
 		}
 	}
+
+	if(is_array($plugins_cache) && is_array($plugins_cache['active']) && $plugins_cache['active'][$codename])
+	{
+		$msg = "<a href=\"".htmlspecialchars_uni($changelog_url)."\">".$lang->tyl_view_changelog."</a>";
+		if(!empty($admin_session['data']['tyl_plugin_info_upgrade_message']))
+		{
+			$msg = $admin_session['data']['tyl_plugin_info_upgrade_message'].' '.$msg;
+			$img_type = 'success';
+			$class = ' class="success"';
+			update_admin_session('tyl_plugin_info_upgrade_message', '');		}
+		else {
+			$img_type = 'default';
+			$class = '';
+		}
+		$info_desc .= "<ul><li style=\"list-style-image: url(styles/default/images/icons/{$img_type}.png)\"><div$class>$msg</div></li></ul>\n";
+	}
 	$result = $db->simple_select('settinggroups', 'gid', "name = '{$prefix}settings'", array('limit' => 1));
 	$group = $db->fetch_array($result);
 	if(!empty($group['gid']))
@@ -108,7 +130,8 @@ $url_S = '<a href="https://github.com/Eldenroot/MyBB_Thank-you-like-plugin" targ
 
 	if(is_array($plugins_cache) && is_array($plugins_cache['active']) && $plugins_cache['active'][$codename])
 	{
-		$info_desc .= "<ul><li style=\"list-style-image: url(styles/default/images/icons/default.png)\"><a href=\"index.php?module=tools-recount_rebuild\">".$db->escape_string($lang->tyl_info_desc_recount)."</a></li></ul>";
+		$info_desc .= "<ul><li style=\"list-style-image: url(styles/default/images/icons/default.png)\"><a href=\"index.php?module=tools-recount_rebuild\">".$db->escape_string($lang->tyl_info_desc_recount)."</a></li></ul>\n";
+		$info_desc .= "<ul><li style=\"list-style-image: url(styles/default/images/icons/default.png)\"><a href=\"../thankyoulike.php?action=css\">".htmlspecialchars_uni($lang->tyl_view_master_thankyoulike_css)."</a> {$lang->tyl_use_this_css_for}</li></ul>\n";
 		$info_desc .= '<form action="https://www.paypal.com/cgi-bin/webscr" method="post" style="float: right;" target="_blank">
 <input type="hidden" name="cmd" value="_s-xclick">
 <input type="hidden" name="hosted_button_id" value="KCNAC5PE828X8">
@@ -132,6 +155,16 @@ function thankyoulike_admin_load()
 	{
 		tyl_myalerts_integrate();
 		exit;
+	}
+}
+
+function tyl_plugins_activate_commit()
+{
+	global $message, $tyl_plugin_upgrade_message;
+
+	if (!empty($tyl_plugin_upgrade_message))
+	{
+		$message = $tyl_plugin_upgrade_message;
 	}
 }
 
@@ -163,15 +196,263 @@ function tyl_myalerts_integrate()
 	}
 }
 
-function thankyoulike_install()
+/**
+ * Creates the plugin's settings. Assumes the settings do not already exist,
+ * i.e., that they have already been deleted if they were preexisting.
+ * @param array The existing settings values indexed by their (prefixed) setting names.
+ */
+function tyl_create_settings($existing_setting_values = array())
 {
-	global $mybb, $db, $cache, $lang;
+	global $db, $lang;
 	$lang->load('config_thankyoulike');
 	$prefix = 'g33k_thankyoulike_';
-	$info = thankyoulike_info();
 
-	// Run preinstall cleanup
-	tyl_preinstall_cleanup();
+	$query = $db->query("SELECT disporder FROM ".TABLE_PREFIX."settinggroups ORDER BY `disporder` DESC LIMIT 1");
+	$disporder = $db->fetch_field($query, 'disporder')+1;
+
+	// Insert the plugin's settings group into the database.
+	$setting_group = array(
+		'name'         => $prefix.'settings',
+		'title'        => $db->escape_string($lang->tyl_title),
+		'description'  => $db->escape_string($lang->tyl_desc),
+		'disporder'    => intval($disporder),
+		'isdefault'    => 0
+	);
+	$db->insert_query('settinggroups', $setting_group);
+	$gid = $db->insert_id();
+
+	// Now insert each of its settings values into the database...
+	$settings = array(
+		'enabled'                         => array(
+			'title'       => $lang->tyl_enabled_title,
+			'description' => $lang->tyl_enabled_desc,
+			'optionscode' => 'onoff',
+			'value'       => '1'
+		),
+		'thankslike'                      => array(
+			'title'       => $lang->tyl_thankslike_title,
+			'description' => $lang->tyl_thankslike_desc,
+			'optionscode' => "radio\nthanks={$lang->tyl_thankslike_op_1}\nlike={$lang->tyl_thankslike_op_2}",
+			'value'       => 'thanks'
+		),
+		'firstall'                        => array(
+			'title'       => $lang->tyl_firstall_title,
+			'description' => $lang->tyl_firstall_desc,
+			'optionscode' => "radio\nfirst={$lang->tyl_firstall_op_1}\nall={$lang->tyl_firstall_op_2}",
+			'value'       => 'first'
+		),
+		'firstalloverride'                => array(
+			'title'       => $lang->tyl_firstalloverride_title,
+			'description' => $lang->tyl_firstalloverride_desc,
+			'optionscode' => 'forumselect',
+			'value'       => ''
+		),
+		'removing'                        => array(
+			'title'       => $lang->tyl_removing_title,
+			'description' => $lang->tyl_removing_desc,
+			'optionscode' => 'yesno',
+			'value'       => '0'
+		),
+		'tylownposts'                     => array(
+			'title'       => $lang->tyl_tylownposts_title,
+			'description' => $lang->tyl_tylownposts_desc,
+			'optionscode' => 'yesno',
+			'value'       => '0'
+		),
+		'remowntylfroms'                  => array(
+			'title'       => $lang->tyl_remowntylfroms_title,
+			'description' => $lang->tyl_remowntylfroms_desc,
+			'optionscode' => 'yesno',
+			'value'       => '0'
+		),
+		'remowntylfromc'                  => array(
+			'title'       => $lang->tyl_remowntylfromc_title,
+			'description' => $lang->tyl_remowntylfromc_desc,
+			'optionscode' => 'yesno',
+			'value'       => '0'
+		),
+		'reputation_add'                  => array(
+			'title'       => $lang->tyl_reputation_add_title,
+			'description' => $lang->tyl_reputation_add_desc,
+			'optionscode' => 'yesno',
+			'value'       => '0'
+		),
+		'reputation_add_reppoints'        => array(
+			'title'       => $lang->tyl_reputation_add_reppoints_title,
+			'description' => $lang->tyl_reputation_add_reppoints_desc,
+			'optionscode' => 'numeric',
+			'value'       => '1'
+		),
+		'reputation_add_repcomment'       => array(
+			'title'       => $lang->tyl_reputation_add_repcomment_title,
+			'description' => $lang->tyl_reputation_add_repcomment_desc,
+			'optionscode' => 'text',
+			'value'       => ''
+		),
+		'closedthreads'                   => array(
+			'title'       => $lang->tyl_closedthreads_title,
+			'description' => $lang->tyl_closedthreads_desc,
+			'optionscode' => 'yesno',
+			'value'       => '0'
+		),
+		'exclude'                         => array(
+			'title'       => $lang->tyl_exclude_title,
+			'description' => $lang->tyl_exclude_desc,
+			'optionscode' => 'forumselect',
+			'value'       => ''
+		),
+		'exclude_count'                   => array(
+			'title'       => $lang->tyl_exclude_count_title,
+			'description' => $lang->tyl_exclude_count_desc,
+			'optionscode' => 'forumselect',
+			'value'       => ''
+		),
+		'unameformat'                     => array(
+			'title'       => $lang->tyl_unameformat_title,
+			'description' => $lang->tyl_unameformat_desc,
+			'optionscode' => 'yesno',
+			'value'       => '1'
+		),
+		'hideforgroups'                   => array(
+			'title'       => $lang->tyl_hideforgroups_title,
+			'description' => $lang->tyl_hideforgroups_desc,
+			'optionscode' => 'groupselect',
+			'value'       => '1,7'
+		),
+		'showdt'                          => array(
+			'title'       => $lang->tyl_showdt_title,
+			'description' => $lang->tyl_showdt_desc,
+			'optionscode' => "radio\nnone={$lang->tyl_showdt_op_1}\nnexttoname={$lang->tyl_showdt_op_2}\nastitle={$lang->tyl_showdt_op_3}",
+			'value'       => 'astitle'
+		),
+		'dtformat'                        => array(
+			'title'       => $lang->tyl_dtformat_title,
+			'description' => $lang->tyl_dtformat_desc,
+			'optionscode' => 'text',
+			'value'       => 'm-d-Y'
+		),
+		'sortorder'                       => array(
+			'title'       => $lang->tyl_sortorder_title,
+			'description' => $lang->tyl_sortorder_desc,
+			'optionscode' => "select\nuserasc={$lang->tyl_sortorder_op_1}\nuserdesc={$lang->tyl_sortorder_op_2}\ndtasc={$lang->tyl_sortorder_op_3}\ndtdesc={$lang->tyl_sortorder_op_4}",
+			'value'       => 'userasc'
+		),
+		'collapsible'                     => array(
+			'title'       => $lang->tyl_collapsible_title,
+			'description' => $lang->tyl_collapsible_desc,
+			'optionscode' => 'yesno',
+			'value'       => '1'
+		),
+		'colldefault'                     => array(
+			'title'       => $lang->tyl_colldefault_title,
+			'description' => $lang->tyl_colldefault_desc,
+			'optionscode' => "radio\nopen={$lang->tyl_colldefault_op_1}\nclosed={$lang->tyl_colldefault_op_2}",
+			'value'       => 'open'
+		),
+		'hidelistforgroups'               => array(
+			'title'       => $lang->tyl_hidelistforgroups_title,
+			'description' => $lang->tyl_hidelistforgroups_desc,
+			'optionscode' => 'groupselect',
+			'value'       => ''
+		),
+		'displaygrowl'                    => array(
+			'title'       => $lang->tyl_displaygrowl_title,
+			'description' => $lang->tyl_displaygrowl_desc,
+			'optionscode' => 'onoff',
+			'value'       => '1'
+		),
+		'limits'                          => array(
+			'title'       => $lang->tyl_limits_title,
+			'description' => $lang->tyl_limits_desc,
+			'optionscode' => 'yesno',
+			'value'       => '0'
+		),
+		'highlight_popular_posts'         => array(
+			'title'       => $lang->tyl_highlight_popular_posts_title,
+			'description' => $lang->tyl_highlight_popular_posts_desc,
+			'optionscode' => 'yesno',
+			'value'       => '0'
+		),
+		'highlight_popular_posts_count'   => array(
+			'title'       => $lang->tyl_highlight_popular_posts_count_title,
+			'description' => $lang->tyl_highlight_popular_posts_count_desc,
+			'optionscode' => 'numeric',
+			'value'       => '0'
+		),
+		'show_memberprofile_box'          => array(
+			'title'       => $lang->tyl_show_memberprofile_box_title,
+			'description' => $lang->tyl_show_memberprofile_box_desc,
+			'optionscode' => 'yesno',
+			'value'       => '1'
+		),
+		'profile_box_post_cutoff'         => array(
+			'title'       => $lang->tyl_profile_box_post_cutoff_title,
+			'description' => $lang->tyl_profile_box_post_cutoff_desc,
+			'optionscode' => 'numeric',
+			'value'       => '0'
+		),
+		'profile_box_post_allowhtml'      => array(
+			'title'       => $lang->tyl_profile_box_post_allowhtml_title,
+			'description' => $lang->tyl_profile_box_post_allowhtml_desc,
+			'optionscode' => 'yesno',
+			'value'       => '0'
+		),
+		'profile_box_post_allowmycode'    => array(
+			'title'       => $lang->tyl_profile_box_post_allowmycode_title,
+			'description' => $lang->tyl_profile_box_post_allowmycode_desc,
+			'optionscode' => 'yesno',
+			'value'       => '1'
+		),
+		'profile_box_post_allowsmilies'   => array(
+			'title'       => $lang->tyl_profile_box_post_allowsmilies_title,
+			'description' => $lang->tyl_profile_box_post_allowsmilies_desc,
+			'optionscode' => 'yesno',
+			'value'       => '1'
+		),
+		'profile_box_post_allowimgcode'   => array(
+			'title'       => $lang->tyl_profile_box_post_allowimgcode_title,
+			'description' => $lang->tyl_profile_box_post_allowimgcode_desc,
+			'optionscode' => 'yesno',
+			'value'       => '0'
+		),
+		'profile_box_post_allowvideocode' => array(
+			'title'       => $lang->tyl_profile_box_post_allowvideocode_title,
+			'description' => $lang->tyl_profile_box_post_allowvideocode_desc,
+			'optionscode' => 'yesno',
+			'value'       => '0'
+		)
+	);
+
+	$x = 1;
+	foreach($settings as $name => $setting)
+	{
+		$value = isset($existing_setting_values[$prefix.$name]) ? $existing_setting_values[$prefix.$name] : $setting['value'];
+		$insert_settings = array(
+			'name' => $db->escape_string($prefix.$name),
+			'title' => $db->escape_string($setting['title']),
+			'description' => $db->escape_string($setting['description']),
+			'optionscode' => $db->escape_string($setting['optionscode']),
+			// ...keeping any existing values.
+			'value' => $db->escape_string($value),
+			'disporder' => $x,
+			'gid' => $gid,
+			'isdefault' => 0
+		);
+		$db->insert_query('settings', $insert_settings);
+		$x++;
+	}
+
+	rebuild_settings();
+}
+
+/**
+ * Where necessary, create the plugin's tables in the database and
+ * add to core MyBB tables those columns needed for this plugin.
+ */
+function tyl_check_update_db_table_and_cols()
+{
+	global $db;
+	$prefix = 'g33k_thankyoulike_';
 
 	if(!$db->field_exists('tyl_pnumtyls', 'posts'))
 	{
@@ -248,6 +529,7 @@ function thankyoulike_install()
 
 		$db->insert_query($prefix."stats", $total_data);
 	}
+
 	// Add Thank You/Like Promotions Tables Fields
 	if(!$db->field_exists("tylreceived", "promotions"))
 	{
@@ -275,229 +557,11 @@ function thankyoulike_install()
 	{
 		$db->add_column("usergroups", "tyl_flood_interval", "int unsigned NOT NULL DEFAULT '10'");
 	}
+}
 
-
-	// Insert settings into the database
-	$query = $db->query("SELECT disporder FROM ".TABLE_PREFIX."settinggroups ORDER BY `disporder` DESC LIMIT 1");
-	$disporder = $db->fetch_field($query, 'disporder')+1;
-
-	$setting_group = array(
-		'name'			=>	$prefix.'settings',
-		'title'			=>	$db->escape_string($lang->tyl_title),
-		'description'	=>	$db->escape_string($lang->tyl_desc),
-		'disporder'		=>	intval($disporder),
-		'isdefault'		=>	0
-	);
-	$db->insert_query('settinggroups', $setting_group);
-	$gid = $db->insert_id();
-
-	$settings = array(
-		'enabled'				=> array(
-				'title'				=> $lang->tyl_enabled_title,
-				'description'		=> $lang->tyl_enabled_desc,
-				'optionscode'		=> 'onoff',
-				'value'				=> '1'),
-		'thankslike'			=> array(
-				'title'				=> $lang->tyl_thankslike_title,
-				'description'		=> $lang->tyl_thankslike_desc,
-				'optionscode'		=> 'radio
-thanks='.$lang->tyl_thankslike_op_1.'
-like='.$lang->tyl_thankslike_op_2.'',
-				'value'				=> 'thanks'),
-		'firstall'					=> array(
-				'title'				=> $lang->tyl_firstall_title,
-				'description'		=> $lang->tyl_firstall_desc,
-				'optionscode'		=> 'radio
-first='.$lang->tyl_firstall_op_1.'
-all='.$lang->tyl_firstall_op_2.'',
-				'value'				=> 'first'),
-		'firstalloverride'		=> array(
-				'title'				=> $lang->tyl_firstalloverride_title,
-				'description'		=> $lang->tyl_firstalloverride_desc,
-				'optionscode'		=> 'forumselect',
-				'value'				=> ''),
-		'removing'				=> array(
-				'title'				=> $lang->tyl_removing_title,
-				'description'		=> $lang->tyl_removing_desc,
-				'optionscode'		=> 'yesno',
-				'value'				=> '0'),
-		'tylownposts'			=> array(
-				'title'				=> $lang->tyl_tylownposts_title,
-				'description'		=> $lang->tyl_tylownposts_desc,
-				'optionscode'		=> 'yesno',
-				'value'				=> '0'),
-		'remowntylfroms'			=> array(
-				'title'				=> $lang->tyl_remowntylfroms_title,
-				'description'		=> $lang->tyl_remowntylfroms_desc,
-				'optionscode'		=> 'yesno',
-				'value'				=> '0'),
-		'remowntylfromc'			=> array(
-				'title'				=> $lang->tyl_remowntylfromc_title,
-				'description'		=> $lang->tyl_remowntylfromc_desc,
-				'optionscode'		=> 'yesno',
-				'value'				=> '0'),
-		'reputation_add'			=> array(
-				'title'				=> $lang->tyl_reputation_add_title,
-				'description'		=> $lang->tyl_reputation_add_desc,
-				'optionscode'		=> 'yesno',
-				'value'				=> '0'),
-		'reputation_add_reppoints'	=> array(
-				'title'				=> $lang->tyl_reputation_add_reppoints_title,
-				'description'		=> $lang->tyl_reputation_add_reppoints_desc,
-				'optionscode'		=> 'numeric',
-				'value'				=> '1'),
-		'reputation_add_repcomment'	=> array(
-				'title'				=> $lang->tyl_reputation_add_repcomment_title,
-				'description'		=> $lang->tyl_reputation_add_repcomment_desc,
-				'optionscode'		=> 'text',
-				'value'				=> ''),
-		'closedthreads'			=> array(
-				'title'				=> $lang->tyl_closedthreads_title,
-				'description'		=> $lang->tyl_closedthreads_desc,
-				'optionscode'		=> 'yesno',
-				'value'				=> '0'),
-		'exclude'				=> array(
-				'title'				=> $lang->tyl_exclude_title,
-				'description'		=> $lang->tyl_exclude_desc,
-				'optionscode'		=> 'forumselect',
-				'value'				=> ''),
-		'exclude_count'				=> array(
-				'title'				=> $lang->tyl_exclude_count_title,
-				'description'		=> $lang->tyl_exclude_count_desc,
-				'optionscode'		=> 'forumselect',
-				'value'				=> ''),
-		'unameformat'			=> array(
-				'title'				=> $lang->tyl_unameformat_title,
-				'description'		=> $lang->tyl_unameformat_desc,
-				'optionscode'		=> 'yesno',
-				'value'				=> '1'),
-		'hideforgroups'			=> array(
-				'title'				=> $lang->tyl_hideforgroups_title,
-				'description'		=> $lang->tyl_hideforgroups_desc,
-				'optionscode'		=> 'groupselect',
-				'value'				=> '1,7'),
-		'showdt'				=> array(
-				'title'				=> $lang->tyl_showdt_title,
-				'description'		=> $lang->tyl_showdt_desc,
-				'optionscode'		=> 'radio
-none='.$lang->tyl_showdt_op_1.'
-nexttoname='.$lang->tyl_showdt_op_2.'
-astitle='.$lang->tyl_showdt_op_3.'',
-				'value'				=> 'astitle'),
-		'dtformat'				=> array(
-				'title'				=> $lang->tyl_dtformat_title,
-				'description'		=> $lang->tyl_dtformat_desc,
-				'optionscode'		=> 'text',
-				'value'				=> 'm-d-Y'),
-		'sortorder'				=> array(
-				'title'				=> $lang->tyl_sortorder_title,
-				'description'		=> $lang->tyl_sortorder_desc,
-				'optionscode'		=> 'select
-userasc='.$lang->tyl_sortorder_op_1.'
-userdesc='.$lang->tyl_sortorder_op_2.'
-dtasc='.$lang->tyl_sortorder_op_3.'
-dtdesc='.$lang->tyl_sortorder_op_4.'',
-				'value'				=> 'userasc'),
-		'collapsible'			=> array(
-				'title'				=> $lang->tyl_collapsible_title,
-				'description'		=> $lang->tyl_collapsible_desc,
-				'optionscode'		=> 'yesno',
-				'value'				=> '1'),
-		'colldefault'			=> array(
-				'title'				=> $lang->tyl_colldefault_title,
-				'description'		=> $lang->tyl_colldefault_desc,
-				'optionscode'		=> 'radio
-open='.$lang->tyl_colldefault_op_1.'
-closed='.$lang->tyl_colldefault_op_2.'',
-				'value'				=> 'open'),
-		'hidelistforgroups'			=> array(
-				'title'				=> $lang->tyl_hidelistforgroups_title,
-				'description'		=> $lang->tyl_hidelistforgroups_desc,
-				'optionscode'		=> 'groupselect',
-				'value'				=> ''),
-		'displaygrowl'		=> array(
-				'title'				=> $lang->tyl_displaygrowl_title,
-				'description'		=> $lang->tyl_displaygrowl_desc,
-				'optionscode'		=> 'onoff',
-				'value'				=> '1'),
-		'limits'		=> array(
-				'title'				=> $lang->tyl_limits_title,
-				'description'		=> $lang->tyl_limits_desc,
-				'optionscode'		=> 'yesno',
-				'value'				=> '0'),
-		'highlight_popular_posts'		=> array(
-				'title'				=> $lang->tyl_highlight_popular_posts_title,
-				'description'		=> $lang->tyl_highlight_popular_posts_desc,
-				'optionscode'		=> 'yesno',
-				'value'				=> '0'),
-		'highlight_popular_posts_count'		=> array(
-				'title'				=> $lang->tyl_highlight_popular_posts_count_title,
-				'description'		=> $lang->tyl_highlight_popular_posts_count_desc,
-				'optionscode'		=> 'numeric',
-				'value'				=> '0'),
-		'show_memberprofile_box'	=> array(
-				'title'				=> $lang->tyl_show_memberprofile_box_title,
-				'description'		=> $lang->tyl_show_memberprofile_box_desc,
-				'optionscode'		=> 'yesno',
-				'value'				=> '1'),
-		'profile_box_post_cutoff'	=> array(
-				'title'				=> $lang->tyl_profile_box_post_cutoff_title,
-				'description'		=> $lang->tyl_profile_box_post_cutoff_desc,
-				'optionscode'		=> 'numeric',
-				'value'				=> '0'),
-		'profile_box_post_allowhtml'	=> array(
-				'title'				=> $lang->tyl_profile_box_post_allowhtml_title,
-				'description'		=> $lang->tyl_profile_box_post_allowhtml_desc,
-				'optionscode'		=> 'yesno',
-				'value'				=> '0'),
-		'profile_box_post_allowmycode'	=> array(
-				'title'				=> $lang->tyl_profile_box_post_allowmycode_title,
-				'description'		=> $lang->tyl_profile_box_post_allowmycode_desc,
-				'optionscode'		=> 'yesno',
-				'value'				=> '1'),
-		'profile_box_post_allowsmilies'	=> array(
-				'title'				=> $lang->tyl_profile_box_post_allowsmilies_title,
-				'description'		=> $lang->tyl_profile_box_post_allowsmilies_desc,
-				'optionscode'		=> 'yesno',
-				'value'				=> '1'),
-		'profile_box_post_allowimgcode'	=> array(
-				'title'				=> $lang->tyl_profile_box_post_allowimgcode_title,
-				'description'		=> $lang->tyl_profile_box_post_allowimgcode_desc,
-				'optionscode'		=> 'yesno',
-				'value'				=> '0'),
-		'profile_box_post_allowvideocode'	=> array(
-				'title'				=> $lang->tyl_profile_box_post_allowvideocode_title,
-				'description'		=> $lang->tyl_profile_box_post_allowvideocode_desc,
-				'optionscode'		=> 'yesno',
-				'value'				=> '0')
-	);
-
-	$x = 1;
-	foreach($settings as $name => $setting)
-	{
-		$insert_settings = array(
-			'name' => $db->escape_string($prefix.$name),
-			'title' => $db->escape_string($setting['title']),
-			'description' => $db->escape_string($setting['description']),
-			'optionscode' => $db->escape_string($setting['optionscode']),
-			'value' => $db->escape_string($setting['value']),
-			'disporder' => $x,
-			'gid' => $gid,
-			'isdefault' => 0
-			);
-		$db->insert_query('settings', $insert_settings);
-		$x++;
-	}
-
-	rebuild_settings();
-
-
-	// Insert Template elements
-	$templateset = array(
-		"prefix" => "thankyoulike",
-		"title" => "Thank You/Like",
-	);
-	$db->insert_query("templategroups", $templateset);
+function tyl_insert_templates($plugin_version)
+{
+	global $mybb, $db;
 
 	$tyl_templates = array(
 		'thankyoulike_postbit'			=> "<div class=\"post_controls tyllist {\$unapproved_shade}\">
@@ -565,24 +629,51 @@ closed='.$lang->tyl_colldefault_op_2.'',
 </tr>"
 	);
 
+	// Left-pad plugin_version with the any zero that we forbade in thankyoulike_info()
+	// when it would have been interpreted as octal.
+	while(strlen($plugin_version) < 6)
+	{
+		$plugin_version = '0'.$plugin_version;
+	}
+
+	// Insert templates into the Master group (sid=-2) with a (string) version set to a value that
+	// will compare greater than the current MyBB version_code. We set the version to this value so that
+	// the SQL comparison "m.version > t.version" in the query to find updated templates
+	// (in admin/modules/style/templates.php) is true for templates modified by the user:
+	// MyBB sets the version for modified templates to the value of $mybb->version_code.
+	$version = $mybb->version_code.'_'.$plugin_version;
 	foreach($tyl_templates as $template_title => $template_data)
 	{
 		$insert_templates = array(
-			'title' => $db->escape_string($template_title),
+			'title'    => $db->escape_string($template_title),
 			'template' => $db->escape_string($template_data),
-			'sid' => "-2",
-			'version' => $info['intver'],
+			'sid'      => "-2",
+			'version'  => $version,
 			'dateline' => TIME_NOW
-			);
+		);
 		$db->insert_query('templates', $insert_templates);
 	}
+}
 
-	// css-class for thankyoulike
-	$css = array(
-	"name" => "thankyoulike.css",
-	"tid" => 1,
-	"attachedto" => "showthread.php",
-	"stylesheet" => "div[id^=tyl_btn_] {
+function tyl_create_templategroup()
+{
+	global $db;
+
+	// Insert Template elements
+	$templateset = array(
+		"prefix" => "thankyoulike",
+		"title" => "Thank You/Like",
+	);
+	$db->insert_query("templategroups", $templateset);
+}
+
+/**
+ * Returns the CSS for the thankyoulike.css stylesheet for the current version of the plugin.
+ * @return string The stylesheet's CSS.
+ */
+function tyl_get_thankyoulike_css()
+{
+	return "div[id^=tyl_btn_] {
 	display: inline-block;
 }
 
@@ -621,9 +712,23 @@ img[id^=tyl_i_expcol_]{
 	border-radius: 3px;
 	border-color: rgba(112,202,47,0.5);
 	background-color: rgba(139,195,74,0.3);
-}",
-	"cachefile" => $db->escape_string(str_replace('/', '', thankyoulike.css)),
-	"lastmodified" => TIME_NOW
+}";
+}
+
+/**
+ * Create the thankyoulike.css stylesheet in the Master theme.
+ */
+function tyl_create_stylesheet()
+{
+	global $db;
+
+	$css = array(
+		"name" => "thankyoulike.css",
+		"tid" => 1,
+		"attachedto" => "showthread.php",
+		"stylesheet" => tyl_get_thankyoulike_css(),
+		"cachefile" => $db->escape_string(str_replace('/', '', 'thankyoulike.css')),
+		"lastmodified" => TIME_NOW
 	);
 
 	require_once MYBB_ADMIN_DIR."inc/functions_themes.php";
@@ -636,10 +741,57 @@ img[id^=tyl_i_expcol_]{
 	{
 		update_theme_stylesheet_list($theme['tid']);
 	}
+}
+
+/**
+ * Perform the tasks in common between installing and upgrading.
+ * @param integer $version The integer value of the plugin's version
+ *                         ('version_code' in the array returned by thankyoulike_info()).
+ * @param boolean $is_upgrade Set to true if upgrading; false if installing.
+ */
+function tyl_install_upgrade_common($version, $is_upgrade = false)
+{
+	global $mybb, $db, $cache, $lang;
+	$lang->load('config_thankyoulike');
+	$prefix = 'g33k_thankyoulike_';
+	$info = thankyoulike_info();
+
+	// Where necessary, create the plugin's tables in the database and
+	// add to core MyBB tables those columns needed for this plugin.
+	tyl_check_update_db_table_and_cols();
+
+	// (Re)create the plugin's template group and templates.
+	tyl_create_templategroup();
+	tyl_insert_templates($version);
+
+	// (Re)create the thankyoulike.css stylesheet for the Master theme.
+	// Does not affect any changes made to the stylesheet for specific themes,
+	// so the admin may need to update those after viewing the stylesheet via the
+	// "View the Master theme's thankyoulike.css" link in the plugin's entry in
+	// the ACP's "Active Plugins" page.
+	tyl_create_stylesheet();
+
+	// Now that we've installed or upgraded the plugin, store its installed version into its stats table
+	// for use when checking whether to upgrade it.
+	tyl_set_installed_version($info['version_code']);
 
 	$cache->update_usergroups();
 	$cache->update_forums();
 	$cache->update_tasks();
+}
+
+function thankyoulike_install()
+{
+	$info = thankyoulike_info();
+
+	// Run preinstall cleanup.
+	tyl_preinstall_cleanup();
+
+	// Create the plugin's settings.
+	tyl_create_settings();
+
+	// Perform the tasks in common between installing and upgrading.
+	tyl_install_upgrade_common($info['version_code']);
 }
 
 function thankyoulike_is_installed()
@@ -647,20 +799,120 @@ function thankyoulike_is_installed()
 	global $mybb, $db;
 	$prefix = 'g33k_thankyoulike_';
 
-	$result = $db->simple_select('templategroups', 'gid', "prefix in ('thankyoulike')", array('limit' => 1));
-	$templategroup = $db->fetch_array($result);
-
-	if($db->table_exists($prefix.'thankyoulike') && $db->table_exists($prefix.'stats') && $db->field_exists('tyl_pnumtyls', 'posts') && $db->field_exists('tyl_tnumtyls', 'threads') && $db->field_exists('tyl_unumtyls', 'users') && $db->field_exists('tyl_unumrcvtyls', 'users') && $db->field_exists('tyl_unumptyls', 'users') && $db->field_exists('tyl_lastadddeldate', 'users') && !empty($templategroup['gid']))
+	// Keep the check for installation very minimal so that we catch earlier versions and thus can upgrade them via thankyoulike_activate().
+	$result = $db->simple_select('settinggroups', 'gid', "name = '".$db->escape_string($prefix.'settings')."'", array('limit' => 1));
+	$settinggroup = $db->fetch_array($result);
+	if(!empty($settinggroup['gid']))
 	{
 		return true;
 	}
 	return false;
 }
 
+/**
+ * Get the integer form of the installed version of the plugin as derived from
+ * thankyoulike_info()['version_code'] and stored in the plugin's stats table.
+ * Useful for checking on activate whether or not we need to upgrade.
+ *
+ * This functionality was not present in versions 2.3.0 and earlier, and this
+ * function will return false for those versions.
+ * @return integer The currently-installed version of the plugin, or false
+ *                 if either the version <= 2.3.0 or the plugin is not
+ *                 currently installed.
+ */
+function tyl_get_installed_version()
+{
+	global $db;
+	$prefix = 'g33k_thankyoulike_';
+
+	$query = $db->simple_select($prefix."stats", "*", "title='version'", $options);
+	$version = $db->fetch_array($query);
+	if ($version)
+	{
+		$version = $version['value'];
+	}
+
+	return $version;
+}
+
+/**
+ * Set (by storing into the plugin's stats table) the currently-installed version of the plugin.
+ * @param string $version The version of the plugin per thankyoulike_info()['version_code'].
+ */
+function tyl_set_installed_version($version)
+{
+	global $db;
+	$prefix = 'g33k_thankyoulike_';
+
+	// Delete existing stored version (if any).
+	$db->delete_query($prefix."stats", "title='version'");
+	// Set stored version to that supplied.
+	$version_data = array(
+		"title" => "version",
+		"value" => $version
+	);
+	$db->insert_query($prefix."stats", $version_data);
+}
+
+function tyl_upgrade($from_version, $to_version)
+{
+	global $db;
+	$prefix = 'g33k_thankyoulike_';
+
+	// Currently, we don't use $from_version, but potentially it will be used
+	// in the future either to delete defunct data structures removed since that
+	// old version or to update the definitions of columns that have changed
+	// since that old version.
+
+	// First, save existing values for the plugin's settings.
+	$existing_setting_values = array();
+	$result = $db->simple_select('settinggroups', 'gid', "name = '{$prefix}settings'", array('limit' => 1));
+	$group = $db->fetch_array($result);
+	if(!empty($group['gid']))
+	{
+		$query = $db->simple_select('settings', 'value, name', "gid='{$group['gid']}'");
+		while($setting = $db->fetch_array($query))
+		{
+			$existing_setting_values[$setting['name']] = $setting['value'];
+		}
+	}
+
+	// Now, run the cleanup with the $for_upgrade parameter set true. Amongst other things,
+	// most notably deleting the plugin's existing Master (sid=-2) templates, this will
+	// delete all settings, which is why we save their values above.
+	tyl_preinstall_cleanup(/*$for_upgrade=*/true);
+
+	// Now, recreate and rebuild settings, so that any new settings and any rewordings/changes
+	// to existing settings take effect, but also ensuring that old values are kept where they exist,
+	// saving admins from having to re-enter them.
+	tyl_create_settings($existing_setting_values);
+
+	// Delete any existing thankyoulike.css stylesheet in the Master theme (tid=1).
+	$db->delete_query("themestylesheets", "name = 'thankyoulike.css' AND tid = 1");
+
+	// Perform the tasks in common between installing and upgrading.
+	tyl_install_upgrade_common($to_version, /*$is_upgrade=*/true);
+}
+
 function thankyoulike_activate()
 {
-	global $mybb, $db, $cache;
+	global $mybb, $db, $cache, $lang, $tyl_plugin_upgrade_message;
 	$prefix = 'g33k_thankyoulike_';
+
+	$info = thankyoulike_info();
+	$from_version = tyl_get_installed_version();
+	$to_version   = $info['version_code'];
+	if($from_version != $to_version)
+	{
+		// Do upgrade.
+		tyl_upgrade($from_version, $to_version);
+		$tyl_plugin_upgrade_message = $lang->sprintf($lang->tyl_successful_upgrade_msg, $lang->tyl_info_title, $info['version']);
+		update_admin_session('tyl_plugin_info_upgrade_message', $lang->sprintf($lang->tyl_successful_upgrade_msg_for_info, $info['version']));
+	}
+	else
+	{
+		// Already installed - simply activate.
+	}
 
 	require_once MYBB_ROOT."/inc/adminfunctions_templates.php";
 
@@ -759,6 +1011,25 @@ function thankyoulike_deactivate()
 	}
 }
 
+/**
+ * Remove plugin-specific settings.
+ * @param boolean Set to true if rebuild_settings() should be run after removing settings.
+ */
+function tyl_remove_settings($rebuild_settings = true)
+{
+	global $db;
+	$prefix = 'g33k_thankyoulike_';
+
+	$result = $db->simple_select('settinggroups', 'gid', "name = '{$prefix}settings'", array('limit' => 1));
+	$group = $db->fetch_array($result);
+	if(!empty($group['gid']))
+	{
+		$db->delete_query('settinggroups', "gid='{$group['gid']}'");
+		$db->delete_query('settings', "gid='{$group['gid']}'");
+		if ($rebuild_settings) rebuild_settings();
+	}
+}
+
 function thankyoulike_uninstall()
 {
 	global $mybb, $db, $cache;
@@ -786,15 +1057,8 @@ function thankyoulike_uninstall()
 		update_theme_stylesheet_list($theme['tid']);
 	}
 
-	// Remove settings
-	$result = $db->simple_select('settinggroups', 'gid', "name = '{$prefix}settings'", array('limit' => 1));
-	$group = $db->fetch_array($result);
-	if(!empty($group['gid']))
-	{
-		$db->delete_query('settinggroups', "gid='{$group['gid']}'");
-		$db->delete_query('settings', "gid='{$group['gid']}'");
-		rebuild_settings();
-	}
+	// Remove plugin-specific settings.
+	tyl_remove_settings();
 
 	// This part will remove the database tables
 	if(!isset($mybb->input['no']))
@@ -831,7 +1095,12 @@ function thankyoulike_uninstall()
 		{
 			$db->drop_table($prefix.'stats');
 		}
+	} else if($db->table_exists($prefix.'stats'))
+	{
+		// Remove the stored version so that upgrades are properly triggered when a downgrade is performed in-between.
+		$db->delete_query($prefix.'stats', "title='version'");
 	}
+
 	// Remove Thank You/Like Promotions Tables Fields
 		if($db->field_exists("tylreceived", "promotions"))
 		{
@@ -2512,7 +2781,7 @@ function tyl_limits_usergroup_permission_commit()
 	$updated_group['tyl_flood_interval'] = $db->escape_string((int)$mybb->input['tyl_flood_interval']);
 }
 
-function tyl_preinstall_cleanup()
+function tyl_preinstall_cleanup($for_upgrade = false)
 {
 	global $mybb, $db, $cache;
 
@@ -2529,8 +2798,9 @@ function tyl_preinstall_cleanup()
 		@unlink(MYBB_ROOT."/inc/languages/english/admin/tools_thankyoulike_recount.lang.php");
 	}
 
-	// Remove old templates
-	$db->delete_query("templates", "title LIKE 'thankyoulike%'");
+	// Remove old templates, except, when we are upgrading, for user-modified templates.
+	$and_where = ($for_upgrade ? ' AND sid=-2' : '');
+	$db->delete_query("templates", "title LIKE 'thankyoulike%'".$and_where);
 	$db->delete_query("templategroups", "prefix in ('thankyoulike')");
 
 	// Remove old CSS rules for g33k_thankyoulike
@@ -2550,7 +2820,10 @@ function tyl_preinstall_cleanup()
 	{
 		$db->delete_query('settinggroups', "gid='{$group['gid']}'");
 		$db->delete_query('settings', "gid='{$group['gid']}'");
-		rebuild_settings();
+		if(!$for_upgrade)
+		{
+			rebuild_settings();
+		}
 	}
 
 	$cache->update_usergroups();

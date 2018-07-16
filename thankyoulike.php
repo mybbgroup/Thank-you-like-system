@@ -62,6 +62,14 @@ if($mybb->settings[$prefix.'enabled'] != "1")
 	error($lang->sprintf($lang->tyl_error_disabled, $pre));
 }
 
+// Output the CSS of the current version of the plugin's thankyoulike.css file for the Master theme.
+if($mybb->input['action'] == "css")
+{
+	header("Content-type: text/css; charset={$charset}");
+	echo tyl_get_thankyoulike_css();
+	exit;
+}
+
 // Exit if no regular action.
 if($mybb->input['action'] != "add" && $mybb->input['action'] != "del")
 {
