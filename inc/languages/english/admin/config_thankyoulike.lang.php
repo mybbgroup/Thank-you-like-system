@@ -82,7 +82,7 @@ $l['tyl_showdt_op_2'] = "Display next to user name";
 $l['tyl_showdt_op_3'] = "Display on mouse hover over username";
 
 $l['tyl_dtformat_title'] = "Date/time format";
-$l['tyl_dtformat_desc'] = "Set the format you want to use to show the date/time in the thanks/likes list.<br />The format is as for PHP\'s <a href=\"php.net/manual/en/function.date.php\">date</a>() function.<br />Example format: <em>m-d-Y h:i A</em> &lt;&lt;will show&gt;&gt; <em>12-31-2009 12:01 PM</em>";
+$l['tyl_dtformat_desc'] = "Set the format you want to use to show the date/time in the thanks/likes list.<br />The format is as for PHP's <a href=\"php.net/manual/en/function.date.php\">date</a>() function.<br />Example format: <em>m-d-Y h:i A</em> &lt;&lt;will show&gt;&gt; <em>12-31-2009 12:01 PM</em>";
 
 $l['tyl_sortorder_title'] = "Sort order";
 $l['tyl_sortorder_desc'] = "Select the sort order for the thanks/likes lists.";
@@ -115,7 +115,7 @@ $l['tyl_flood_interval_desc'] = "The minimum number of seconds a member must wai
 
 $l['tyl_highlight_popular_posts_title'] = "Highlight posts with a given number of thanks/likes?";
 $l['tyl_highlight_popular_posts_desc'] = "Choose \"Yes\" to enable this feature. You can then customize the highlighted posts' style via the CSS class selector <strong>.popular_post</strong> in thankyoulike.css in your <a href\"index.php?module=style-themes\">theme</a>.";
-$l['tyl_highlight_popular_posts_count_title'] = "Thanks/likes count for highlight posts";
+$l['tyl_highlight_popular_posts_count_title'] = "Minimum count for highlight posts";
 $l['tyl_highlight_popular_posts_count_desc'] = "Posts with at least this many thanks/likes will be highlighted.";
 
 

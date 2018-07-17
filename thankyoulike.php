@@ -77,7 +77,7 @@ if($mybb->input['action'] != "add" && $mybb->input['action'] != "del")
 }
 
 // Check whether the flood limit is enabled and the user added/removed this tyl too rapidly.
-if ($mybb->usergroup['tyl_flood_interval'] > 0) {
+if ($mybb->usergroup['tyl_flood_interval'] > 0 && $mybb->settings[$prefix.'limits'] == "1") {
 	$lastadddeldate =  $db->fetch_array($db->simple_select("users", "tyl_lastadddeldate", "uid='{$mybb->user['uid']}'"))['tyl_lastadddeldate'];
 	if (TIME_NOW <= $lastadddeldate + $mybb->usergroup['tyl_flood_interval']) {
 		$secondsleft = $lastadddeldate + $mybb->usergroup['tyl_flood_interval'] - TIME_NOW;
@@ -137,7 +137,7 @@ if($forumpermissions['canview'] == 0 || $forumpermissions['canpostreplys'] == 0 
 }
 
 $err_msgs = array();
-if (thankyoulike_is_liking_forbidden($thread, $fid, $pid, $post['uid'], $mybb->user['uid'], false, $err_msgs))
+if (tyl_is_tyling_forbidden($thread, $fid, $pid, $post['uid'], $mybb->user['uid'], false, $err_msgs))
 {
 	error(implode('<br /><br />', $err_msgs));
 }
@@ -251,7 +251,7 @@ if($mybb->input['action'] == "add")
 		// Update tyl count in posts and threads and users and total
 		if($post['tyl_pnumtyls'] == 0)
 		{
-			if(!thankyoulike_in_forums($fid, $mybb->settings[$prefix.'exclude_count']))
+			if(!tyl_in_forums($fid, $mybb->settings[$prefix.'exclude_count']))
 			{
 				// Post thanks were previously 0, so add this post to user's thanked posts
 				$db->write_query("UPDATE ".TABLE_PREFIX."users SET tyl_unumptyls=tyl_unumptyls+1 WHERE uid='".intval($post['uid'])."'");
@@ -260,7 +260,7 @@ if($mybb->input['action'] == "add")
 		$db->write_query("UPDATE ".TABLE_PREFIX."posts SET tyl_pnumtyls=tyl_pnumtyls+1 WHERE pid='".intval($pid)."'");
 		$db->write_query("UPDATE ".TABLE_PREFIX."threads SET tyl_tnumtyls=tyl_tnumtyls+1 WHERE tid='".intval($tid)."'");
 
-		if(!thankyoulike_in_forums($fid, $mybb->settings[$prefix.'exclude_count']))
+		if(!tyl_in_forums($fid, $mybb->settings[$prefix.'exclude_count']))
 		{
 			$db->write_query("UPDATE ".TABLE_PREFIX."users SET tyl_unumtyls=tyl_unumtyls+1 WHERE uid='".intval($mybb->user['uid'])."'");
 			$db->write_query("UPDATE ".TABLE_PREFIX."users SET tyl_unumrcvtyls=tyl_unumrcvtyls+1 WHERE uid='".intval($post['uid'])."'");
@@ -343,7 +343,7 @@ if($mybb->input['action'] == "del")
 			// Update counts
 			if($post['tyl_pnumtyls'] == 1)
 			{
-				if(!thankyoulike_in_forums($fid, $mybb->settings[$prefix.'exclude_count']))
+				if(!tyl_in_forums($fid, $mybb->settings[$prefix.'exclude_count']))
 				{
 					// This was the last thanks in the post, so remove this post from user's thanked posts
 					$db->write_query("UPDATE ".TABLE_PREFIX."users SET tyl_unumptyls=tyl_unumptyls-1 WHERE uid='".intval($post['uid'])."'");
@@ -351,7 +351,7 @@ if($mybb->input['action'] == "del")
 			}
 			$db->write_query("UPDATE ".TABLE_PREFIX."posts SET tyl_pnumtyls=tyl_pnumtyls-1 WHERE pid='".intval($pid)."'");
 			$db->write_query("UPDATE ".TABLE_PREFIX."threads SET tyl_tnumtyls=tyl_tnumtyls-1 WHERE tid='".intval($tid)."'");
-			if(!thankyoulike_in_forums($fid, $mybb->settings[$prefix.'exclude_count']))
+			if(!tyl_in_forums($fid, $mybb->settings[$prefix.'exclude_count']))
 			{
 				$db->write_query("UPDATE ".TABLE_PREFIX."users SET tyl_unumtyls=tyl_unumtyls-1 WHERE uid='".intval($mybb->user['uid'])."'");
 				$db->write_query("UPDATE ".TABLE_PREFIX."users SET tyl_unumrcvtyls=tyl_unumrcvtyls-1 WHERE uid='".intval($post['uid'])."'");
@@ -520,7 +520,7 @@ if($mybb->input['ajax'])
 	}
 	$button_tyl = '';
 
-	if (($which_btn = thankyoulike_get_which_btn($thread, $post['fid'], $post['pid'], $post['uid'], $mybb->user['uid'], $tyled)))
+	if (($which_btn = tyl_get_which_btn($thread, $post['fid'], $post['pid'], $post['uid'], $mybb->user['uid'], $tyled)))
 	{
 		eval("\$button_tyl = \"".$templates->get("thankyoulike_button_$which_btn")."\";");
 	}
