@@ -243,23 +243,8 @@ if($mybb->input['action'] == "add")
 	// Update user's last like add/del date
 	$db->update_query('users', array('tyl_lastadddeldate' => TIME_NOW), 'uid='.intval($mybb->user['uid']));
 
-	// Verify if myalerts exists and if compatible with 1.8.x then add alert type
-	include_once('inc/plugins/thankyoulike.php');
-	if(function_exists("myalerts_info")){
-		// Load myalerts info into an array
-		$my_alerts_info = myalerts_info();
-		// Set version info to a new var
-		$verify = $my_alerts_info['version'];
-		// If MyAlerts 2.0 or better then do this !!!
-		if($verify >= "2.0.0"){
-		global $cache;
-			// Load cache data and compare if version is the same or don't
-			$myalerts_plugins = $cache->read('mybbstuff_myalerts_alert_types');
-			if($myalerts_plugins['tyl']['code'] == 'tyl'){
-				tyl_recordAlertThankyou();
-			}
-		}
-	}
+	// If a compatible version of MyAlerts exists, then add an alert for this tyl.
+	tyl_recordAlertThankyou();
 
 	if($tlid)
 	{
@@ -349,8 +334,8 @@ if($mybb->input['action'] == "del")
 		{
 			// process delete
 			$db->delete_query($prefix."thankyoulike", "tlid='".$tyl_r['tlid']."'", "1");
-			// if alert of user was added and unread then review if delete thanks and delete alert too.
-			if((function_exists('myalerts_is_activated') && myalerts_is_activated()) && $mybb->user['uid']){
+			// If a compatible version of MyAlerts is active, then delete any unread alert for the deleted tyl.
+			if(tyl_have_myalerts() && $mybb->user['uid']){
 				$db->query("DELETE FROM ".TABLE_PREFIX."alerts WHERE from_user_id={$mybb->user['uid']} AND object_id='{$pid}' AND unread=1 LIMIT 1");
 			}
 			// Update user's last like add/del date

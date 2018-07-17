@@ -87,25 +87,6 @@ $url_S = '<a href="https://github.com/Eldenroot/MyBB_Thank-you-like-plugin" targ
 
 	$info_desc = '';
 
-	if(function_exists("myalerts_info")){
-		$my_alerts_info = myalerts_info();
-		$verify = $my_alerts_info['version'];
-		if($verify >= 2.0){
-			// Load cache data and compare if version is the same or not
-				$myalerts_plugins = $cache->read('mybbstuff_myalerts_alert_types');
-
-			if($myalerts_plugins['tyl']['code'] == 'tyl' && $myalerts_plugins['tyl']['enabled'] == 1){
-				$info_desc .= "<ul><li style=\"list-style-image: url(styles/default/images/icons/success.png)\"><span style=\"color: green;\">".$db->escape_string($lang->tyl_info_desc_alerts_integrated)."</span></li></ul>";
-			}
-			else if(!$myalerts_plugins['tyl']['code'] == 'tyl' && $mybb->settings['g33k_thankyoulike_enabled']){
-				$info_desc .= "<ul><li style=\"list-style-image: url(styles/default/images/icons/warning.png)\"><a href=\"index.php?module=config-plugins&amp;action=tyl_myalerts_integrate\" style=\"color: red;\">".$db->escape_string($lang->tyl_info_desc_alerts_integrate)."</a></li></ul>";
-			}
-			else{
-				$info_desc .= "<ul><li style=\"list-style-image: url(styles/default/images/icons/error.png)\"><span style=\"color: red\">".$db->escape_string($lang->tyl_info_desc_alerts_error)."</span></li></ul>";
-			}
-		}
-	}
-
 	if(is_array($plugins_cache) && is_array($plugins_cache['active']) && $plugins_cache['active'][$codename])
 	{
 		$msg = "<a href=\"".htmlspecialchars_uni($changelog_url)."\">".$lang->tyl_view_changelog."</a>";
@@ -114,22 +95,38 @@ $url_S = '<a href="https://github.com/Eldenroot/MyBB_Thank-you-like-plugin" targ
 			$msg = $admin_session['data']['tyl_plugin_info_upgrade_message'].' '.$msg;
 			$img_type = 'success';
 			$class = ' class="success"';
-			update_admin_session('tyl_plugin_info_upgrade_message', '');		}
-		else {
+			update_admin_session('tyl_plugin_info_upgrade_message', '');
+		}
+		else
+		{
 			$img_type = 'default';
 			$class = '';
 		}
 		$info_desc .= "<ul><li style=\"list-style-image: url(styles/default/images/icons/{$img_type}.png)\"><div$class>$msg</div></li></ul>\n";
-	}
-	$result = $db->simple_select('settinggroups', 'gid', "name = '{$prefix}settings'", array('limit' => 1));
-	$group = $db->fetch_array($result);
-	if(!empty($group['gid']))
-	{
-		$info_desc .= "<ul><li style=\"list-style-image: url(styles/default/images/icons/custom.png)\"><a href=\"index.php?module=config-settings&action=change&gid=".$group['gid']."\">".$db->escape_string($lang->tyl_info_desc_configsettings)."</a></li></ul>";
-	}
 
-	if(is_array($plugins_cache) && is_array($plugins_cache['active']) && $plugins_cache['active'][$codename])
-	{
+		// Is a supported version of the MyAlerts plugin active?
+		if(tyl_have_myalerts(true))
+		{
+			// Yes, so: is the tyl alert type registered and enabled?
+			if (tyl_have_myalerts(true, true, true))
+			{
+				// It is: hooray, we have full MyAlerts integration.
+				$info_desc .= "<ul><li style=\"list-style-image: url(styles/default/images/icons/success.png)\"><span style=\"color: green;\">".$db->escape_string($lang->tyl_info_desc_alerts_integrated)."</span></li></ul>";
+			}
+			else
+			{
+				// Too bad, it isn't, so offer the admin the chance to fully integrate with MyAlerts.
+				$info_desc .= "<ul><li style=\"list-style-image: url(styles/default/images/icons/warning.png)\"><a href=\"index.php?module=config-plugins&amp;action=tyl_myalerts_integrate\" style=\"color: red;\">".$db->escape_string($lang->tyl_info_desc_alerts_integrate)."</a></li></ul>";
+			}
+		}
+
+		$result = $db->simple_select('settinggroups', 'gid', "name = '{$prefix}settings'", array('limit' => 1));
+		$group = $db->fetch_array($result);
+		if(!empty($group['gid']))
+		{
+			$info_desc .= "<ul><li style=\"list-style-image: url(styles/default/images/icons/custom.png)\"><a href=\"index.php?module=config-settings&action=change&gid=".$group['gid']."\">".$db->escape_string($lang->tyl_info_desc_configsettings)."</a></li></ul>";
+		}
+
 		$info_desc .= "<ul><li style=\"list-style-image: url(styles/default/images/icons/default.png)\"><a href=\"index.php?module=tools-recount_rebuild\">".$db->escape_string($lang->tyl_info_desc_recount)."</a></li></ul>\n";
 		$info_desc .= "<ul><li style=\"list-style-image: url(styles/default/images/icons/default.png)\"><a href=\"../thankyoulike.php?action=css\">".htmlspecialchars_uni($lang->tyl_view_master_thankyoulike_css)."</a> {$lang->tyl_use_this_css_for}</li></ul>\n";
 		$info_desc .= '<form action="https://www.paypal.com/cgi-bin/webscr" method="post" style="float: right;" target="_blank">
@@ -150,11 +147,23 @@ $url_S = '<a href="https://github.com/Eldenroot/MyBB_Thank-you-like-plugin" targ
 
 function thankyoulike_admin_load()
 {
-	global $page, $mybb;
+	global $page, $mybb, $lang;
+	$lang->load('config_thankyoulike');
+
 	if($mybb->input['action'] == 'tyl_myalerts_integrate')
 	{
-		tyl_myalerts_integrate();
-		exit;
+		if (tyl_myalerts_integrate())
+		{
+			$msg = $lang->tyl_alerts_integration_success_msg;
+			$type = 'success';
+		}
+		else
+		{
+			$msg = $lang->tyl_alerts_integration_failure_msg;
+			$type = 'error';
+		}
+		flash_message($msg, $type);
+		admin_redirect('index.php?module=config-plugins');
 	}
 }
 
@@ -168,32 +177,44 @@ function tyl_plugins_activate_commit()
 	}
 }
 
+/**
+ * Integrate with MyAlerts if possible.
+ * @return boolean True if a successful integration was performed. False if not,
+ *                 including the case that the plugin was already integrated with MyAlerts.
+ */
 function tyl_myalerts_integrate()
 {
 	global $db, $cache;
-	// Verify if MyAlerts exists and if is compatible with 1.8.x then add alert type
-	if(function_exists("myalerts_info")){
-		// Load MyAlerts info into an array
-		$my_alerts_info = myalerts_info();
-		// Set version info to a new var
-		$verify = $my_alerts_info['version'];
-		// If MyAlerts 2.0 or better then do this !!!
-		if($verify >= "2.0.0"){
-			// Load cache data and compare if version is the same or not
-			$myalerts_plugins = $cache->read('mybbstuff_myalerts_alert_types');
-			if($myalerts_plugins['tyl']['code'] != 'tyl'){
-				// Adding alert type into db
-				$alertTypeManager = MybbStuff_MyAlerts_AlertTypeManager::createInstance($db, $cache);
-					$alertType = new MybbStuff_MyAlerts_Entity_AlertType();
-					$alertType->setCode('tyl');
-					$alertType->setEnabled(true);
-				$alertTypeManager->add($alertType);
-			}
 
-			flash_message("MyAlerts and Thank You/Like System were integrated successfully!", 'success');
-			admin_redirect('index.php?module=config-plugins');
+	$ret = false;
+
+	// Verify that a supported version of MyAlerts is both present and activated.
+	if(tyl_have_myalerts(true))
+	{
+		// Check whether the tyl alert type is registered.
+		if(!tyl_have_myalerts(true, true))
+		{
+			// It isn't, so register it.
+			$alertTypeManager = MybbStuff_MyAlerts_AlertTypeManager::createInstance($db, $cache);
+			$alertType = new MybbStuff_MyAlerts_Entity_AlertType();
+			$alertType->setCode('tyl');
+			$alertType->setEnabled(true);
+			$alertTypeManager->add($alertType);
+			$ret = true;
+		}
+		else
+		{
+			// It is, so check whether it is enabled.
+			if(!tyl_have_myalerts(true, true, true))
+			{
+				// It isn't, so enabled it.
+				tyl_myalerts_set_enabled(1);
+				$ret = true;
+			}
 		}
 	}
+
+	return $ret;
 }
 
 /**
@@ -775,6 +796,9 @@ function tyl_install_upgrade_common($version, $is_upgrade = false)
 	// for use when checking whether to upgrade it.
 	tyl_set_installed_version($info['version_code']);
 
+	// Integrate with MyAlerts if possible.
+	tyl_myalerts_integrate();
+
 	$cache->update_usergroups();
 	$cache->update_forums();
 	$cache->update_tasks();
@@ -943,26 +967,8 @@ function thankyoulike_activate()
 	}
 	find_replace_templatesets("member_profile", '#{\$modoptions}(\r?)\n#', "{\$tyl_profile_box}\n{\$modoptions}\n");
 
-	// Verify if MyAlerts exists and if it is compatible with 1.8.x, then add alert type
-	if(function_exists("myalerts_info")){
-		// Load MyAlerts info into an array
-		$my_alerts_info = myalerts_info();
-		// Set version info to a new var
-		$verify = $my_alerts_info['version'];
-		// If MyAlerts 2.0 or better then do this!!!
-		if($verify >= "2.0.0"){
-		// Load cache data and compare if version is the same or not
-		$myalerts_plugins = $cache->read('mybbstuff_myalerts_alert_types');
-		if($myalerts_plugins['tyl']['code'] != 'tyl'){
-			// Adding alert type into database
-			$alertTypeManager = MybbStuff_MyAlerts_AlertTypeManager::createInstance($db, $cache);
-				$alertType = new MybbStuff_MyAlerts_Entity_AlertType();
-				$alertType->setCode('tyl');
-				$alertType->setEnabled(true);
-			$alertTypeManager->add($alertType);
-			}
-		}
-	}
+	// Enable the tyl alert type if necessary.
+	tyl_myalerts_set_enabled(1);
 }
 
 function thankyoulike_deactivate()
@@ -996,16 +1002,103 @@ function thankyoulike_deactivate()
 	find_replace_templatesets("member_profile", '#{\$tyl_memprofile}(\r?)\n#', "", 0);
 	find_replace_templatesets("member_profile", '#{\$tyl_profile_box}(\r?)\n#', "", 0);
 
-	if(function_exists("myalerts_info")){
-		// Load MyAlerts info into an array
-		$my_alerts_info = myalerts_info();
-		// Set version info to a new var
-		$verify = $my_alerts_info['version'];
-		// If MyAlerts is v2.0 or better then do this!!!
-		if($verify >= "2.0.0"){
-			if($db->table_exists("alert_types")){
-				$alertTypeManager = MybbStuff_MyAlerts_AlertTypeManager::getInstance();
-				$alertTypeManager->deleteByCode('tyl');
+	// Disable the tyl alert type if necessary.
+	tyl_myalerts_set_enabled(0);
+}
+
+/**
+ * Enables or disables the tyl alert type.
+ * When disabling, existing tyl alerts aren't deleted from the database,
+ * but become invisible to users unless/until the tyl alert type is re-enabled.
+ * @param integer 0 or 1. 0 to disable; 1 to enable.
+ */
+function tyl_myalerts_set_enabled($enabled)
+{
+	global $db;
+
+	if ($db->table_exists("alert_types"))
+	{
+		$db->update_query('alert_types', array('enabled' => $enabled), "code='tyl'");
+		if (function_exists('reload_mybbstuff_myalerts_alert_types'))
+		{
+			reload_mybbstuff_myalerts_alert_types();
+		}
+	}
+}
+
+/**
+ * Check whether a version of MyAlerts greater than 2.0.0 is present.
+ * Optionally, check that it is activated too.
+ * Optionally, check that the tyl alert type is registered too.
+ * Optionally, check that any registered tyl alert type is also enabled.
+ * @param boolean True iff an activation check should be performed.
+ * @param boolean True iff a check for tyl alert type registration should be performed.
+ * @param boolean True iff a check that any tyl alert type is enabled should be performed.
+ * @return boolean True iff the check(s) succeeded.
+ */
+function tyl_have_myalerts($check_activated = false, $check_tyl_registered = false, $check_tyl_enabled = false)
+{
+	$ret = false;
+
+	if(function_exists("myalerts_info")) {
+		$myalerts_info = myalerts_info();
+		if(version_compare($myalerts_info['version'], "2.0.0") >= 0
+		   &&
+		   (!$check_activated
+		    ||
+		    (function_exists("myalerts_is_activated") && myalerts_is_activated())
+		   )
+		  )
+		{
+			if (!$check_tyl_registered && !$check_tyl_enabled)
+			{
+				$ret = true;
+			}
+			else
+			{
+				global $cache;
+
+				$alert_types = $cache->read('mybbstuff_myalerts_alert_types');
+
+				if((!$check_tyl_registered || (isset($alert_types['tyl']['code'   ]) && $alert_types['tyl']['code'   ] == 'tyl'))
+				   &&
+				   (!$check_tyl_enabled    || (isset($alert_types['tyl']['enabled']) && $alert_types['tyl']['enabled'] ==    1 )))
+				{
+					$ret = true;
+				}
+			}
+		}
+
+	}
+
+	return $ret;
+}
+
+/**
+ * Fully unintegrate from the MyAlerts system.
+ * Warning: deletes ALL alerts of type tyl along with the tyl alert type itself.
+ */
+function tyl_myalerts_unintegrate()
+{
+	global $db;
+
+	if(tyl_have_myalerts())
+	{
+		$alertTypeManager = MybbStuff_MyAlerts_AlertTypeManager::getInstance();
+		$alertType = $alertTypeManager->getByCode('tyl');
+		if ($alertType !== null)
+		{
+			$id = $alertType->getId();
+			if($id > 0)
+			{
+				// First delete the tyl alert type.
+				$alertTypeManager->deleteById($id);
+
+				if($db->table_exists("alerts") && $id > 0)
+				{
+					// Then delete all alerts of that type.
+					$db->delete_query("alerts", "alert_type_id = '$id'");
+				}
 			}
 		}
 	}
@@ -1095,7 +1188,12 @@ function thankyoulike_uninstall()
 		{
 			$db->drop_table($prefix.'stats');
 		}
-	} else if($db->table_exists($prefix.'stats'))
+
+		// Only unintegrate with MyAlerts (deleting all tyl alerts and the tyl alert type)
+		// if the user selects not to keep data.
+		tyl_myalerts_unintegrate();
+	}
+	else if($db->table_exists($prefix.'stats'))
 	{
 		// Remove the stored version so that upgrades are properly triggered when a downgrade is performed in-between.
 		$db->delete_query($prefix.'stats', "title='version'");
@@ -1174,20 +1272,10 @@ function thankyoulike_templatelist()
 		$lang->tyl_send = $lang->sprintf($lang->tyl_send, $prelang);
 		$lang->tyl_remove = $lang->sprintf($lang->tyl_remove, $prelang);
 
-		// Registering alert formatter
-		if((function_exists('myalerts_is_activated')) && myalerts_is_activated() && $mybb->user['uid']){
-			global $cache, $formatterManager;
+		// Register alert formatter.
+		if(tyl_have_myalerts(true, true, true) && $mybb->user['uid'])
+		{
 			tyl_myalerts_formatter_load();
-			// Load cache data and compare if version is the same or not
-			$myalerts_plugins = $cache->read('mybbstuff_myalerts_alert_types');
-
-			if($myalerts_plugins['tyl']['code'] == 'tyl' && $myalerts_plugins['tyl']['enabled'] == 1){
-				if (class_exists('MybbStuff_MyAlerts_AlertFormatterManager') && class_exists('ThankyouAlertFormatter')) {
-					$code = 'tyl';
-					$formatterManager = MybbStuff_MyAlerts_AlertFormatterManager::getInstance();
-					$formatterManager->registerFormatter(new ThankyouAlertFormatter($mybb, $lang, $code));
-				}
-			}
 		}
 		$template_list = '';
 		if (THIS_SCRIPT == 'showthread.php')
@@ -1723,28 +1811,26 @@ function thankyoulike_postbit_udetails(&$post)
 	return $post;
 }
 
-// Sending the alert to database
+/**
+ * If this plugin and MyAlerts are both enabled and integrated, then add an alert for this tyl of this post.
+ */
 function tyl_recordAlertThankyou()
 {
 	global $db, $lang, $mybb, $alert, $post, $prefix;
 	$prefix = 'g33k_thankyoulike_';
 	$lang->load("thankyoulike", false, true);
 
-	if(!$mybb->settings[$prefix.'enabled'] == "1")
+	if(!$mybb->settings[$prefix.'enabled'] == "1" && tyl_have_myalerts(true, true, true))
 	{
-		return false;
-	}
+		$uid = (int)$post['uid'];
+		$tid = (int)$post['tid'];
+		$pid = (int)$post['pid'];
+		$subject = htmlspecialchars_uni($post['subject']);
+		$fid = (int)$post['fid'];
 
-	$uid = (int)$post['uid'];
-	$tid = (int)$post['tid'];
-	$pid = (int)$post['pid'];
-	$subject = htmlspecialchars_uni($post['subject']);
-	$fid = (int)$post['fid'];
+		$alertType = MybbStuff_MyAlerts_AlertTypeManager::getInstance()->getByCode('tyl');
 
-	$alertType = MybbStuff_MyAlerts_AlertTypeManager::getInstance()->getByCode('tyl');
-
-	if(isset($alertType) && $alertType->getEnabled()){
-		 // Check if already alerted
+		// Check if already alerted
 		$query = $db->simple_select(
 			'alerts',
 			'id',
@@ -1753,52 +1839,70 @@ function tyl_recordAlertThankyou()
 
 		if ($db->num_rows($query) == 0) {
 			$alert = new MybbStuff_MyAlerts_Entity_Alert($uid, $alertType, $pid, $mybb->user['uid']);
-					$alert->setExtraDetails(
-					array(
-						'tid'		=> $tid,
-						'pid'		=> $pid,
-						't_subject'		=> $subject,
-						'fid'		=> $fid
-					));
+			$alert->setExtraDetails(
+				array(
+					'tid'       => $tid,
+					'pid'       => $pid,
+					't_subject' => $subject,
+					'fid'       => $fid
+				)
+			);
 			MybbStuff_MyAlerts_AlertManager::getInstance()->addAlert($alert);
 		}
 	}
 }
 
- // Alert formatter for my custom alerts
-function tyl_myalerts_formatter_load(){
-	global $mybb, $prefix;
-	$prefix = 'g33k_thankyoulike_';
+/**
+ * Defines the tyl alert formatter class and registers it with the MyAlerts plugin.
+ * Assumes that checks for the presence of and integration with MyAlerts
+ * have already been successfully performed.
+ */
+function tyl_myalerts_formatter_load()
+{
+	global $mybb, $lang;
 
-	if ($mybb->settings[$prefix.'enabled'] == "1")
+	if (class_exists('MybbStuff_MyAlerts_Formatter_AbstractFormatter') &&
+	    class_exists('MybbStuff_MyAlerts_AlertFormatterManager'))
 	{
-	class ThankyouAlertFormatter extends MybbStuff_MyAlerts_Formatter_AbstractFormatter{
-		public function formatAlert(MybbStuff_MyAlerts_Entity_Alert $alert, array $outputAlert)
+		class ThankyouAlertFormatter extends MybbStuff_MyAlerts_Formatter_AbstractFormatter
 		{
-			$alertContent = $alert->getExtraDetails();
-			$postLink = $this->buildShowLink($alert);
-			return $this->lang->sprintf(
-				$this->lang->tyl_alert,
-				$outputAlert['from_user'],
-				$alertContent['t_subject']
-			);
-		}
+			public function formatAlert(MybbStuff_MyAlerts_Entity_Alert $alert, array $outputAlert)
+			{
+				$alertContent = $alert->getExtraDetails();
+				$postLink = $this->buildShowLink($alert);
+				return $this->lang->sprintf(
+					$this->lang->tyl_alert,
+					$outputAlert['from_user'],
+					$alertContent['t_subject']
+				);
+			}
 
-		public function init()
-		{
-			if (!$this->lang->thankyoulike) {
-				$this->lang->load('thankyoulike');
+			public function init()
+			{
+				if(!$this->lang->thankyoulike) {
+					$this->lang->load('thankyoulike');
+				}
+			}
+
+			public function buildShowLink(MybbStuff_MyAlerts_Entity_Alert $alert)
+			{
+				$alertContent = $alert->getExtraDetails();
+				$postLink = $this->mybb->settings['bburl'] . '/' . get_post_link((int)$alertContent['pid'], (int)$alertContent['tid']).'#pid'.(int)$alertContent['pid'];
+
+				return $postLink;
 			}
 		}
 
-		public function buildShowLink(MybbStuff_MyAlerts_Entity_Alert $alert)
+		$code = 'tyl';
+		$formatterManager = MybbStuff_MyAlerts_AlertFormatterManager::getInstance();
+		if (!$formatterManager)
 		{
-		$alertContent = $alert->getExtraDetails();
-		$postLink = $this->mybb->settings['bburl'] . '/' . get_post_link((int)$alertContent['pid'], (int)$alertContent['tid']).'#pid'.(int)$alertContent['pid'];
-
-		return $postLink;
+		        $formatterManager = MybbStuff_MyAlerts_AlertFormatterManager::createInstance($mybb, $lang);
 		}
-	}
+		if ($formatterManager)
+		{
+			$formatterManager->registerFormatter(new ThankyouAlertFormatter($mybb, $lang, $code));
+		}
 	}
 }
 
