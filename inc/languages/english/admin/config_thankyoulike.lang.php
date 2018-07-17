@@ -11,12 +11,13 @@ $l['tyl_info_desc_recount'] = "Recount thanks/likes";
 $l['tyl_info_desc_configsettings'] = "Configure Settings";
 $l['tyl_view_master_thankyoulike_css'] = "View the Master theme's thankyoulike.css";
 $l['tyl_use_this_css_for'] = "(use this after plugin upgrade to update this stylesheet in <a href=\"index.php?module=style-themes\">any themes</a> for which you have modified it).";
-$l['tyl_info_desc_alerts_error'] = "<b>The Thank You/Like System is uninstalled or deactivated</b>";
 $l['tyl_successful_upgrade_msg'] = "The {1} has been activated successfully and upgraded to version {2}.";
 $l['tyl_successful_upgrade_msg_for_info'] = "Successfully upgraded to version {1}.";
 $l['tyl_view_changelog'] = "View changelog.";
 $l['tyl_info_desc_alerts_integrate'] = "<b>Click <u>HERE</u> to integrate the Thank You/Like System with MyAlerts</b>";
-$l['tyl_info_desc_alerts_integrated'] = "<b>The Thank You/Like System and MyAlerts were integrated successfully!</b>";
+$l['tyl_info_desc_alerts_integrated'] = "<b>The Thank You/Like System is currently integrated with MyAlerts.</b>";
+$l['tyl_alerts_integration_success_msg'] = 'The Thank You/Like System was successfully integrated with MyAlerts!';
+$l['tyl_alerts_integration_failure_msg'] = 'Failed to integrate the Thank You/Like System with MyAlerts. Is MyAlerts version 2.0.0 or above installed and activated? If so, is it already integrated with the Thank You/Like System?';
 $l['tyl_info_desc_alerts_registeralerttype'] = "Register a new alert type into MyAlerts";
 
 $l['tyl_title'] = "Thank You/Like System";
@@ -134,7 +135,7 @@ $l['tyl_profile_box_post_allowvideocode_title'] = "Allow [video] Code";
 $l['tyl_profile_box_post_allowvideocode_desc'] = "Selecting \"Yes\" will enable the rendering of [video] MyCodes in profile page trophy posts.";
 
 $l['tyl_uninstall'] = 'Thank You/Like System - uninstallation';
-$l['tyl_uninstall_message'] = 'Do you wish to drop ALL plugin data from the database? (Selecting "No" will leave untouched thanks/likes given and received, per-user counts of thanks/likes, and overall thanks/likes statistics. It will not, however, prevent the removal of plugin settings (including any per-usergroup settings), nor will it prevent the removal of the plugin\'s CSS file, "thankyoulike.css" (including any changes you\'ve made to it), accessible via the ACP under Templates & Style -> <a href="index.php?module=style-themes">Themes</a>).';
+$l['tyl_uninstall_message'] = "Do you wish to drop ALL plugin data from the database? Selecting \"No\" will leave untouched:<ul><li>Entries for thanks/likes given and received.</li>\n<li>Per-user counts of thanks/likes.</li>\n<li>Overall thanks/likes statistics.</li>\n<li>The Thanks/Likes alert type and any of its alerts (only applies if MyAlerts integration is enabled).</li>\n</ul>\nSelecting \"No\" will <em>not</em>, however, prevent the removal of:<ul><li>Plugin settings (including any per-usergroup settings).</li>\n<li>The plugin's stylesheet, \"thankyoulike.css\" (including any changes you've made to it), accessible for each theme via the ACP's Templates & Style -> <a href=\"index.php?module=style-themes\">Themes</a> module.</li>\n<li>The plugin's templates (including any changes you've made to them), accessible  under \"Thank You/Like Templates\" for each template set via the ACP's Templates & Style -> <a href=\"index.php?module=style-templates\">Templates</a> module.</li>\n</ul>";
 
 $l['setting_thankyoulike_promotion_rcv'] = 'Thanks/likes received';
 $l['setting_thankyoulike_promotion_rcv_desc'] = 'Enter the number of received thanks/likes required. Thanks/Likes count must be selected as a required value for this to be included. Select the type of comparison for thanks/likes.';
