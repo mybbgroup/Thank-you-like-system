@@ -34,6 +34,7 @@ if(defined("IN_ADMINCP"))
 	$plugins->add_hook("admin_config_settings_change","thankyoulike_settings_page");
 	$plugins->add_hook("admin_page_output_footer","thankyoulike_settings_peeker");
 	$plugins->add_hook("admin_config_plugins_activate_commit", "tyl_plugins_activate_commit");
+	$plugins->add_hook("admin_user_users_merge_commit", "tyl_user_users_merge_commit");
 }
 else
 {
@@ -2945,4 +2946,53 @@ function tyl_in_forums($fid, $forums)
 	}
 
 	return false;
+}
+
+function tyl_user_users_merge_commit()
+{
+	global $db, $source_user, $destination_user;
+	$prefix = 'g33k_thankyoulike_';
+
+	$source_uid = $source_user['uid'];
+	$dest_uid = $destination_user['uid'];
+
+	$pids_liked_by_both = array();
+	$pids_liked_by_both_sql = 'SELECT pid FROM '.TABLE_PREFIX.$prefix."thankyoulike WHERE uid IN ($source_uid, $dest_uid) GROUP BY pid HAVING count(pid) > 1";
+	$result = $db->query($pids_liked_by_both_sql);
+	while(($row = $db->fetch_array($result)))
+	{
+		$pids_liked_by_both[] = $row['pid'];
+	}
+
+	// Subtract from the count of tyls given by the source user the number of posts liked by both users
+	// and add the result to the count of tyls given by the destination user.
+	$dest_tyl_unumtyls = $destination_user['tyl_unumtyls'] + $source_user['tyl_unumtyls'] - count($pids_liked_by_both);
+
+	$result = $db->query('SELECT pid FROM '.TABLE_PREFIX.$prefix."thankyoulike WHERE puid IN ($source_uid, $dest_uid) AND uid IN ($source_uid, $dest_uid) GROUP BY pid HAVING count(pid) > 1");
+	$count_of_own_posts_liked_by_both = $db->num_rows($result);
+
+	// Subtract from the count of tyls received by the source user the number of own posts (of either user) liked by both users
+	// and add the result to the count of tyls received by the dest user.
+	$dest_tyl_unumrcvtyls = $destination_user['tyl_unumrcvtyls'] + $source_user['tyl_unumrcvtyls'] - $count_of_own_posts_liked_by_both;
+
+	// Add to the count of liked posts of the destination user the count of liked posts of the source user.
+	$dest_tyl_unumptyls = $destination_user['tyl_unumptyls'] + $source_user['tyl_unumptyls'];
+
+	// Now update those tyl counts for the destination user.
+	$db->update_query('users', array(
+		'tyl_unumtyls'    => $dest_tyl_unumtyls,
+		'tyl_unumrcvtyls' => $dest_tyl_unumrcvtyls,
+		'tyl_unumptyls'   => $dest_tyl_unumptyls
+	), "uid='$dest_uid'");
+
+	// Delete duplicated tyls from the (prefixed) thankyoulike table if there are any.
+	if($pids_liked_by_both)
+	{
+		$dup_likes_of_source_user_sql = 'DELETE FROM '.TABLE_PREFIX.$prefix."thankyoulike WHERE uid = $source_uid AND puid = $dest_uid AND pid IN (".implode(',', $pids_liked_by_both).")";
+		$db->write_query($dup_likes_of_source_user_sql);
+	}
+
+	// Finally, update in the thankyoulike table the uids and puids matching the source user to the user ID of the dest user.
+	$db->update_query($prefix.'thankyoulike', array('uid' => $dest_uid ), "uid='$source_uid'");
+	$db->update_query($prefix.'thankyoulike', array('puid' => $dest_uid), "puid='$source_uid'");
 }
