@@ -25,7 +25,6 @@ if(defined("IN_ADMINCP"))
 	$plugins->add_hook('admin_formcontainer_output_row', 'thankyoulike_promotion_formcontainer_output_row');
 	$plugins->add_hook('admin_user_group_promotions_edit_commit', 'thankyoulike_promotion_commit');
 	$plugins->add_hook('admin_user_group_promotions_add_commit', 'thankyoulike_promotion_commit');
-	$plugins->add_hook("admin_user_groups_edit_graph_tabs", "tyl_limits_usergroup_permission_tabs");
 	$plugins->add_hook("admin_formcontainer_end", "tyl_limits_usergroup_permission");
 	$plugins->add_hook("admin_user_groups_edit_commit", "tyl_limits_usergroup_permission_commit");
 	$plugins->add_hook('admin_load', 'thankyoulike_admin_load');
@@ -57,23 +56,23 @@ else
 
 function thankyoulike_info()
 {
-	global $plugins_cache, $mybb, $db, $lang, $cache, $admin_session;
+	global $plugins_cache, $db, $lang, $admin_session;
 	$lang->load('config_thankyoulike');
 	$prefix = 'g33k_thankyoulike_';
 	$codename = 'thankyoulike';
 
 	$changelog_url = 'https://github.com/mybbgroup/MyBB_Thank-you-like-plugin/releases';
 
-$url_AT= '<a href="https://community.mybb.com/user-69212.html" target="_blank">ATofighi</a>';
-$url_SP = '<a href="https://community.mybb.com/user-91011.html" target="_blank">SvePu</a>';
-$url_E = '<a href="https://community.mybb.com/user-84065.html" target="_blank">Eldenroot</a>';
-$url_DN = '<a href="https://community.mybb.com/user-51493.html" target="_blank">Whiteneo</a>';
-$url_L = '<a href="https://community.mybb.com/user-116662.html" target="_blank">Laird</a>';
-$url_S = '<a href="https://github.com/Eldenroot/MyBB_Thank-you-like-plugin" target="_blank">GitHub</a>';
+	$url_AT= '<a href="https://community.mybb.com/user-69212.html" target="_blank">ATofighi</a>';
+	$url_SP = '<a href="https://community.mybb.com/user-91011.html" target="_blank">SvePu</a>';
+	$url_E = '<a href="https://community.mybb.com/user-84065.html" target="_blank">Eldenroot</a>';
+	$url_DN = '<a href="https://community.mybb.com/user-51493.html" target="_blank">Whiteneo</a>';
+	$url_L = '<a href="https://community.mybb.com/user-116662.html" target="_blank">Laird</a>';
+	$url_S = '<a href="https://github.com/Eldenroot/MyBB_Thank-you-like-plugin" target="_blank">GitHub</a>';
 
 	$info = array(
-		"name"		=> $db->escape_string($lang->tyl_info_title),
-		"description"	=> $db->escape_string($lang->tyl_info_desc) . $lang->sprintf($lang->tyl_info_desc_url,$url_AT,$url_SP,$url_E,$url_DN,$url_L,$url_S),
+		"name"		=> htmlspecialchars_uni($lang->tyl_info_title),
+		"description"	=> htmlspecialchars_uni($lang->tyl_info_desc) . $lang->sprintf($lang->tyl_info_desc_url,$url_AT,$url_SP,$url_E,$url_DN,$url_L,$url_S),
 		"website"	=> "https://community.mybb.com/thread-169382.html",
 		"author"	=> "- G33K -, ATofighi, Eldenroot, SvePu, Whiteneo, Laird",
 		"authorsite"	=> "https://community.mybb.com/thread-169382.html",
@@ -111,12 +110,12 @@ $url_S = '<a href="https://github.com/Eldenroot/MyBB_Thank-you-like-plugin" targ
 			if (tyl_have_myalerts(true, true, true))
 			{
 				// It is: hooray, we have full MyAlerts integration.
-				$info_desc .= "<ul><li style=\"list-style-image: url(styles/default/images/icons/success.png)\"><span style=\"color: green;\">".$db->escape_string($lang->tyl_info_desc_alerts_integrated)."</span></li></ul>";
+				$info_desc .= "<ul><li style=\"list-style-image: url(styles/default/images/icons/success.png)\"><span style=\"color: green;\">".$lang->tyl_info_desc_alerts_integrated."</span></li></ul>";
 			}
 			else
 			{
 				// Too bad, it isn't, so offer the admin the chance to fully integrate with MyAlerts.
-				$info_desc .= "<ul><li style=\"list-style-image: url(styles/default/images/icons/warning.png)\"><a href=\"index.php?module=config-plugins&amp;action=tyl_myalerts_integrate\" style=\"color: red;\">".$db->escape_string($lang->tyl_info_desc_alerts_integrate)."</a></li></ul>";
+				$info_desc .= "<ul><li style=\"list-style-image: url(styles/default/images/icons/warning.png)\"><a href=\"index.php?module=config-plugins&amp;action=tyl_myalerts_integrate\" style=\"color: red;\">".$lang->tyl_info_desc_alerts_integrate."</a></li></ul>";
 			}
 		}
 
@@ -124,10 +123,10 @@ $url_S = '<a href="https://github.com/Eldenroot/MyBB_Thank-you-like-plugin" targ
 		$group = $db->fetch_array($result);
 		if(!empty($group['gid']))
 		{
-			$info_desc .= "<ul><li style=\"list-style-image: url(styles/default/images/icons/custom.png)\"><a href=\"index.php?module=config-settings&action=change&gid=".$group['gid']."\">".$db->escape_string($lang->tyl_info_desc_configsettings)."</a></li></ul>";
+			$info_desc .= "<ul><li style=\"list-style-image: url(styles/default/images/icons/custom.png)\"><a href=\"index.php?module=config-settings&action=change&gid=".$group['gid']."\">".htmlspecialchars_uni($lang->tyl_info_desc_configsettings)."</a></li></ul>";
 		}
 
-		$info_desc .= "<ul><li style=\"list-style-image: url(styles/default/images/icons/default.png)\"><a href=\"index.php?module=tools-recount_rebuild\">".$db->escape_string($lang->tyl_info_desc_recount)."</a></li></ul>\n";
+		$info_desc .= "<ul><li style=\"list-style-image: url(styles/default/images/icons/default.png)\"><a href=\"index.php?module=tools-recount_rebuild\">".htmlspecialchars_uni($lang->tyl_info_desc_recount)."</a></li></ul>\n";
 		$info_desc .= "<ul><li style=\"list-style-image: url(styles/default/images/icons/default.png)\"><a href=\"../thankyoulike.php?action=css\">".htmlspecialchars_uni($lang->tyl_view_master_thankyoulike_css)."</a> {$lang->tyl_use_this_css_for}</li></ul>\n";
 		$info_desc .= '<form action="https://www.paypal.com/cgi-bin/webscr" method="post" style="float: right;" target="_blank">
 <input type="hidden" name="cmd" value="_s-xclick">
@@ -147,7 +146,7 @@ $url_S = '<a href="https://github.com/Eldenroot/MyBB_Thank-you-like-plugin" targ
 
 function thankyoulike_admin_load()
 {
-	global $page, $mybb, $lang;
+	global $mybb, $lang;
 	$lang->load('config_thankyoulike');
 
 	if($mybb->input['action'] == 'tyl_myalerts_integrate')
@@ -537,7 +536,7 @@ function tyl_check_update_db_table_and_cols()
 	}
 	$options = array(
 			"limit" => 1
-		);
+	);
 	$query = $db->simple_select($prefix."stats", "*", "title='total'", $options);
 	$total = $db->fetch_array($query);
 
@@ -580,7 +579,7 @@ function tyl_check_update_db_table_and_cols()
 	}
 }
 
-function tyl_insert_templates($plugin_version)
+function tyl_insert_templates()
 {
 	global $mybb, $db;
 
@@ -650,11 +649,13 @@ function tyl_insert_templates($plugin_version)
 </tr>"
 	);
 
-	// Left-pad plugin_version with the any zero that we forbade in thankyoulike_info()
-	// when it would have been interpreted as octal.
-	while(strlen($plugin_version) < 6)
+	$info = thankyoulike_info();
+	$plugin_version_code = $info['version_code'];
+	// Left-pad the version code with any zero that we forbade in thankyoulike_info(),
+	// where it would have been interpreted as octal.
+	while(strlen($plugin_version_code) < 6)
 	{
-		$plugin_version = '0'.$plugin_version;
+		$plugin_version_code = '0'.$plugin_version_code;
 	}
 
 	// Insert templates into the Master group (sid=-2) with a (string) version set to a value that
@@ -662,7 +663,7 @@ function tyl_insert_templates($plugin_version)
 	// the SQL comparison "m.version > t.version" in the query to find updated templates
 	// (in admin/modules/style/templates.php) is true for templates modified by the user:
 	// MyBB sets the version for modified templates to the value of $mybb->version_code.
-	$version = $mybb->version_code.'_'.$plugin_version;
+	$version = $mybb->version_code.'_'.$plugin_version_code;
 	foreach($tyl_templates as $template_title => $template_data)
 	{
 		$insert_templates = array(
@@ -766,15 +767,12 @@ function tyl_create_stylesheet()
 
 /**
  * Perform the tasks in common between installing and upgrading.
- * @param integer $version The integer value of the plugin's version
- *                         ('version_code' in the array returned by thankyoulike_info()).
  * @param boolean $is_upgrade Set to true if upgrading; false if installing.
  */
-function tyl_install_upgrade_common($version, $is_upgrade = false)
+function tyl_install_upgrade_common($is_upgrade = false)
 {
-	global $mybb, $db, $cache, $lang;
+	global $cache, $lang;
 	$lang->load('config_thankyoulike');
-	$prefix = 'g33k_thankyoulike_';
 	$info = thankyoulike_info();
 
 	// Where necessary, create the plugin's tables in the database and
@@ -783,7 +781,7 @@ function tyl_install_upgrade_common($version, $is_upgrade = false)
 
 	// (Re)create the plugin's template group and templates.
 	tyl_create_templategroup();
-	tyl_insert_templates($version);
+	tyl_insert_templates();
 
 	// (Re)create the thankyoulike.css stylesheet for the Master theme.
 	// Does not affect any changes made to the stylesheet for specific themes,
@@ -806,8 +804,6 @@ function tyl_install_upgrade_common($version, $is_upgrade = false)
 
 function thankyoulike_install()
 {
-	$info = thankyoulike_info();
-
 	// Run preinstall cleanup.
 	tyl_preinstall_cleanup();
 
@@ -815,12 +811,12 @@ function thankyoulike_install()
 	tyl_create_settings();
 
 	// Perform the tasks in common between installing and upgrading.
-	tyl_install_upgrade_common($info['version_code']);
+	tyl_install_upgrade_common();
 }
 
 function thankyoulike_is_installed()
 {
-	global $mybb, $db;
+	global $db;
 	$prefix = 'g33k_thankyoulike_';
 
 	// Keep the check for installation very minimal so that we catch earlier versions and thus can upgrade them via thankyoulike_activate().
@@ -861,9 +857,9 @@ function tyl_get_installed_version()
 
 /**
  * Set (by storing into the plugin's stats table) the currently-installed version of the plugin.
- * @param string $version The version of the plugin per thankyoulike_info()['version_code'].
+ * @param string $version_code The version of the plugin per thankyoulike_info()['version_code'].
  */
-function tyl_set_installed_version($version)
+function tyl_set_installed_version($version_code)
 {
 	global $db;
 	$prefix = 'g33k_thankyoulike_';
@@ -873,12 +869,12 @@ function tyl_set_installed_version($version)
 	// Set stored version to that supplied.
 	$version_data = array(
 		"title" => "version",
-		"value" => $version
+		"value" => $version_code
 	);
 	$db->insert_query($prefix."stats", $version_data);
 }
 
-function tyl_upgrade($from_version, $to_version)
+function tyl_upgrade($from_version)
 {
 	global $db;
 	$prefix = 'g33k_thankyoulike_';
@@ -915,13 +911,12 @@ function tyl_upgrade($from_version, $to_version)
 	$db->delete_query("themestylesheets", "name = 'thankyoulike.css' AND tid = 1");
 
 	// Perform the tasks in common between installing and upgrading.
-	tyl_install_upgrade_common($to_version, /*$is_upgrade=*/true);
+	tyl_install_upgrade_common(/*$is_upgrade=*/true);
 }
 
 function thankyoulike_activate()
 {
-	global $mybb, $db, $cache, $lang, $tyl_plugin_upgrade_message;
-	$prefix = 'g33k_thankyoulike_';
+	global $lang, $tyl_plugin_upgrade_message;
 
 	$info = thankyoulike_info();
 	$from_version = tyl_get_installed_version();
@@ -929,7 +924,7 @@ function thankyoulike_activate()
 	if($from_version != $to_version)
 	{
 		// Do upgrade.
-		tyl_upgrade($from_version, $to_version);
+		tyl_upgrade($from_version);
 		$tyl_plugin_upgrade_message = $lang->sprintf($lang->tyl_successful_upgrade_msg, $lang->tyl_info_title, $info['version']);
 		update_admin_session('tyl_plugin_info_upgrade_message', $lang->sprintf($lang->tyl_successful_upgrade_msg_for_info, $info['version']));
 	}
@@ -973,9 +968,6 @@ function thankyoulike_activate()
 
 function thankyoulike_deactivate()
 {
-	global $db, $cache;
-	$prefix = 'g33k_thankyoulike_';
-
 	require_once MYBB_ROOT."/inc/adminfunctions_templates.php";
 
 	find_replace_templatesets("showthread", "#".preg_quote('<script type="text/javascript" src="{$mybb->settings[\'bburl\']}/jscripts/thankyoulike.min.js"></script>
@@ -1153,7 +1145,7 @@ function thankyoulike_uninstall()
 	// Remove plugin-specific settings.
 	tyl_remove_settings();
 
-	// This part will remove the database tables
+	// Only remove the database tables if the admin has selected not to keep data.
 	if(!isset($mybb->input['no']))
 	{
 		if($db->field_exists('tyl_unumtyls', 'users'))
@@ -1190,54 +1182,54 @@ function thankyoulike_uninstall()
 		}
 
 		// Only unintegrate with MyAlerts (deleting all tyl alerts and the tyl alert type)
-		// if the user selects not to keep data.
+		// if the admin has selected not to keep data.
 		tyl_myalerts_unintegrate();
 	}
 	else if($db->table_exists($prefix.'stats'))
 	{
-		// Remove the stored version so that upgrades are properly triggered when a downgrade is performed in-between.
+		// Remove the stored version so that upgrades are properly triggered when a downgrade is performed in between.
 		$db->delete_query($prefix.'stats', "title='version'");
 	}
 
 	// Remove Thank You/Like Promotions Tables Fields
-		if($db->field_exists("tylreceived", "promotions"))
+	if($db->field_exists("tylreceived", "promotions"))
+	{
+		$query = $db->simple_select("promotions", "pid", "tylreceived>'0'");
+		$pid = $db->fetch_array($query);
+		if(!empty($pid['pid']))
 		{
-			$query = $db->simple_select("promotions", "pid", "tylreceived>'0'");
-			$pid = $db->fetch_array($query);
-			if(!empty($pid['pid']))
-			{
-				$db->delete_query("promotions", "pid='{$pid['pid']}'");
-			}
-			$db->drop_column("promotions", "tylreceived");
+			$db->delete_query("promotions", "pid='{$pid['pid']}'");
 		}
-		if($db->field_exists("tylreceivedtype", "promotions"))
+		$db->drop_column("promotions", "tylreceived");
+	}
+	if($db->field_exists("tylreceivedtype", "promotions"))
+	{
+		$db->drop_column("promotions", "tylreceivedtype");
+	}
+	if($db->field_exists("tylgiven", "promotions"))
+	{
+		$query = $db->simple_select("promotions", "pid", "tylgiven>'0'");
+		$pid = $db->fetch_array($query);
+		if(!empty($pid['pid']))
 		{
-			$db->drop_column("promotions", "tylreceivedtype");
+			$db->delete_query("promotions", "pid='{$pid['pid']}'");
 		}
-		if($db->field_exists("tylgiven", "promotions"))
-		{
-			$query = $db->simple_select("promotions", "pid", "tylgiven>'0'");
-			$pid = $db->fetch_array($query);
-			if(!empty($pid['pid']))
-			{
-				$db->delete_query("promotions", "pid='{$pid['pid']}'");
-			}
-			$db->drop_column("promotions", "tylgiven");
-		}
-		if($db->field_exists("tylgiventype", "promotions"))
-		{
-			$db->drop_column("promotions", "tylgiventype");
-		}
+		$db->drop_column("promotions", "tylgiven");
+	}
+	if($db->field_exists("tylgiventype", "promotions"))
+	{
+		$db->drop_column("promotions", "tylgiventype");
+	}
 
-		if($db->field_exists("tyl_limits_max", "usergroups"))
-		{
-			$db->drop_column("usergroups", "tyl_limits_max");
-		}
-		if($db->field_exists("tyl_flood_interval", "usergroups"))
-		{
-			$db->drop_column("usergroups", "tyl_flood_interval");
-		}
-
+	// Remove from the usergroups table the fields for rate-limiting tyls.
+	if($db->field_exists("tyl_limits_max", "usergroups"))
+	{
+		$db->drop_column("usergroups", "tyl_limits_max");
+	}
+	if($db->field_exists("tyl_flood_interval", "usergroups"))
+	{
+		$db->drop_column("usergroups", "tyl_flood_interval");
+	}
 
 	$cache->update_usergroups();
 	$cache->update_forums();
@@ -1246,7 +1238,7 @@ function thankyoulike_uninstall()
 
 function thankyoulike_templatelist()
 {
-	global $mybb, $cache, $lang, $code, $templatelist;
+	global $mybb, $lang, $templatelist;
 	$prefix = 'g33k_thankyoulike_';
 	if ($mybb->settings[$prefix.'enabled'] == "1")
 	{
@@ -1311,7 +1303,7 @@ function thankyoulike_templatelist()
  * @param integer The user's ID.
  * @return integer The post count.
  */
-function thankyoulike_getownsingletylpostcount($uid)
+function tyl_get_own_single_tyl_post_count($uid)
 {
 	global $db;
 	$prefix = 'g33k_thankyoulike_';
@@ -1346,19 +1338,18 @@ function thankyoulike_getownsingletylpostcount($uid)
  *                                 of the count of single-like self-liked posts from
  *                                 the given-likes post count.
  */
-function thankyoulike_check_remove_self_likes_from_post_array(&$post, $skip_postcounts = false)
+function tyl_check_remove_self_likes_from_post_array(&$post, $skip_postcounts = false)
 {
 	global $mybb;
-	$prefix = 'g33k_thankyoulike_';
 
 	if($mybb->settings[$prefix.'remowntylfromc'] == 1)
 	{
-		$owntylusercount = thankyoulike_getowntylcount($prefix, $post['uid']);
+		$owntylusercount = tyl_get_own_tyl_count($post['uid']);
 		$post['tyl_unumtyls']    -= $owntylusercount;
 		$post['tyl_unumrcvtyls'] -= $owntylusercount;
 		if(!$skip_postcounts)
 		{
-			$post['tyl_unumptyls'] -= thankyoulike_getownsingletylpostcount($post['uid']);
+			$post['tyl_unumptyls'] -= tyl_get_own_single_tyl_post_count($post['uid']);
 		}
 	}
 }
@@ -1372,12 +1363,12 @@ function thankyoulike_check_remove_self_likes_from_post_array(&$post, $skip_post
  * @param int $pid The ID of the potentially (un)tyled post.
  * @return boolean True if the tyl functionality is forbidden, false if it is not.
  */
-function thankyoulike_is_forbidden_due_to_first_thread_post_restriction($fid, $thread, $pid)
+function tyl_is_forbidden_due_to_first_thread_post_restriction($fid, $thread, $pid)
 {
 	global $mybb;
 	$prefix = 'g33k_thankyoulike_';
 
-	$forum_override_for_may_like_all_posts = thankyoulike_in_forums($fid, $mybb->settings[$prefix.'firstalloverride']);
+	$forum_override_for_may_like_all_posts = tyl_in_forums($fid, $mybb->settings[$prefix.'firstalloverride']);
 	$may_like_all_posts_in_thread = ($mybb->settings[$prefix.'firstall'] == "all" || $forum_override_for_may_like_all_posts);
 	$is_first_post = ($thread['firstpost'] == $pid);
 
@@ -1406,7 +1397,7 @@ function thankyoulike_is_forbidden_due_to_first_thread_post_restriction($fid, $t
  *              Will be filled if and only if the function returns true.
  * @return boolean True if the tyl functionality is forbidden, false if it is not.
  */
-function thankyoulike_is_liking_forbidden($thread, $fid, $pid, $post_userid, $tyl_userid, $skip_forum_pw_protect_check = true, &$err_msgs = array())
+function tyl_is_tyling_forbidden($thread, $fid, $pid, $post_userid, $tyl_userid, $skip_forum_pw_protect_check = true, &$err_msgs = array())
 {
 	global $mybb, $lang;
 	$prefix = 'g33k_thankyoulike_';
@@ -1424,7 +1415,7 @@ function thankyoulike_is_liking_forbidden($thread, $fid, $pid, $post_userid, $ty
 		}
 	} else	$forbidden_due_to_forum_pw_protect = false;
 
-	$forbidden_due_to_excluded_forum = thankyoulike_in_forums($fid, $mybb->settings[$prefix.'exclude']);
+	$forbidden_due_to_excluded_forum = tyl_in_forums($fid, $mybb->settings[$prefix.'exclude']);
 	if ($forbidden_due_to_excluded_forum) {
 		$err_msgs[] = $lang->tyl_error_excluded;
 	}
@@ -1449,7 +1440,7 @@ function thankyoulike_is_liking_forbidden($thread, $fid, $pid, $post_userid, $ty
 		$err_msgs[] = $lang->sprintf($lang->tyl_error_hidden_from_group, $pre);
 	}
 
-	$forbidden_due_to_first_thread_post_restriction = thankyoulike_is_forbidden_due_to_first_thread_post_restriction($fid, $thread, $pid);
+	$forbidden_due_to_first_thread_post_restriction = tyl_is_forbidden_due_to_first_thread_post_restriction($fid, $thread, $pid);
 	if ($forbidden_due_to_first_thread_post_restriction)
 	{
 		$err_msgs[] = $lang->sprintf($lang->tyl_error_first_post_only, $pre);
@@ -1473,15 +1464,15 @@ function thankyoulike_is_liking_forbidden($thread, $fid, $pid, $post_userid, $ty
  * @param boolean $has_tyled_post Whether the user with ID $tyl_userid has already tyled the post.
  * @return string One of 'del', 'add' or ''.
  */
-function thankyoulike_get_which_btn($thread, $fid, $pid, $post_userid, $tyl_userid, $has_tyled_post)
+function tyl_get_which_btn($thread, $fid, $pid, $post_userid, $tyl_userid, $has_tyled_post)
 {
-	global $mybb, $lang;
+	global $mybb;
 	$prefix = 'g33k_thankyoulike_';
 
 	// Default to not showing a button
 	$which_btn = '';
 
-	$liking_is_forbidden = thankyoulike_is_liking_forbidden($thread, $fid, $pid, $post_userid, $tyl_userid);
+	$liking_is_forbidden = tyl_is_tyling_forbidden($thread, $fid, $pid, $post_userid, $tyl_userid);
 
 	if(!$liking_is_forbidden)
 	{
@@ -1506,13 +1497,13 @@ function thankyoulike_get_which_btn($thread, $fid, $pid, $post_userid, $tyl_user
  * by replacing the placeholder '%%TYL_NUMTHANKEDLIKED%%'.
  * @param array &$post The database row of the post. Modified by this function.
  */
-function thankyoulike_set_up_stats_in_postbit(&$post)
+function tyl_set_up_stats_in_postbit(&$post)
 {
 	global $mybb, $lang, $templates;
 	$prefix = 'g33k_thankyoulike_';
 
 	// If removal of self-likes from counts is enabled, then remove self-likes from counts.
-	thankyoulike_check_remove_self_likes_from_post_array($post);
+	tyl_check_remove_self_likes_from_post_array($post);
 
 	$tyl = $mybb->settings[$prefix.'thankslike'];
 	if (substr($tyl, -1) != 's')
@@ -1536,14 +1527,14 @@ function thankyoulike_set_up_stats_in_postbit(&$post)
  * the placeholder for the user's tyl statistics, '%%TYL_NUMTHANKEDLIKED%%'.
  * @param array &$post The database row of the post. Updated by the function.
  */
-function thankyoulike_remove_stats_in_postbit(&$post)
+function tyl_remove_stats_in_postbit(&$post)
 {
 	$post['user_details'] = preg_replace("#".preg_quote('%%TYL_NUMTHANKEDLIKED%%<br />')."#i", "", $post['user_details']);
 }
 
 function thankyoulike_postbit(&$post)
 {
-	global $db, $mybb, $theme, $templates, $lang, $pids, $g33k_pcache;
+	global $db, $mybb, $templates, $lang, $pids, $g33k_pcache;
 	$prefix = 'g33k_thankyoulike_';
 
 	$lang->load("thankyoulike");
@@ -1551,10 +1542,10 @@ function thankyoulike_postbit(&$post)
 	if ($mybb->settings[$prefix.'enabled'] == "1")
 	{
 		// Set up stats in postbit
-		thankyoulike_set_up_stats_in_postbit($post);
+		tyl_set_up_stats_in_postbit($post);
 
 		// If this post is in an excluded forum, then end right here.
-		if (thankyoulike_in_forums($post['fid'], $mybb->settings[$prefix.'exclude']))
+		if (tyl_in_forums($post['fid'], $mybb->settings[$prefix.'exclude']))
 		{
 			return $post;
 		}
@@ -1709,12 +1700,12 @@ function thankyoulike_postbit(&$post)
 
 		$thread = get_thread($post['tid']);
 		$post['button_tyl'] = '';
-		if (($which_btn = thankyoulike_get_which_btn($thread, $post['fid'], $post['pid'], $post['uid'], $mybb->user['uid'], $tyled)))
+		if (($which_btn = tyl_get_which_btn($thread, $post['fid'], $post['pid'], $post['uid'], $mybb->user['uid'], $tyled)))
 		{
 			eval("\$post['button_tyl'] = \"".$templates->get("thankyoulike_button_$which_btn")."\";");
 		}
 
-		$forbidden_due_to_first_thread_post_restriction = thankyoulike_is_forbidden_due_to_first_thread_post_restriction($post['fid'], $thread, $post['pid']);
+		$forbidden_due_to_first_thread_post_restriction = tyl_is_forbidden_due_to_first_thread_post_restriction($post['fid'], $thread, $post['pid']);
 		$is_member_of_hidden_group = (is_member($mybb->settings[$prefix.'hidelistforgroups']) || $mybb->settings[$prefix.'hidelistforgroups'] == "-1");
 		if($count>0 && !$forbidden_due_to_first_thread_post_restriction && !$is_member_of_hidden_group)
 		{
@@ -1750,7 +1741,7 @@ function thankyoulike_postbit(&$post)
 	else
 	{
 		// Remove stats in postbit
-		thankyoulike_remove_stats_in_postbit($post);
+		tyl_remove_stats_in_postbit($post);
 	}
 	$post['styleclass'] = '';
 	if($mybb->settings[$prefix.'highlight_popular_posts'] == 1 && $mybb->settings[$prefix.'highlight_popular_posts_count'] > 0)
@@ -1769,8 +1760,9 @@ function thankyoulike_postbit(&$post)
  * @param mixed The given user's ID as an integer or null to count for all users.
  * @return integer The self-like count.
  */
-function thankyoulike_getowntylcount($prefix, $uid = null) {
+function tyl_get_own_tyl_count($uid = null) {
 	global $db;
+	$prefix = 'g33k_thankyoulike_';
 
 	// Cache results as we may need them again
 	// e.g. on a thread page where the same user has posted multiple times.
@@ -1794,19 +1786,19 @@ function thankyoulike_getowntylcount($prefix, $uid = null) {
 
 function thankyoulike_postbit_udetails(&$post)
 {
-	global $mybb, $db, $templates, $lang;
+	global $mybb, $lang;
 	$prefix = 'g33k_thankyoulike_';
 	$lang->load("thankyoulike");
 
 	if ($mybb->settings[$prefix.'enabled'] == "1")
 	{
 		// Set up stats in postbit
-		thankyoulike_set_up_stats_in_postbit($post);
+		tyl_set_up_stats_in_postbit($post);
 	}
 	else
 	{
 		// Remove stats in postbit
-		thankyoulike_remove_stats_in_postbit($post);
+		tyl_remove_stats_in_postbit($post);
 	}
 	return $post;
 }
@@ -1816,11 +1808,11 @@ function thankyoulike_postbit_udetails(&$post)
  */
 function tyl_recordAlertThankyou()
 {
-	global $db, $lang, $mybb, $alert, $post, $prefix;
+	global $db, $lang, $mybb, $alert, $post;
 	$prefix = 'g33k_thankyoulike_';
 	$lang->load("thankyoulike", false, true);
 
-	if(!$mybb->settings[$prefix.'enabled'] == "1" && tyl_have_myalerts(true, true, true))
+	if($mybb->settings[$prefix.'enabled'] == "1" && tyl_have_myalerts(true, true, true))
 	{
 		$uid = (int)$post['uid'];
 		$tid = (int)$post['tid'];
@@ -1936,7 +1928,7 @@ function thankyoulike_memprofile()
 			$tyl_thankslikes = $lang->tyl_thanks;
 		}
 
-		thankyoulike_check_remove_self_likes_from_post_array($memprofile, true);
+		tyl_check_remove_self_likes_from_post_array($memprofile, true);
 
 		$daysreg = (TIME_NOW - $memprofile['regdate']) / (24*3600);
 		$tylpd = $memprofile['tyl_unumtyls'] / $daysreg;
@@ -1962,7 +1954,7 @@ function thankyoulike_memprofile()
 
 		if($mybb->settings[$prefix.'remowntylfromc'] == 1)
 		{
-			$owntyltotalcount = thankyoulike_getowntylcount($prefix);
+			$owntyltotalcount = tyl_get_own_tyl_count();
 			$totalgiv -= $owntyltotalcount;
 			$totalrcv -= $owntyltotalcount;
 		}
@@ -2341,7 +2333,6 @@ function thankyoulike_merge_posts($args)
 function thankyoulike_merge_threads($args)
 {
 	global $db;
-	$prefix = 'g33k_thankyoulike_';
 
 	$mergetid = $args['mergetid'];
 	$tid = $args['tid'];
@@ -2360,7 +2351,6 @@ function thankyoulike_merge_threads($args)
 function thankyoulike_split_posts($args)
 {
 	global $db;
-	$prefix = 'g33k_thankyoulike_';
 
 	$pids = $args['pids'];
 	$tid = $args['tid'];
@@ -2497,6 +2487,7 @@ function thankyoulike_wol_activity($user_activity)
 function thankyoulike_friendly_wol_activity($plugin_array)
 {
 	global $mybb, $lang;
+	$prefix = 'g33k_thankyoulike_';
 	$lang->load("thankyoulike");
 
 	if ($plugin_array['user_activity']['activity'] == "tyl_searching")
@@ -2533,7 +2524,7 @@ function thankyoulike_settings_peeker()
 	{
 		echo '<script type="text/javascript">
 		$(document).ready(function(){
-			new Peeker($(".setting_'.$prefix.'enabled"), $("#row_setting_'.$prefix.'thankslike, #row_setting_'.$prefix.'firstall, #row_setting_'.$prefix.'firstalloverride, #row_setting_'.$prefix.'removing, #row_setting_'.$prefix.'tylownposts, #row_setting_'.$prefix.'remowntylfroms, #row_setting_'.$prefix.'remowntylfromc, #row_setting_'.$prefix.'closedthreads, #row_setting_'.$prefix.'exclude, #row_setting_'.$prefix.'unameformat, #row_setting_'.$prefix.'hideforgroups, #row_setting_'.$prefix.'showdt, #row_setting_'.$prefix.'dtformat, #row_setting_'.$prefix.'sortorder, #row_setting_'.$prefix.'collapsible, #row_setting_'.$prefix.'colldefault, #row_setting_'.$prefix.'hidelistforgroups, #row_setting_'.$prefix.'displaygrowl, #row_setting_'.$prefix.'limits"), 1, true),
+			new Peeker($(".setting_'.$prefix.'enabled"), $("#row_setting_'.$prefix.'thankslike, #row_setting_'.$prefix.'firstall, #row_setting_'.$prefix.'firstalloverride, #row_setting_'.$prefix.'removing, #row_setting_'.$prefix.'tylownposts, #row_setting_'.$prefix.'reputation_add, #row_setting_'.$prefix.'remowntylfroms, #row_setting_'.$prefix.'remowntylfromc, #row_setting_'.$prefix.'closedthreads, #row_setting_'.$prefix.'exclude, #row_setting_'.$prefix.'exclude_count, #row_setting_'.$prefix.'unameformat, #row_setting_'.$prefix.'hideforgroups, #row_setting_'.$prefix.'showdt, #row_setting_'.$prefix.'dtformat, #row_setting_'.$prefix.'sortorder, #row_setting_'.$prefix.'collapsible, #row_setting_'.$prefix.'colldefault, #row_setting_'.$prefix.'hidelistforgroups, #row_setting_'.$prefix.'displaygrowl, #row_setting_'.$prefix.'limits, #row_setting_'.$prefix.'highlight_popular_posts, #row_setting_'.$prefix.'show_memberprofile_box"), 1, true),
 			new Peeker($(".setting_'.$prefix.'firstall"), $("#row_setting_'.$prefix.'firstalloverride"), "first", true),
 			new Peeker($(".setting_'.$prefix.'tylownposts"), $("#row_setting_'.$prefix.'remowntylfroms, #row_setting_'.$prefix.'remowntylfromc"), 1, true),
 			new Peeker($(".setting_'.$prefix.'reputation_add"), $("#row_setting_'.$prefix.'reputation_add_reppoints, #row_setting_'.$prefix.'reputation_add_repcomment"), 1, true),
@@ -2549,7 +2540,7 @@ function thankyoulike_settings_peeker()
 // Start Thank You/Like Promotions Functions
 function thankyoulike_promotion_formcontainer_output_row(&$args)
 {
-	global $run_module, $form_container, $mybb, $db, $lang, $form, $options, $options_type, $promotion;
+	global $run_module, $form_container, $mybb, $lang, $form, $options, $options_type, $promotion;
 
 	if(!($run_module == 'user' && !empty($form_container->_title) && $mybb->get_input('module') == 'user-group_promotions' && in_array($mybb->get_input('action'), array('add', 'edit'))))
 	{
@@ -2777,7 +2768,7 @@ function acp_tyl_do_recounting()
 				{
 					$thread_tyls[$tyl['tid']] = 1;
 				}
-				if(!thankyoulike_in_forums($tyl['fid'], $mybb->settings[$prefix.'exclude_count']))
+				if(!tyl_in_forums($tyl['fid'], $mybb->settings[$prefix.'exclude_count']))
 				{
 					if($user_tyls[$tyl['uid']])
 					{
@@ -2848,16 +2839,6 @@ function acp_tyl_recount_form()
 }
 
 
-function tyl_limits_usergroup_permission_tabs(&$tabs)
-{
-	global $lang;
-	$prefix = 'g33k_thankyoulike_';
-	$lang->load("config_thankyoulike");
-
-	$tabs['tyl_limits'] = $lang->tyl_limits_tab;
-	return $tabs;
-}
-
 function tyl_limits_usergroup_permission()
 {
 	global $mybb, $lang, $form, $form_container;
@@ -2887,10 +2868,9 @@ function tyl_limits_usergroup_permission_commit()
 
 function tyl_preinstall_cleanup($for_upgrade = false)
 {
-	global $mybb, $db, $cache;
+	global $db, $cache;
 
-	$codename = basename(__FILE__, ".php");
-	$prefix = 'g33k_'.$codename.'_';
+	$prefix = 'g33k_thankyoulike_';
 
 	//delete old unnecessary files
 	if(file_exists(MYBB_ROOT."/admin/modules/tools/thankyoulike_recount.php"))
@@ -2946,7 +2926,7 @@ function tyl_preinstall_cleanup($for_upgrade = false)
  * @param mixed The value of the forumselect setting to check within.
  * @return boolean True if inclusive; false if not.
  */
-function thankyoulike_in_forums($fid, $forums)
+function tyl_in_forums($fid, $forums)
 {
 	if($forums == -1)
 	{
