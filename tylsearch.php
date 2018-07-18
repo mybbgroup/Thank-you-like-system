@@ -1,5 +1,17 @@
 <?php
 /**
+ * Thank You/Like system - plugin for MyBB 1.8.x forum software
+ * 
+ * @package MyBB Plugin
+ * @author MyBB Group - Eldenroot & SvePu & lairdshaw - <eldenroot@gmail.com>
+ * @copyright 2018 MyBB Group <http://mybb.group>
+ * @link <https://github.com/mybbgroup/MyBB_Thank-you-like-plugin>
+ * @version 3.0.0
+ * @license GPL-3.0
+ * 
+ */
+
+/**
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by 
  * the Free Software Foundation, either version 3 of the License, 
