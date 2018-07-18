@@ -3,9 +3,9 @@
  * Thank You/Like system - plugin for MyBB 1.8.x forum software
  * 
  * @package MyBB Plugin
- * @author MyBB Group - Eldenroot, SvePu, lairdshaw; original author of plugin -G33K-
+ * @author MyBB Group - Eldenroot & SvePu & lairdshaw - <eldenroot@gmail.com>
  * @copyright 2018 MyBB Group <http://mybb.group>
- * @repository GitHub <https://github.com/mybbgroup/MyBB_Thank-you-like-plugin>
+ * @link <https://github.com/mybbgroup/MyBB_Thank-you-like-plugin>
  * @version 3.0.0
  * @license GPL-3.0
  * 
