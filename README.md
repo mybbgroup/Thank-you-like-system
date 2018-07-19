@@ -31,7 +31,7 @@ For more information, see the plugin's:
 
 ## Upgrading
 
-### Upgrading to version 2.4.0 or above
+### Upgrading to version 3.0.0 or above
 
 N.B. If you are upgrading **from** version 2.3.0 or earlier *and* MyAlerts is integrated *and* you don't want to lose any existing thanks/likes alerts, then see "Workaround to avoid loss of alerts" below.
 

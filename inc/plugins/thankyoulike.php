@@ -1,5 +1,17 @@
 <?php
 /**
+ * Thank You/Like system - plugin for MyBB 1.8.x forum software
+ * 
+ * @package MyBB Plugin
+ * @author MyBB Group - Eldenroot & SvePu & lairdshaw - <eldenroot@gmail.com>
+ * @copyright 2018 MyBB Group <http://mybb.group>
+ * @link <https://github.com/mybbgroup/MyBB_Thank-you-like-plugin>
+ * @version 3.0.0
+ * @license GPL-3.0
+ * 
+ */
+
+/**
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License,
@@ -54,7 +66,6 @@ else
 	$plugins->add_hook('task_promotions', 'thankyoulike_promotion_task');
 }
 
-
 function thankyoulike_info()
 {
 	global $plugins_cache, $db, $lang, $admin_session;
@@ -69,7 +80,7 @@ function thankyoulike_info()
 	$url_E = '<a href="https://community.mybb.com/user-84065.html" target="_blank">Eldenroot</a>';
 	$url_DN = '<a href="https://community.mybb.com/user-51493.html" target="_blank">Whiteneo</a>';
 	$url_L = '<a href="https://community.mybb.com/user-116662.html" target="_blank">Laird</a>';
-	$url_S = '<a href="https://github.com/Eldenroot/MyBB_Thank-you-like-plugin" target="_blank">GitHub</a>';
+	$url_S = '<a href="https://github.com/mybbgroup/MyBB_Thank-you-like-plugin" target="_blank">GitHub</a>';
 
 	$info = array(
 		"name"		=> htmlspecialchars_uni($lang->tyl_info_title),
@@ -77,10 +88,10 @@ function thankyoulike_info()
 		"website"	=> "https://community.mybb.com/thread-169382.html",
 		"author"	=> "- G33K -, ATofighi, Eldenroot, SvePu, Whiteneo, Laird",
 		"authorsite"	=> "https://community.mybb.com/thread-169382.html",
-		"version"	=> "2.4.0",
+		"version"	=> "3.0.0",
 		// Constructed by converting each digit of "version" above into two digits (zero-padded if necessary),
 		// then concatenating them, then removing any leading zero to avoid the value being interpreted as octal.
-		"version_code"  => 20400,
+		"version_code"  => 30000,
 		"codename"	=> "thankyoulikesystem",
 		"compatibility"	=> "18*"
 	);
