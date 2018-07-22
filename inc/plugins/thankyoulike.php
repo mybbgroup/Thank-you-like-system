@@ -1546,7 +1546,7 @@ function tyl_remove_stats_in_postbit(&$post)
 
 function thankyoulike_postbit(&$post)
 {
-	global $db, $mybb, $templates, $lang, $pids, $g33k_pcache;
+	global $db, $mybb, $templates, $lang, $pids, $g33k_pcache, $theme;
 	$prefix = 'g33k_thankyoulike_';
 
 	$lang->load("thankyoulike");
