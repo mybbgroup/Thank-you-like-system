@@ -258,7 +258,6 @@ if($mybb->input['action'] == "add")
 			}
 		}
 		$db->write_query("UPDATE ".TABLE_PREFIX."posts SET tyl_pnumtyls=tyl_pnumtyls+1 WHERE pid='".intval($pid)."'");
-		$db->write_query("UPDATE ".TABLE_PREFIX."threads SET tyl_tnumtyls=tyl_tnumtyls+1 WHERE tid='".intval($tid)."'");
 
 		if(!tyl_in_forums($fid, $mybb->settings[$prefix.'exclude_count']))
 		{
@@ -350,7 +349,6 @@ if($mybb->input['action'] == "del")
 				}
 			}
 			$db->write_query("UPDATE ".TABLE_PREFIX."posts SET tyl_pnumtyls=tyl_pnumtyls-1 WHERE pid='".intval($pid)."'");
-			$db->write_query("UPDATE ".TABLE_PREFIX."threads SET tyl_tnumtyls=tyl_tnumtyls-1 WHERE tid='".intval($tid)."'");
 			if(!tyl_in_forums($fid, $mybb->settings[$prefix.'exclude_count']))
 			{
 				$db->write_query("UPDATE ".TABLE_PREFIX."users SET tyl_unumtyls=tyl_unumtyls-1 WHERE uid='".intval($mybb->user['uid'])."'");
