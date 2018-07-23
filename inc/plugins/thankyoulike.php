@@ -614,7 +614,7 @@ function tyl_insert_templates()
 	<td class=\"trow2\"><strong>{\$lang->tyl_total_tyls_given}</strong></td>
 	<td class=\"trow2\">{\$memprofile['tyl_unumtyls']} ({\$tylpd_percent_total})<br /><span class=\"smalltext\">(<a href=\"tylsearch.php?action=usertylthreads&amp;uid={\$uid}\">{\$lang->tyl_find_threads}</a> &mdash; <a href=\"tylsearch.php?action=usertylposts&amp;uid={\$uid}\">{\$lang->tyl_find_posts}</a>)</span></td>
 </tr>",
-		'thankyoulike_member_profile_box'	=> "<table border=\"0\" cellspacing=\"{\$theme['borderwidth']}\" cellpadding=\"{\$theme['tablespace']}\" width=\"100%\" class=\"tborder\">
+		'thankyoulike_member_profile_box'	=> "<table border=\"0\" cellspacing=\"{\$theme['borderwidth']}\" cellpadding=\"{\$theme['tablespace']}\" width=\"100%\" class=\"tborder tfixed\">
 <tr>
 <td colspan=\"2\" class=\"thead\"><strong>{\$lang->tyl_profile_box_thead}</strong></td>
 </tr>
