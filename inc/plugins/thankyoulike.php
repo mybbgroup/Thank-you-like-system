@@ -1,14 +1,14 @@
 <?php
 /**
  * Thank You/Like system - plugin for MyBB 1.8.x forum software
- * 
+ *
  * @package MyBB Plugin
  * @author MyBB Group - Eldenroot & SvePu & lairdshaw - <eldenroot@gmail.com>
  * @copyright 2018 MyBB Group <http://mybb.group>
  * @link <https://github.com/mybbgroup/MyBB_Thank-you-like-plugin>
  * @version 3.0.0
  * @license GPL-3.0
- * 
+ *
  */
 
 /**
@@ -2066,6 +2066,7 @@ function thankyoulike_memprofile()
 				$forum = get_forum($post['fid']);
 				$forumlink = get_forum_link($post['fid']);
 
+				$post['subject'] = htmlspecialchars_uni($post['subject']);
 				$memprofile['tylsubject'] = "<a href=\"{$postlink}\"><span>{$parser->parse_badwords($post['subject'])}</span></a>";
 
 				$memprofile['tylcount'] = (int)$post['tylcount'];
