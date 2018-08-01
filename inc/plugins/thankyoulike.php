@@ -2081,6 +2081,7 @@ function thankyoulike_memprofile()
 				}
 				$memprofile['tylmessage'] = $parser->parse_message($post['message'], $parser_options);
 
+				$thread['subject'] = htmlspecialchars_uni($thread['subject']); 
 				$memprofile['tylthreadname'] = "<a href=\"{$threadlink}\"><span>{$parser->parse_badwords($thread['subject'])}</span></a>";
 				$memprofile['tylforumname'] = "<a href=\"{$forumlink}\"><span>{$parser->parse_badwords($forum['name'])}</span></a>";
 
