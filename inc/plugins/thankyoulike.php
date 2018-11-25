@@ -953,8 +953,8 @@ function thankyoulike_activate()
 </script>
 </head>');
 
-	find_replace_templatesets("postbit","#".preg_quote('<div class="post {$unapproved_shade}" style="{$post_visibility}" id="post_{$post[\'pid\']}">')."#i","<div class=\"post{\$post['styleclass']} {\$unapproved_shade}\" style=\"{\$post_visibility}\" id=\"post_{\$post['pid']}\">");
-	find_replace_templatesets("postbit_classic","#".preg_quote('<div class="post classic {$unapproved_shade}" style="{$post_visibility}" id="post_{$post[\'pid\']}">')."#i","<div class=\"post classic{\$post['styleclass']} {\$unapproved_shade}\" style=\"{\$post_visibility}\" id=\"post_{\$post['pid']}\">");
+	find_replace_templatesets("postbit","#".preg_quote('<div class="post_content">')."#i","<div class=\"post_content{\$post['styleclass']}\">");
+	find_replace_templatesets("postbit_classic","#".preg_quote('<div class="post_content">')."#i","<div class=\"post_content{\$post['styleclass']}\">");
 	find_replace_templatesets("postbit_classic","#".preg_quote('<div class="post_controls">')."#i","<div style=\"{\$post['tyl_display']}\" id=\"tyl_{\$post['pid']}\">{\$post['thankyoulike_data']}</div>\n<div class=\"post_controls\">");
 	find_replace_templatesets("postbit","#".preg_quote('<div class="post_controls">')."#i","<div style=\"{\$post['tyl_display']}\" id=\"tyl_{\$post['pid']}\">{\$post['thankyoulike_data']}</div>\n<div class=\"post_controls\">");
 	find_replace_templatesets("postbit", "#".preg_quote('{$post[\'button_edit\']}')."#i", '{$post[\'button_tyl\']}{$post[\'button_edit\']}');
