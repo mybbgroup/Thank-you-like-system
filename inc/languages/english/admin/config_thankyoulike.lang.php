@@ -118,6 +118,8 @@ $l['tyl_highlight_popular_posts_desc'] = "Choose \"Yes\" to enable this feature.
 $l['tyl_highlight_popular_posts_count_title'] = "Minimum count for highlight posts";
 $l['tyl_highlight_popular_posts_count_desc'] = "Posts with at least this many thanks/likes will be highlighted.";
 
+$l['tyl_display_tyl_counter_forumdisplay_title'] = "Enable thanks/likes counter for the first post in forumdisplay_thread?";
+$l['tyl_display_tyl_counter_forumdisplay_desc'] = "Selecting \"Yes\" will display the counter in forumdisplay_thread of thanks/likes received in the first post of the thread.";
 
 $l['tyl_show_memberprofile_box_title'] = "Enable trophy posts in member profiles?";
 $l['tyl_show_memberprofile_box_desc'] = "When enabled (choose \"Yes\"), each member's trophy post (most thanked/liked post) will be shown on his/her profile page.";
