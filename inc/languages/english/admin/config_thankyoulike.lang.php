@@ -13,7 +13,7 @@ $l['tyl_view_master_thankyoulike_css'] = "View the Master theme's thankyoulike.c
 $l['tyl_use_this_css_for'] = "(use this after plugin upgrade to update this stylesheet in <a href=\"index.php?module=style-themes\">any themes</a> for which you have modified it).";
 $l['tyl_successful_upgrade_msg'] = "The {1} has been activated successfully and upgraded to version {2}.";
 $l['tyl_successful_upgrade_msg_for_info'] = "Successfully upgraded to version {1}.";
-$l['tyl_view_changelog'] = "View changelog.";
+$l['tyl_view_changelog'] = "View changelog";
 $l['tyl_info_desc_alerts_integrate'] = "<b>Click <u>HERE</u> to integrate the Thank You/Like System with MyAlerts</b>";
 $l['tyl_info_desc_alerts_integrated'] = "<b>The Thank You/Like System is currently integrated with MyAlerts.</b>";
 $l['tyl_alerts_integration_success_msg'] = 'The Thank You/Like System was successfully integrated with MyAlerts!';

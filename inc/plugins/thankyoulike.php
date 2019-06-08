@@ -6,7 +6,7 @@
  * @author MyBB Group - Eldenroot & SvePu & lairdshaw - <eldenroot@gmail.com>
  * @copyright 2018 MyBB Group <http://mybb.group>
  * @link <https://github.com/mybbgroup/MyBB_Thank-you-like-plugin>
- * @version 3.2.0
+ * @version 3.3.0
  * @license GPL-3.0
  *
  */
@@ -87,10 +87,10 @@ function thankyoulike_info()
 		"website"	=> "https://community.mybb.com/thread-169382.html",
 		"author"	=> "- G33K -, ATofighi, Eldenroot, SvePu, Whiteneo, Laird",
 		"authorsite"	=> "https://community.mybb.com/thread-169382.html",
-		"version"	=> "3.2.0",
+		"version"	=> "3.3.0dev",
 		// Constructed by converting each digit of "version" above into two digits (zero-padded if necessary),
 		// then concatenating them, then removing any leading zero to avoid the value being interpreted as octal.
-		"version_code"  => 30200,
+		"version_code"  => 30300,
 		"codename"	=> "thankyoulikesystem",
 		"compatibility"	=> "18*"
 	);
@@ -140,9 +140,11 @@ function thankyoulike_info()
 		$info_desc .= "<ul><li style=\"list-style-image: url(styles/default/images/icons/default.png)\"><a href=\"index.php?module=tools-recount_rebuild\">".htmlspecialchars_uni($lang->tyl_info_desc_recount)."</a></li></ul>\n";
 		$info_desc .= "<ul><li style=\"list-style-image: url(styles/default/images/icons/default.png)\"><a href=\"../thankyoulike.php?action=css\">".htmlspecialchars_uni($lang->tyl_view_master_thankyoulike_css)."</a> {$lang->tyl_use_this_css_for}</li></ul>\n";
 		$info_desc .= '<form action="https://www.paypal.com/cgi-bin/webscr" method="post" style="float: right;" target="_blank">
-<input type="hidden" name="cmd" value="_s-xclick">
-<input type="hidden" name="hosted_button_id" value="KCNAC5PE828X8">
-<input type="image" src="https://www.paypalobjects.com/webstatic/en_US/btn/btn_donate_pp_142x27.png" border="0" name="submit" alt="PayPal - The safer, easier way to pay online!">
+<input type="hidden" name="cmd" value="_donations">
+<input type="hidden" name="business" value="5FSNQNV52TXGS">
+<input type="hidden" name="item_name" value="Thank You/Like system plugin for MyBB" />
+<input type="hidden" name="currency_code" value="USD" />
+<input type="image" src="https://www.paypalobjects.com/webstatic/en_US/btn/btn_donate_pp_142x27.png" border="0" name="submit" title="PayPal - The safer, easier way to pay online!" alt="Donate with PayPal button">
 <img alt="" border="0" src="https://www.paypalobjects.com/en_US/i/scr/pixel.gif" width="1" height="1">
 </form>';
 	}
@@ -606,7 +608,7 @@ function tyl_insert_templates()
 	<span id=\"tyl_title_{\$post['pid']}\" style=\"{\$tyl_title_display}\">{\$lang->tyl_title}</span><span id=\"tyl_title_collapsed_{\$post['pid']}\" style=\"{\$tyl_title_display_collapsed}\">{\$lang->tyl_title_collapsed}</span><br />
 	<span id=\"tyl_data_{\$post['pid']}\" style=\"{\$tyl_data_display}\">&nbsp;&nbsp;• {\$post['thankyoulike']}</span>
 </div>",
-		'thankyoulike_tyl_counter_forumdisplay_thread'		=> "<td align=\"center\" class=\"{\$bgcolor}{\$thread_type_class}\"><span title=\"{\$lang->tyl_firstpost_tyl_counter_thread}\" class=\"tyl_counter\">{\$thread['tyls']}</span></td>",
+		'thankyoulike_tyl_counter_forumdisplay_thread'		=> "<span title=\"{\$lang->tyl_firstpost_tyl_counter_thread}\" class=\"tyl_counter\">{\$thread['tyls']}</span>",
 		'thankyoulike_expcollapse'	=> "<a href=\"javascript:void(0)\" onclick=\"thankyoulike.tgl({\$post['pid']});return false;\" title=\"{\$tyl_showhide}\" id=\"tyl_a_expcol_{\$post['pid']}\"><img src=\"{\$theme['imgdir']}/{\$tyl_expcolimg}\" alt=\"{\$tyl_showhide}\" id=\"tyl_i_expcol_{\$post['pid']}\" /></a> ",
 		'thankyoulike_button_add'	=> "<div id=\"tyl_btn_{\$post['pid']}\" class=\"postbit_buttons\"><a class=\"add_tyl_button\" href=\"thankyoulike.php?action=add&amp;pid={\$post['pid']}&amp;my_post_key={\$mybb->post_code}\" onclick=\"thankyoulike.add({\$post['pid']}, {\$post['tid']}); return false;\" title=\"{\$lang->add_tyl_button_title}\" id=\"tyl_a{\$post['pid']}\"><span id=\"tyl_i{\$post['pid']}\">{\$lang->add_tyl}</span></a></div>",
 		'thankyoulike_button_del'	=> "<div id=\"tyl_btn_{\$post['pid']}\" class=\"postbit_buttons\"><a class=\"del_tyl_button\" href=\"thankyoulike.php?action=del&amp;pid={\$post['pid']}&amp;my_post_key={\$mybb->post_code}\" onclick=\"thankyoulike.del({\$post['pid']}, {\$post['tid']}); return false;\" title=\"{\$lang->del_tyl_button_title}\" id=\"tyl_a{\$post['pid']}\"><span id=\"tyl_i{\$post['pid']}\">{\$lang->del_tyl}</span></a></div>",
@@ -983,7 +985,7 @@ function thankyoulike_activate()
 		find_replace_templatesets("member_profile", '#{\$reputation}(\r?)\n#', "{\$tyl_memprofile}\n{\$reputation}\n");
 	}
 	find_replace_templatesets("member_profile", '#{\$modoptions}(\r?)\n#', "{\$tyl_profile_box}\n{\$modoptions}\n");
-	find_replace_templatesets("forumdisplay_thread","#".preg_quote('{$thread[\'multipage\']}')."#i","{\$thread[\'multipage\']}%%TYL_TYLCOUNTER_THREAD%%");
+	find_replace_templatesets("forumdisplay_thread","#".preg_quote('{$thread[\'multipage\']}')."#i","%%TYL_TYLCOUNTER_THREAD%%{\$thread['multipage']}");
 	
 	// Enable the tyl alert type if necessary.
 	tyl_myalerts_set_enabled(1);
@@ -1746,7 +1748,7 @@ function thankyoulike_postbit(&$post)
 				eval("\$thankyoulike = \"".$templates->get("thankyoulike_postbit")."\";");
 			}
 			$post['thankyoulike_data'] = $thankyoulike;
-            $post['tyl_count'] = $count;
+            $post['ty_count'] = $count;
 		}
 		else
 		{
@@ -1762,7 +1764,7 @@ function thankyoulike_postbit(&$post)
 				eval("\$thankyoulike = \"".$templates->get("thankyoulike_postbit")."\";");
 			}
 			$post['thankyoulike_data'] = $thankyoulike;
-			$post['tyl_count'] = $count;
+			$post['ty_count'] = $count;
 		}
 	}
 	else
