@@ -606,8 +606,7 @@ function tyl_insert_templates()
 	<span id=\"tyl_title_{\$post['pid']}\" style=\"{\$tyl_title_display}\">{\$lang->tyl_title}</span><span id=\"tyl_title_collapsed_{\$post['pid']}\" style=\"{\$tyl_title_display_collapsed}\">{\$lang->tyl_title_collapsed}</span><br />
 	<span id=\"tyl_data_{\$post['pid']}\" style=\"{\$tyl_data_display}\">&nbsp;&nbsp;• {\$post['thankyoulike']}</span>
 </div>",
-		'thankyoulike_tyl_counter_forumdisplay_thread'		=> "<td align=\"center\" class=\"{\$bgcolor}{\$thread_type_class}\"><span class=\"tyl_counter\">{\$thread['tyls']}</span></td>",
-		'thankyoulike_tyl_counter_forumdisplay_threadlist'		=> "<td class=\"tcat\" align=\"center\" width=\"7%\"><span class=\"smalltext\"><strong><a href=\"{\$sorturl}&amp;sortby=tyl_count&amp;order=desc\">{\$lang->tyl_firstpost_tyl_counter_threadlist}</a> {\$orderarrow['tyl_count']}</strong></span></td>",
+		'thankyoulike_tyl_counter_forumdisplay_thread'		=> "<td align=\"center\" class=\"{\$bgcolor}{\$thread_type_class}\"><span title=\"{\$lang->tyl_firstpost_tyl_counter_thread}\" class=\"tyl_counter\">{\$thread['tyls']}</span></td>",
 		'thankyoulike_expcollapse'	=> "<a href=\"javascript:void(0)\" onclick=\"thankyoulike.tgl({\$post['pid']});return false;\" title=\"{\$tyl_showhide}\" id=\"tyl_a_expcol_{\$post['pid']}\"><img src=\"{\$theme['imgdir']}/{\$tyl_expcolimg}\" alt=\"{\$tyl_showhide}\" id=\"tyl_i_expcol_{\$post['pid']}\" /></a> ",
 		'thankyoulike_button_add'	=> "<div id=\"tyl_btn_{\$post['pid']}\" class=\"postbit_buttons\"><a class=\"add_tyl_button\" href=\"thankyoulike.php?action=add&amp;pid={\$post['pid']}&amp;my_post_key={\$mybb->post_code}\" onclick=\"thankyoulike.add({\$post['pid']}, {\$post['tid']}); return false;\" title=\"{\$lang->add_tyl_button_title}\" id=\"tyl_a{\$post['pid']}\"><span id=\"tyl_i{\$post['pid']}\">{\$lang->add_tyl}</span></a></div>",
 		'thankyoulike_button_del'	=> "<div id=\"tyl_btn_{\$post['pid']}\" class=\"postbit_buttons\"><a class=\"del_tyl_button\" href=\"thankyoulike.php?action=del&amp;pid={\$post['pid']}&amp;my_post_key={\$mybb->post_code}\" onclick=\"thankyoulike.del({\$post['pid']}, {\$post['tid']}); return false;\" title=\"{\$lang->del_tyl_button_title}\" id=\"tyl_a{\$post['pid']}\"><span id=\"tyl_i{\$post['pid']}\">{\$lang->del_tyl}</span></a></div>",
@@ -984,8 +983,8 @@ function thankyoulike_activate()
 		find_replace_templatesets("member_profile", '#{\$reputation}(\r?)\n#', "{\$tyl_memprofile}\n{\$reputation}\n");
 	}
 	find_replace_templatesets("member_profile", '#{\$modoptions}(\r?)\n#', "{\$tyl_profile_box}\n{\$modoptions}\n");
-	find_replace_templatesets("forumdisplay_thread","#".preg_quote('{$rating}')."#i","%%TYL_TYLCOUNTER_THREAD%%{\$rating}");
-	find_replace_templatesets("forumdisplay_threadlist","#".preg_quote('{$ratingcol}')."#i","%%TYL_TYLCOUNTER_HEADER%%{\$rating}");
+	find_replace_templatesets("forumdisplay_thread","#".preg_quote('{$thread[\'multipage\']}')."#i","{\$thread[\'multipage\']}%%TYL_TYLCOUNTER_THREAD%%");
+	
 	// Enable the tyl alert type if necessary.
 	tyl_myalerts_set_enabled(1);
 }
@@ -1018,7 +1017,6 @@ function thankyoulike_deactivate()
 	find_replace_templatesets("member_profile", '#{\$tyl_memprofile}(\r?)\n#', "", 0);
 	find_replace_templatesets("member_profile", '#{\$tyl_profile_box}(\r?)\n#', "", 0);
 	find_replace_templatesets("forumdisplay_thread", '#%%TYL_TYLCOUNTER_THREAD%%(\r?)\n#', "", 0);
-	find_replace_templatesets("forumdisplay_threadlist", '#%%TYL_TYLCOUNTER_HEADER%%(\r?)\n#', "", 0);
 	
 	// Disable the tyl alert type if necessary.
 	tyl_myalerts_set_enabled(0);
@@ -1791,7 +1789,7 @@ function thankyoulike_threads_udetails() {
 	global $mybb, $db, $templates, $lang, $thread, $newvar;	
 	$prefix = 'g33k_thankyoulike_';	
 	$lang->load("thankyoulike");
-	if ($mybb->settings['display_tyl_counter_forumdisplay' == "1")
+	if ($mybb->settings['display_tyl_counter_forumdisplay' == "1"])
 	{
 		$tpid = (int)$thread['firstpost'];
 		$query = $db->simple_select("posts","tyl_pnumtyls","pid=".(int)$tpid);
