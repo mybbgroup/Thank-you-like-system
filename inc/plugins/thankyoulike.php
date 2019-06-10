@@ -608,7 +608,7 @@ function tyl_insert_templates()
 	<span id=\"tyl_title_{\$post['pid']}\" style=\"{\$tyl_title_display}\">{\$lang->tyl_title}</span><span id=\"tyl_title_collapsed_{\$post['pid']}\" style=\"{\$tyl_title_display_collapsed}\">{\$lang->tyl_title_collapsed}</span><br />
 	<span id=\"tyl_data_{\$post['pid']}\" style=\"{\$tyl_data_display}\">&nbsp;&nbsp;• {\$post['thankyoulike']}</span>
 </div>",
-		'thankyoulike_tyl_counter_forumdisplay_thread'		=> "<span title=\"{\$lang->tyl_firstpost_tyl_counter_thread}\" class=\"tyl_counter\">{\$thread['tyls']}</span>",
+		'thankyoulike_tyl_counter_forumdisplay_thread'		=> "<span title=\"{\$lang->tyl_firstpost_tyl_count_forumdisplay_thread}\" class=\"tyl_counter\">{\$thread['tyls']}</span>",
 		'thankyoulike_expcollapse'	=> "<a href=\"javascript:void(0)\" onclick=\"thankyoulike.tgl({\$post['pid']});return false;\" title=\"{\$tyl_showhide}\" id=\"tyl_a_expcol_{\$post['pid']}\"><img src=\"{\$theme['imgdir']}/{\$tyl_expcolimg}\" alt=\"{\$tyl_showhide}\" id=\"tyl_i_expcol_{\$post['pid']}\" /></a> ",
 		'thankyoulike_button_add'	=> "<div id=\"tyl_btn_{\$post['pid']}\" class=\"postbit_buttons\"><a class=\"add_tyl_button\" href=\"thankyoulike.php?action=add&amp;pid={\$post['pid']}&amp;my_post_key={\$mybb->post_code}\" onclick=\"thankyoulike.add({\$post['pid']}, {\$post['tid']}); return false;\" title=\"{\$lang->add_tyl_button_title}\" id=\"tyl_a{\$post['pid']}\"><span id=\"tyl_i{\$post['pid']}\">{\$lang->add_tyl}</span></a></div>",
 		'thankyoulike_button_del'	=> "<div id=\"tyl_btn_{\$post['pid']}\" class=\"postbit_buttons\"><a class=\"del_tyl_button\" href=\"thankyoulike.php?action=del&amp;pid={\$post['pid']}&amp;my_post_key={\$mybb->post_code}\" onclick=\"thankyoulike.del({\$post['pid']}, {\$post['tid']}); return false;\" title=\"{\$lang->del_tyl_button_title}\" id=\"tyl_a{\$post['pid']}\"><span id=\"tyl_i{\$post['pid']}\">{\$lang->del_tyl}</span></a></div>",
@@ -985,7 +985,7 @@ function thankyoulike_activate()
 		find_replace_templatesets("member_profile", '#{\$reputation}(\r?)\n#', "{\$tyl_memprofile}\n{\$reputation}\n");
 	}
 	find_replace_templatesets("member_profile", '#{\$modoptions}(\r?)\n#', "{\$tyl_profile_box}\n{\$modoptions}\n");
-	find_replace_templatesets("forumdisplay_thread","#".preg_quote('{$thread[\'multipage\']}')."#i","%%TYL_TYLCOUNTER_THREAD%%{\$thread['multipage']}");
+	find_replace_templatesets("forumdisplay_thread","#".preg_quote('{$thread[\'multipage\']}')."#i","{\$tyl_forumdisplay_thread_var}{\$thread['multipage']}");
 	
 	// Enable the tyl alert type if necessary.
 	tyl_myalerts_set_enabled(1);
@@ -1018,7 +1018,7 @@ function thankyoulike_deactivate()
 	%%TYL_NUMTHANKEDLIKED%%<br />')."#i", '', 0);
 	find_replace_templatesets("member_profile", '#{\$tyl_memprofile}(\r?)\n#', "", 0);
 	find_replace_templatesets("member_profile", '#{\$tyl_profile_box}(\r?)\n#', "", 0);
-	find_replace_templatesets("forumdisplay_thread", '#%%TYL_TYLCOUNTER_THREAD%%(\r?)\n#', "", 0);
+	find_replace_templatesets("forumdisplay_thread", '#{\$tyl_forumdisplay_thread_var}(\r?)\n#', "", 0);
 	
 	// Disable the tyl alert type if necessary.
 	tyl_myalerts_set_enabled(0);
@@ -1788,7 +1788,7 @@ function thankyoulike_postbit(&$post)
  * Add a support for displaying total number of tyl for the first post of the thread in the forumdisplay_thread template.
  */
 function thankyoulike_threads_udetails() {
-	global $mybb, $db, $templates, $lang, $thread, $newvar;	
+	global $mybb, $db, $templates, $lang, $thread, $tyl_forumdisplay_thread_var;	
 	$prefix = 'g33k_thankyoulike_';	
 	$lang->load("thankyoulike");
 	if ($mybb->settings['display_tyl_counter_forumdisplay' == "1"])
@@ -1797,12 +1797,23 @@ function thankyoulike_threads_udetails() {
 		$query = $db->simple_select("posts","tyl_pnumtyls","pid=".(int)$tpid);
 		$result = $db->fetch_field($query, 'tyl_pnumtyls');
 		$thread['tyls'] = (int)$result;
+		
+		// Load custom template "thankyoulike_tyl_counter_forumdisplay_thread" instead of var $tyl_forumdisplay_thread_var
+		eval("\$tyl_forumdisplay_thread_var = \"" . $templates->get("thankyoulike_tyl_counter_forumdisplay_thread") . "\";");
+		
+		// Display likes/thanks based on user's setting in ACP
+		if($mybb->settings[$prefix.'thankslike'] == "like")
+			{
+				$lang->tyl_firstpost_tyl_count_forumdisplay_thread = $lang->sprintf($lang->tyl_firstpost_tyl_count_forumdisplay_thread, $lang->tyl_likes);
+			}
+		elseif($mybb->settings[$prefix.'thankslike'] == "thanks")
+			{
+				$lang->tyl_firstpost_tyl_count_forumdisplay_thread = $lang->sprintf($lang->tyl_firstpost_tyl_count_forumdisplay_thread, $lang->tyl_thanks);
+			}
 	}
 }
 
-//TODO: ADD parsing for forumdisplay_thread and forumdisplay_threadlist templates
-//TODO: ADD a variable for {1} in lang file - select thanks/likes
-//TODO: ADD a support for ordering by tyl received in threadlist
+//TODO: Template variable for tyl amount output...
 
 /**
  * Count the number of self-liked posts for either the given user or for all users.
