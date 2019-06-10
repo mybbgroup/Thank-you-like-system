@@ -1802,14 +1802,14 @@ function thankyoulike_threads_udetails() {
 		eval("\$tyl_forumdisplay_thread_var = \"" . $templates->get("thankyoulike_tyl_counter_forumdisplay_thread") . "\";");
 		
 		// Display likes/thanks based on user's setting in ACP
-		if($mybb->settings[$prefix.'thankslike'] == "like")
-			{
-				$lang->tyl_firstpost_tyl_count_forumdisplay_thread = $lang->sprintf($lang->tyl_firstpost_tyl_count_forumdisplay_thread, $lang->tyl_likes);
-			}
-		elseif($mybb->settings[$prefix.'thankslike'] == "thanks")
-			{
-				$lang->tyl_firstpost_tyl_count_forumdisplay_thread = $lang->sprintf($lang->tyl_firstpost_tyl_count_forumdisplay_thread, $lang->tyl_thanks);
-			}
+		if ($mybb->settings[$prefix.'thankslike'] == "like")
+		{
+			$lang->tyl_firstpost_tyl_count_forumdisplay_thread = $lang->sprintf($lang->tyl_firstpost_tyl_count_forumdisplay_thread, $lang->tyl_likes);
+		}
+		elseif ($mybb->settings[$prefix.'thankslike'] == "thanks")
+		{
+			$lang->tyl_firstpost_tyl_count_forumdisplay_thread = $lang->sprintf($lang->tyl_firstpost_tyl_count_forumdisplay_thread, $lang->tyl_thanks);
+		}
 	}
 }
 
