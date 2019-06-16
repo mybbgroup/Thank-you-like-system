@@ -771,7 +771,7 @@ function tyl_create_stylesheet()
 	$css = array(
 		"name" => "thankyoulike.css",
 		"tid" => 1,
-		"attachedto" => "showthread.php",
+		"attachedto" => "showthread.php,forumdisplay.php",
 		"stylesheet" => tyl_get_thankyoulike_css(),
 		"cachefile" => $db->escape_string(str_replace('/', '', 'thankyoulike.css')),
 		"lastmodified" => TIME_NOW
