@@ -1296,10 +1296,16 @@ function thankyoulike_templatelist()
 		{
 			tyl_myalerts_formatter_load();
 		}
+		
+		// Cache all templates
 		$template_list = '';
 		if (THIS_SCRIPT == 'showthread.php')
 		{
 			$template_list = "thankyoulike_users,thankyoulike_postbit_author_user,thankyoulike_postbit,thankyoulike_postbit_classic,thankyoulike_expcollapse,thankyoulike_button_add,thankyoulike_button_del";
+		}
+		if (THIS_SCRIPT == 'forumdisplay.php')
+		{
+			$template_list = "thankyoulike_tyl_counter_forumdisplay_thread";
 		}
 		if (THIS_SCRIPT == 'member.php')
 		{
