@@ -1787,11 +1787,12 @@ function thankyoulike_postbit(&$post)
 /**
  * Add a support for displaying total number of tyl for the first post of the thread in the forumdisplay_thread template.
  */
-function thankyoulike_threads_udetails() {
+function thankyoulike_threads_udetails()
+{
 	global $mybb, $db, $templates, $lang, $thread, $tyl_forumdisplay_thread_var;	
 	$prefix = 'g33k_thankyoulike_';	
 	$lang->load("thankyoulike");
-	if ($mybb->settings['display_tyl_counter_forumdisplay' == "1"])
+	if ($mybb->settings['display_tyl_counter_forumdisplay'] == "1")
 	{
 		$tpid = (int)$thread['firstpost'];
 		$query = $db->simple_select("posts","tyl_pnumtyls","pid=".(int)$tpid);
@@ -1812,8 +1813,6 @@ function thankyoulike_threads_udetails() {
 		}
 	}
 }
-
-//TODO: Template variable for tyl amount output...
 
 /**
  * Count the number of self-liked posts for either the given user or for all users.
