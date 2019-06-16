@@ -3,8 +3,8 @@
  * Thank You/Like system - plugin for MyBB 1.8.x forum software
  *
  * @package MyBB Plugin
- * @author MyBB Group - Eldenroot & SvePu & lairdshaw - <eldenroot@gmail.com>
- * @copyright 2018 MyBB Group <http://mybb.group>
+ * @author MyBB Group - Eldenroot - <eldenroot@gmail.com>
+ * @copyright 2019 MyBB Group <http://mybb.group>
  * @link <https://github.com/mybbgroup/MyBB_Thank-you-like-plugin>
  * @version 3.3.0
  * @license GPL-3.0
@@ -79,15 +79,17 @@ function thankyoulike_info()
 	$url_E = '<a href="https://community.mybb.com/user-84065.html" target="_blank">Eldenroot</a>';
 	$url_DN = '<a href="https://community.mybb.com/user-51493.html" target="_blank">Whiteneo</a>';
 	$url_L = '<a href="https://community.mybb.com/user-116662.html" target="_blank">Laird</a>';
+	$url_CH = '<a href="https://community.mybb.com/user-95538.html" target="_blank">chack1172</a>';
 	$url_S = '<a href="https://github.com/mybbgroup/MyBB_Thank-you-like-plugin" target="_blank">GitHub</a>';
+	$url_MyBBGroup = '<a href="https://mybb.group" target="_blank">MyBB Group official website</a>';
 
 	$info = array(
 		"name"		=> htmlspecialchars_uni($lang->tyl_info_title),
-		"description"	=> htmlspecialchars_uni($lang->tyl_info_desc) . $lang->sprintf($lang->tyl_info_desc_url,$url_AT,$url_SP,$url_E,$url_DN,$url_L,$url_S),
+		"description"	=> htmlspecialchars_uni($lang->tyl_info_desc) . $lang->sprintf($lang->tyl_info_desc_url,$url_AT,$url_SP,$url_E,$url_DN,$url_L,$url_CH,$url_S,$url_MyBBGroup),
 		"website"	=> "https://community.mybb.com/thread-169382.html",
-		"author"	=> "- G33K -, ATofighi, Eldenroot, SvePu, Whiteneo, Laird",
+		"author"	=> "MyBB Group with love <3",
 		"authorsite"	=> "https://community.mybb.com/thread-169382.html",
-		"version"	=> "3.3.0dev",
+		"version"	=> "3.3.0",
 		// Constructed by converting each digit of "version" above into two digits (zero-padded if necessary),
 		// then concatenating them, then removing any leading zero to avoid the value being interpreted as octal.
 		"version_code"  => 30300,
@@ -137,8 +139,8 @@ function thankyoulike_info()
 			$info_desc .= "<ul><li style=\"list-style-image: url(styles/default/images/icons/custom.png)\"><a href=\"index.php?module=config-settings&action=change&gid=".$group['gid']."\">".htmlspecialchars_uni($lang->tyl_info_desc_configsettings)."</a></li></ul>";
 		}
 
-		$info_desc .= "<ul><li style=\"list-style-image: url(styles/default/images/icons/default.png)\"><a href=\"index.php?module=tools-recount_rebuild\">".htmlspecialchars_uni($lang->tyl_info_desc_recount)."</a></li></ul>\n";
-		$info_desc .= "<ul><li style=\"list-style-image: url(styles/default/images/icons/default.png)\"><a href=\"../thankyoulike.php?action=css\">".htmlspecialchars_uni($lang->tyl_view_master_thankyoulike_css)."</a> {$lang->tyl_use_this_css_for}</li></ul>\n";
+		$info_desc .= "<ul><li style=\"list-style-image: url(styles/default/images/icons/run_task.png)\"><a href=\"index.php?module=tools-recount_rebuild\">".htmlspecialchars_uni($lang->tyl_info_desc_recount)."</a></li></ul>\n";
+		$info_desc .= "<ul><li style=\"list-style-image: url(styles/default/images/icons/find.png)\"><a href=\"../thankyoulike.php?action=css\">".htmlspecialchars_uni($lang->tyl_view_master_thankyoulike_css)."</a> {$lang->tyl_use_this_css_for}</li></ul>\n";
 		$info_desc .= '<form action="https://www.paypal.com/cgi-bin/webscr" method="post" style="float: right;" target="_blank">
 <input type="hidden" name="cmd" value="_donations">
 <input type="hidden" name="business" value="5FSNQNV52TXGS">
@@ -632,8 +634,8 @@ function tyl_insert_templates()
 </table>
 <br />",
 		'thankyoulike_member_profile_box_content'	=> "<tr>
-<td class=\"tfoot\" width=\"80%\"><span class=\"smalltext\">{\$lang->tyl_profile_box_subject}</span></td>
-<td class=\"tfoot\" width=\"20%\" align=\"center\"><span class=\"smalltext\">{\$lang->tyl_profile_box_number}</span></td>
+<td class=\"trow2\" width=\"80%\"><span class=\"smalltext\">{\$lang->tyl_profile_box_subject}</span></td>
+<td class=\"trow2\" width=\"20%\" align=\"center\"><span class=\"smalltext\">{\$lang->tyl_profile_box_number}</span></td>
 </tr>
 <tr>
 <td class=\"trow1\"><strong>{\$memprofile['tylsubject']}</strong></td>
@@ -643,8 +645,8 @@ function tyl_insert_templates()
 <td class=\"trow1\" colspan=\"2\" style=\"padding: 0; border: 0;\">
 <table border=\"0\" cellspacing=\"{\$theme['borderwidth']}\" cellpadding=\"{\$theme['tablespace']}\" width=\"100%\">
 <tr>
-<td class=\"tfoot\" width=\"50%\"><span class=\"smalltext\">{\$lang->tyl_profile_box_thread}</span></td>
-<td class=\"tfoot\" width=\"50%\"><span class=\"smalltext\">{\$lang->tyl_profile_box_forum}</span></td>
+<td class=\"trow2\" width=\"50%\"><span class=\"smalltext\">{\$lang->tyl_profile_box_thread}</span></td>
+<td class=\"trow2\" width=\"50%\"><span class=\"smalltext\">{\$lang->tyl_profile_box_forum}</span></td>
 </tr>
 <tr>
 <td class=\"trow1\">{\$memprofile['tylthreadname']}</td>
@@ -654,7 +656,7 @@ function tyl_insert_templates()
 </td>
 </tr>
 <tr>
-<td class=\"tfoot\" colspan=\"2\"><span class=\"smalltext\">{\$lang->tyl_profile_box_message}</span></td>
+<td class=\"trow2\" colspan=\"2\"><span class=\"smalltext\">{\$lang->tyl_profile_box_message}</span></td>
 </tr>
 <tr>
 <td class=\"trow1 scaleimages\" colspan=\"2\">{\$memprofile['tylmessage']}</td>

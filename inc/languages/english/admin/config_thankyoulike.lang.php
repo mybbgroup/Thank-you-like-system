@@ -6,10 +6,10 @@
 
 $l['tyl_info_title'] = "Thank You/Like System";
 $l['tyl_info_desc'] = "Adds an option for users to thank users for posts or to like posts.";
-$l['tyl_info_desc_url'] ="<br />*Edited and maintained for MyBB 1.8.x by: {1}, {2}, {3}, {4} and {5}<br />*Sources: {6}";
+$l['tyl_info_desc_url'] ="<br />*Edited and maintained for MyBB 1.8.x by: {1}, {2}, {3}, {4}, {5} and {6}<br />*Sources: {7}<br />*{8}";
 $l['tyl_info_desc_recount'] = "Recount thanks/likes";
-$l['tyl_info_desc_configsettings'] = "Configure Settings";
-$l['tyl_view_master_thankyoulike_css'] = "View the Master theme's thankyoulike.css";
+$l['tyl_info_desc_configsettings'] = "Configure settings";
+$l['tyl_view_master_thankyoulike_css'] = "View the master theme's thankyoulike.css";
 $l['tyl_use_this_css_for'] = "(use this after plugin upgrade to update this stylesheet in <a href=\"index.php?module=style-themes\">any themes</a> for which you have modified it).";
 $l['tyl_successful_upgrade_msg'] = "The {1} has been activated successfully and upgraded to version {2}.";
 $l['tyl_successful_upgrade_msg_for_info'] = "Successfully upgraded to version {1}.";
