@@ -3,10 +3,10 @@
  * Thank You/Like system - plugin for MyBB 1.8.x forum software
  *
  * @package MyBB Plugin
- * @author MyBB Group - Eldenroot & SvePu & lairdshaw - <eldenroot@gmail.com>
- * @copyright 2018 MyBB Group <http://mybb.group>
+ * @author MyBB Group - Eldenroot - <eldenroot@gmail.com>
+ * @copyright 2019 MyBB Group <http://mybb.group>
  * @link <https://github.com/mybbgroup/MyBB_Thank-you-like-plugin>
- * @version 3.2.0
+ * @version 3.3.0
  * @license GPL-3.0
  *
  */
@@ -54,6 +54,7 @@ else
 	$plugins->add_hook("postbit","thankyoulike_postbit");
 	$plugins->add_hook("postbit_prev","thankyoulike_postbit_udetails");
 	$plugins->add_hook("postbit_pm","thankyoulike_postbit_udetails");
+	$plugins->add_hook("forumdisplay_thread_end","thankyoulike_threads_udetails");
 	$plugins->add_hook("postbit_announcement","thankyoulike_postbit_udetails");
 	$plugins->add_hook("member_profile_end","thankyoulike_memprofile");
 	$plugins->add_hook("fetch_wol_activity_end", "thankyoulike_wol_activity");
@@ -78,18 +79,20 @@ function thankyoulike_info()
 	$url_E = '<a href="https://community.mybb.com/user-84065.html" target="_blank">Eldenroot</a>';
 	$url_DN = '<a href="https://community.mybb.com/user-51493.html" target="_blank">Whiteneo</a>';
 	$url_L = '<a href="https://community.mybb.com/user-116662.html" target="_blank">Laird</a>';
+	$url_CH = '<a href="https://community.mybb.com/user-95538.html" target="_blank">chack1172</a>';
 	$url_S = '<a href="https://github.com/mybbgroup/MyBB_Thank-you-like-plugin" target="_blank">GitHub</a>';
+	$url_MyBBGroup = '<a href="https://mybb.group" target="_blank">MyBB Group official website</a>';
 
 	$info = array(
 		"name"		=> htmlspecialchars_uni($lang->tyl_info_title),
-		"description"	=> htmlspecialchars_uni($lang->tyl_info_desc) . $lang->sprintf($lang->tyl_info_desc_url,$url_AT,$url_SP,$url_E,$url_DN,$url_L,$url_S),
+		"description"	=> htmlspecialchars_uni($lang->tyl_info_desc) . $lang->sprintf($lang->tyl_info_desc_url,$url_AT,$url_SP,$url_E,$url_DN,$url_L,$url_CH,$url_S,$url_MyBBGroup),
 		"website"	=> "https://community.mybb.com/thread-169382.html",
-		"author"	=> "- G33K -, ATofighi, Eldenroot, SvePu, Whiteneo, Laird",
+		"author"	=> "MyBB Group with love <3",
 		"authorsite"	=> "https://community.mybb.com/thread-169382.html",
-		"version"	=> "3.2.0",
+		"version"	=> "3.3.0",
 		// Constructed by converting each digit of "version" above into two digits (zero-padded if necessary),
 		// then concatenating them, then removing any leading zero to avoid the value being interpreted as octal.
-		"version_code"  => 30200,
+		"version_code"  => 30300,
 		"codename"	=> "thankyoulikesystem",
 		"compatibility"	=> "18*"
 	);
@@ -136,12 +139,14 @@ function thankyoulike_info()
 			$info_desc .= "<ul><li style=\"list-style-image: url(styles/default/images/icons/custom.png)\"><a href=\"index.php?module=config-settings&action=change&gid=".$group['gid']."\">".htmlspecialchars_uni($lang->tyl_info_desc_configsettings)."</a></li></ul>";
 		}
 
-		$info_desc .= "<ul><li style=\"list-style-image: url(styles/default/images/icons/default.png)\"><a href=\"index.php?module=tools-recount_rebuild\">".htmlspecialchars_uni($lang->tyl_info_desc_recount)."</a></li></ul>\n";
-		$info_desc .= "<ul><li style=\"list-style-image: url(styles/default/images/icons/default.png)\"><a href=\"../thankyoulike.php?action=css\">".htmlspecialchars_uni($lang->tyl_view_master_thankyoulike_css)."</a> {$lang->tyl_use_this_css_for}</li></ul>\n";
+		$info_desc .= "<ul><li style=\"list-style-image: url(styles/default/images/icons/run_task.png)\"><a href=\"index.php?module=tools-recount_rebuild\">".htmlspecialchars_uni($lang->tyl_info_desc_recount)."</a></li></ul>\n";
+		$info_desc .= "<ul><li style=\"list-style-image: url(styles/default/images/icons/find.png)\"><a href=\"../thankyoulike.php?action=css\">".htmlspecialchars_uni($lang->tyl_view_master_thankyoulike_css)."</a> {$lang->tyl_use_this_css_for}</li></ul>\n";
 		$info_desc .= '<form action="https://www.paypal.com/cgi-bin/webscr" method="post" style="float: right;" target="_blank">
-<input type="hidden" name="cmd" value="_s-xclick">
-<input type="hidden" name="hosted_button_id" value="KCNAC5PE828X8">
-<input type="image" src="https://www.paypalobjects.com/webstatic/en_US/btn/btn_donate_pp_142x27.png" border="0" name="submit" alt="PayPal - The safer, easier way to pay online!">
+<input type="hidden" name="cmd" value="_donations">
+<input type="hidden" name="business" value="5FSNQNV52TXGS">
+<input type="hidden" name="item_name" value="Thank You/Like system plugin for MyBB" />
+<input type="hidden" name="currency_code" value="USD" />
+<input type="image" src="https://www.paypalobjects.com/webstatic/en_US/btn/btn_donate_pp_142x27.png" border="0" name="submit" title="PayPal - The safer, easier way to pay online!" alt="Donate with PayPal button">
 <img alt="" border="0" src="https://www.paypalobjects.com/en_US/i/scr/pixel.gif" width="1" height="1">
 </form>';
 	}
@@ -409,6 +414,12 @@ function tyl_create_settings($existing_setting_values = array())
 			'optionscode' => 'numeric',
 			'value'       => '0'
 		),
+		'display_tyl_counter_forumdisplay'   => array(
+			'title'       => $lang->tyl_display_tyl_counter_forumdisplay_title,
+			'description' => $lang->tyl_display_tyl_counter_forumdisplay_desc,
+			'optionscode' => 'yesno',
+			'value'       => '0'
+		),
 		'show_memberprofile_box'          => array(
 			'title'       => $lang->tyl_show_memberprofile_box_title,
 			'description' => $lang->tyl_show_memberprofile_box_desc,
@@ -599,6 +610,7 @@ function tyl_insert_templates()
 	<span id=\"tyl_title_{\$post['pid']}\" style=\"{\$tyl_title_display}\">{\$lang->tyl_title}</span><span id=\"tyl_title_collapsed_{\$post['pid']}\" style=\"{\$tyl_title_display_collapsed}\">{\$lang->tyl_title_collapsed}</span><br />
 	<span id=\"tyl_data_{\$post['pid']}\" style=\"{\$tyl_data_display}\">&nbsp;&nbsp;• {\$post['thankyoulike']}</span>
 </div>",
+		'thankyoulike_tyl_counter_forumdisplay_thread'		=> "<span title=\"{\$lang->tyl_firstpost_tyl_count_forumdisplay_thread}\" class=\"tyl_counter\">{\$thread['tyls']}</span>",
 		'thankyoulike_expcollapse'	=> "<a href=\"javascript:void(0)\" onclick=\"thankyoulike.tgl({\$post['pid']});return false;\" title=\"{\$tyl_showhide}\" id=\"tyl_a_expcol_{\$post['pid']}\"><img src=\"{\$theme['imgdir']}/{\$tyl_expcolimg}\" alt=\"{\$tyl_showhide}\" id=\"tyl_i_expcol_{\$post['pid']}\" /></a> ",
 		'thankyoulike_button_add'	=> "<div id=\"tyl_btn_{\$post['pid']}\" class=\"postbit_buttons\"><a class=\"add_tyl_button\" href=\"thankyoulike.php?action=add&amp;pid={\$post['pid']}&amp;my_post_key={\$mybb->post_code}\" onclick=\"thankyoulike.add({\$post['pid']}, {\$post['tid']}); return false;\" title=\"{\$lang->add_tyl_button_title}\" id=\"tyl_a{\$post['pid']}\"><span id=\"tyl_i{\$post['pid']}\">{\$lang->add_tyl}</span></a></div>",
 		'thankyoulike_button_del'	=> "<div id=\"tyl_btn_{\$post['pid']}\" class=\"postbit_buttons\"><a class=\"del_tyl_button\" href=\"thankyoulike.php?action=del&amp;pid={\$post['pid']}&amp;my_post_key={\$mybb->post_code}\" onclick=\"thankyoulike.del({\$post['pid']}, {\$post['tid']}); return false;\" title=\"{\$lang->del_tyl_button_title}\" id=\"tyl_a{\$post['pid']}\"><span id=\"tyl_i{\$post['pid']}\">{\$lang->del_tyl}</span></a></div>",
@@ -622,8 +634,8 @@ function tyl_insert_templates()
 </table>
 <br />",
 		'thankyoulike_member_profile_box_content'	=> "<tr>
-<td class=\"tfoot\" width=\"80%\"><span class=\"smalltext\">{\$lang->tyl_profile_box_subject}</span></td>
-<td class=\"tfoot\" width=\"20%\" align=\"center\"><span class=\"smalltext\">{\$lang->tyl_profile_box_number}</span></td>
+<td class=\"trow2\" width=\"80%\"><span class=\"smalltext\">{\$lang->tyl_profile_box_subject}</span></td>
+<td class=\"trow2\" width=\"20%\" align=\"center\"><span class=\"smalltext\">{\$lang->tyl_profile_box_number}</span></td>
 </tr>
 <tr>
 <td class=\"trow1\"><strong>{\$memprofile['tylsubject']}</strong></td>
@@ -633,8 +645,8 @@ function tyl_insert_templates()
 <td class=\"trow1\" colspan=\"2\" style=\"padding: 0; border: 0;\">
 <table border=\"0\" cellspacing=\"{\$theme['borderwidth']}\" cellpadding=\"{\$theme['tablespace']}\" width=\"100%\">
 <tr>
-<td class=\"tfoot\" width=\"50%\"><span class=\"smalltext\">{\$lang->tyl_profile_box_thread}</span></td>
-<td class=\"tfoot\" width=\"50%\"><span class=\"smalltext\">{\$lang->tyl_profile_box_forum}</span></td>
+<td class=\"trow2\" width=\"50%\"><span class=\"smalltext\">{\$lang->tyl_profile_box_thread}</span></td>
+<td class=\"trow2\" width=\"50%\"><span class=\"smalltext\">{\$lang->tyl_profile_box_forum}</span></td>
 </tr>
 <tr>
 <td class=\"trow1\">{\$memprofile['tylthreadname']}</td>
@@ -644,7 +656,7 @@ function tyl_insert_templates()
 </td>
 </tr>
 <tr>
-<td class=\"tfoot\" colspan=\"2\"><span class=\"smalltext\">{\$lang->tyl_profile_box_message}</span></td>
+<td class=\"trow2\" colspan=\"2\"><span class=\"smalltext\">{\$lang->tyl_profile_box_message}</span></td>
 </tr>
 <tr>
 <td class=\"trow1 scaleimages\" colspan=\"2\">{\$memprofile['tylmessage']}</td>
@@ -739,7 +751,19 @@ img[id^=tyl_i_expcol_]{
 	border-radius: 3px;
 	border-color: rgba(112,202,47,0.5);
 	background-color: rgba(139,195,74,0.3);
-}";
+}
+
+.tyl_counter{
+	border: 1px solid #ccc;
+	border-radius: 3px;
+	background-color: #ddd;
+	color: #333;
+	padding: 1px 5px;
+	float: right;
+	margin: 4px 5px 0px 10px;
+	font-weight: bold;
+}
+";
 }
 
 /**
@@ -752,7 +776,7 @@ function tyl_create_stylesheet()
 	$css = array(
 		"name" => "thankyoulike.css",
 		"tid" => 1,
-		"attachedto" => "showthread.php",
+		"attachedto" => "showthread.php|forumdisplay.php",
 		"stylesheet" => tyl_get_thankyoulike_css(),
 		"cachefile" => $db->escape_string(str_replace('/', '', 'thankyoulike.css')),
 		"lastmodified" => TIME_NOW
@@ -966,7 +990,8 @@ function thankyoulike_activate()
 		find_replace_templatesets("member_profile", '#{\$reputation}(\r?)\n#', "{\$tyl_memprofile}\n{\$reputation}\n");
 	}
 	find_replace_templatesets("member_profile", '#{\$modoptions}(\r?)\n#', "{\$tyl_profile_box}\n{\$modoptions}\n");
-
+	find_replace_templatesets("forumdisplay_thread","#".preg_quote('{$attachment_count}')."#i","{\$tyl_forumdisplay_thread_var}{\$attachment_count}");
+	
 	// Enable the tyl alert type if necessary.
 	tyl_myalerts_set_enabled(1);
 }
@@ -998,7 +1023,8 @@ function thankyoulike_deactivate()
 	%%TYL_NUMTHANKEDLIKED%%<br />')."#i", '', 0);
 	find_replace_templatesets("member_profile", '#{\$tyl_memprofile}(\r?)\n#', "", 0);
 	find_replace_templatesets("member_profile", '#{\$tyl_profile_box}(\r?)\n#', "", 0);
-
+	find_replace_templatesets("forumdisplay_thread", '#{\$tyl_forumdisplay_thread_var}#', "", 0);
+	
 	// Disable the tyl alert type if necessary.
 	tyl_myalerts_set_enabled(0);
 }
@@ -1275,10 +1301,16 @@ function thankyoulike_templatelist()
 		{
 			tyl_myalerts_formatter_load();
 		}
+		
+		// Cache all templates
 		$template_list = '';
 		if (THIS_SCRIPT == 'showthread.php')
 		{
 			$template_list = "thankyoulike_users,thankyoulike_postbit_author_user,thankyoulike_postbit,thankyoulike_postbit_classic,thankyoulike_expcollapse,thankyoulike_button_add,thankyoulike_button_del";
+		}
+		if (THIS_SCRIPT == 'forumdisplay.php')
+		{
+			$template_list = "thankyoulike_tyl_counter_forumdisplay_thread";
 		}
 		if (THIS_SCRIPT == 'member.php')
 		{
@@ -1727,6 +1759,7 @@ function thankyoulike_postbit(&$post)
 				eval("\$thankyoulike = \"".$templates->get("thankyoulike_postbit")."\";");
 			}
 			$post['thankyoulike_data'] = $thankyoulike;
+            $post['ty_count'] = $count;
 		}
 		else
 		{
@@ -1742,6 +1775,7 @@ function thankyoulike_postbit(&$post)
 				eval("\$thankyoulike = \"".$templates->get("thankyoulike_postbit")."\";");
 			}
 			$post['thankyoulike_data'] = $thankyoulike;
+			$post['ty_count'] = $count;
 		}
 	}
 	else
@@ -1759,6 +1793,51 @@ function thankyoulike_postbit(&$post)
 	}
 
 	return $post;
+}
+
+/**
+ * Add a support for displaying total number of tyl for the first post of the thread in the forumdisplay_thread template.
+ */
+function thankyoulike_threads_udetails()
+{
+	global $mybb, $db, $templates, $lang, $thread, $tyl_forumdisplay_cached, $threadcache, $tyl_forumdisplay_thread_var;	
+	$prefix = 'g33k_thankyoulike_';	
+	$lang->load("thankyoulike");
+	if ($mybb->settings[$prefix.'display_tyl_counter_forumdisplay'] == "1")
+	{
+		if (!$tyl_forumdisplay_cached)
+		{
+			$pids = array();
+			foreach ($threadcache as $t)
+			{
+				$pids[] = (int)$t['firstpost'];
+			}
+			$pids = implode(',', $pids);
+			$query = $db->simple_select("posts","tid,tyl_pnumtyls","pid IN ($pids)");
+			while ($post = $db->fetch_array($query))
+			{
+				$threadcache[$post['tid']]['tyls'] = (int)$post['tyl_pnumtyls'];
+				if ($post['tid'] == $thread['tid'])
+				{
+					$thread['tyls'] = (int)$post['tyl_pnumtyls'];
+				}
+			}
+			$tyl_forumdisplay_cached = false;
+		}
+
+		// Display likes/thanks based on user's setting in ACP
+		if ($mybb->settings[$prefix.'thankslike'] == "like")
+		{
+			$lang->tyl_firstpost_tyl_count_forumdisplay_thread = $lang->sprintf($lang->tyl_firstpost_tyl_count_forumdisplay_thread, $lang->tyl_firstpost_tyl_count_likes);
+		}
+		elseif ($mybb->settings[$prefix.'thankslike'] == "thanks")
+		{
+			$lang->tyl_firstpost_tyl_count_forumdisplay_thread = $lang->sprintf($lang->tyl_firstpost_tyl_count_forumdisplay_thread, $lang->tyl_firstpost_tyl_count_thanks);
+		}
+
+		// Load custom template "thankyoulike_tyl_counter_forumdisplay_thread" instead of var $tyl_forumdisplay_thread_var
+		eval("\$tyl_forumdisplay_thread_var = \"" . $templates->get("thankyoulike_tyl_counter_forumdisplay_thread") . "\";");
+	}
 }
 
 /**

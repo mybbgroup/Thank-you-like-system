@@ -101,3 +101,7 @@ $l['tyl_remove'] = 'Removed {1} from this post';
 $l['tyl_num_left'] = "You have {1} {2} remaining to use for the next 24 hours.";
 $l['tyl_num_left_for'] = "You have {1} {2} remaining to use for another {3}.";
 $l['tyl_num_left_unlimited'] = "You have unlimited {1} remaining.";
+
+$l['tyl_firstpost_tyl_count_forumdisplay_thread'] = "Total {1} received in the first post";
+$l['tyl_firstpost_tyl_count_thanks'] = "thanks";
+$l['tyl_firstpost_tyl_count_likes'] = "likes";
