@@ -1804,10 +1804,7 @@ function thankyoulike_threads_udetails()
 		$query = $db->simple_select("posts","tyl_pnumtyls","pid=".(int)$tpid);
 		$result = $db->fetch_field($query, 'tyl_pnumtyls');
 		$thread['tyls'] = (int)$result;
-		
-		// Load custom template "thankyoulike_tyl_counter_forumdisplay_thread" instead of var $tyl_forumdisplay_thread_var
-		eval("\$tyl_forumdisplay_thread_var = \"" . $templates->get("thankyoulike_tyl_counter_forumdisplay_thread") . "\";");
-		
+
 		// Display likes/thanks based on user's setting in ACP
 		if ($mybb->settings[$prefix.'thankslike'] == "like")
 		{
@@ -1817,6 +1814,9 @@ function thankyoulike_threads_udetails()
 		{
 			$lang->tyl_firstpost_tyl_count_forumdisplay_thread = $lang->sprintf($lang->tyl_firstpost_tyl_count_forumdisplay_thread, $lang->tyl_thanks);
 		}
+
+		// Load custom template "thankyoulike_tyl_counter_forumdisplay_thread" instead of var $tyl_forumdisplay_thread_var
+		eval("\$tyl_forumdisplay_thread_var = \"" . $templates->get("thankyoulike_tyl_counter_forumdisplay_thread") . "\";");
 	}
 }
 
