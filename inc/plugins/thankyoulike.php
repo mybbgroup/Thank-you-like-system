@@ -1800,10 +1800,25 @@ function thankyoulike_threads_udetails()
 	$lang->load("thankyoulike");
 	if ($mybb->settings[$prefix.'display_tyl_counter_forumdisplay'] == "1")
 	{
-		$tpid = (int)$thread['firstpost'];
-		$query = $db->simple_select("posts","tyl_pnumtyls","pid=".(int)$tpid);
-		$result = $db->fetch_field($query, 'tyl_pnumtyls');
-		$thread['tyls'] = (int)$result;
+		if (!$tyl_forumdisplay_cached)
+		{
+			$pids = array();
+			foreach ($threadcache as $thread)
+			{
+				$pids[] = (int)$thread['firstpost'];
+			}
+			$pids = implode(',', $pids);
+			$query = $db->simple_select("posts","tid,tyl_pnumtyls","pid IN ($pids)");
+			while ($post = $db->fetch_array($query))
+			{
+				$threadcache[$post['tid']]['tyls'] = (int)$post['tyl_pnumtyls'];
+				if ($post['tid'] == $thread['tid'])
+				{
+					$thread['tyls'] = (int)$post['tyl_pnumtyls'];
+				}
+			}
+			$tyl_forumdisplay_cached = false;
+		}
 
 		// Display likes/thanks based on user's setting in ACP
 		if ($mybb->settings[$prefix.'thankslike'] == "like")
