@@ -1798,7 +1798,7 @@ function thankyoulike_threads_udetails()
 	global $mybb, $db, $templates, $lang, $thread, $tyl_forumdisplay_thread_var;	
 	$prefix = 'g33k_thankyoulike_';	
 	$lang->load("thankyoulike");
-	if ($mybb->settings['display_tyl_counter_forumdisplay'] == "1")
+	if ($mybb->settings[$prefix.'display_tyl_counter_forumdisplay'] == "1")
 	{
 		$tpid = (int)$thread['firstpost'];
 		$query = $db->simple_select("posts","tyl_pnumtyls","pid=".(int)$tpid);
