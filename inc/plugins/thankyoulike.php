@@ -1795,7 +1795,7 @@ function thankyoulike_postbit(&$post)
  */
 function thankyoulike_threads_udetails()
 {
-	global $mybb, $db, $templates, $lang, $thread, $tyl_forumdisplay_thread_var;	
+	global $mybb, $db, $templates, $lang, $thread, $tyl_forumdisplay_cached, $threadcache, $tyl_forumdisplay_thread_var;	
 	$prefix = 'g33k_thankyoulike_';	
 	$lang->load("thankyoulike");
 	if ($mybb->settings[$prefix.'display_tyl_counter_forumdisplay'] == "1")
