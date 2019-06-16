@@ -1021,7 +1021,7 @@ function thankyoulike_deactivate()
 	%%TYL_NUMTHANKEDLIKED%%<br />')."#i", '', 0);
 	find_replace_templatesets("member_profile", '#{\$tyl_memprofile}(\r?)\n#', "", 0);
 	find_replace_templatesets("member_profile", '#{\$tyl_profile_box}(\r?)\n#', "", 0);
-	find_replace_templatesets("forumdisplay_thread", '#{\$tyl_forumdisplay_thread_var}(\r?)\n#', "", 0);
+	find_replace_templatesets("forumdisplay_thread", '#{\$tyl_forumdisplay_thread_var}#', "", 0);
 	
 	// Disable the tyl alert type if necessary.
 	tyl_myalerts_set_enabled(0);
