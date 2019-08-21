@@ -101,7 +101,7 @@ var thankyoulike = {
 				}
 				$("#tyl_"+pid).html(data.tylData);
 				$("#tyl_"+pid).css('display', "");
-				$("#tyl_btn_"+pid).html(data.tylButton);
+				$("#tyl_btn_"+pid).before(data.tylButton).remove();
 			}
 		}
 		document.body.style.cursor = 'default';
@@ -163,7 +163,7 @@ var thankyoulike = {
 				}
 				$("#tyl_"+pid).html(data.tylData);
 				$("#tyl_"+pid).css('display', "");
-				$("#tyl_btn_"+pid).html(data.tylButton);
+				$("#tyl_btn_"+pid).before(data.tylButton).remove();
 			}
 		}
 		document.body.style.cursor = 'default';
