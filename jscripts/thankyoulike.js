@@ -17,7 +17,7 @@ var thankyoulike = {
 					$('#tyl_i_expcol_'+pid).attr('src', $('#tyl_i_expcol_'+pid).attr('src').replace("collapse.png", "collapse_collapsed.png"));
 				}
 				$('#tyl_i_expcol_'+pid).attr('alt', "[+]");
-				$('#tyl_a_expcol_'+pid).attr('alt', "[+]");
+				$('#tyl_a_expcol_'+pid).attr('title', "[+]");
 			}
 			else
 			{
