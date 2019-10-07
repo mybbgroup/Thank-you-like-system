@@ -9,21 +9,19 @@ var thankyoulike = {
 		{
 			if($('#tyl_data_'+pid).is(':visible'))
 			{
-				$('#tyl_data_'+pid).hide();
-				$('#tyl_title_'+pid).hide();
+				$('#tyl_data_'+pid+',#tyl_title_'+pid).hide();
 				$('#tyl_title_collapsed_'+pid).show();
 				if($('#tyl_i_expcol_'+pid).attr('src'))
 				{
 					$('#tyl_i_expcol_'+pid).attr('src', $('#tyl_i_expcol_'+pid).attr('src').replace("collapse.png", "collapse_collapsed.png"));
 				}
 				$('#tyl_i_expcol_'+pid).attr('alt', "[+]");
-				$('#tyl_a_expcol_'+pid).attr('alt', "[+]");
+				$('#tyl_a_expcol_'+pid).attr('title', "[+]");
 			}
 			else
 			{
-				$('#tyl_data_'+pid).show();
+				$('#tyl_data_'+pid+',#tyl_title_'+pid).show();
 				$('#tyl_title_collapsed_'+pid).hide();
-				$('#tyl_title_'+pid).show();
 				if($('#tyl_i_expcol_'+pid).attr('src'))
 				{
 					$('#tyl_i_expcol_'+pid).attr('src', $('#tyl_i_expcol_'+pid).attr('src').replace("collapse_collapsed.png", "collapse.png"));
