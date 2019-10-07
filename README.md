@@ -133,6 +133,6 @@ Feel free to contribute, report a bug, or tell us your ideas!
 
 ## Credits
 
-This plugin was originally created by **-G33K-** and modified for MyBB 1.8.x by **ATofighi** (the JavaScript part). It is currently maintained by **Eldenroot**, **SvePu**, **Whiteneo**, and **Laird**!
+This plugin was originally created by **-G33K-** and modified for MyBB 1.8.x by **ATofighi** (the JavaScript part). It is currently maintained by **Eldenroot**, **SvePu**, **Whiteneo**, **Laird** and **effone**!
 
 Full credit goes to the original author, **-G33K-**. Without you, this plugin would not have been possible. :)
