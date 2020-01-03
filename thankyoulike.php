@@ -265,17 +265,6 @@ if($mybb->input['action'] == "add")
 			$db->write_query("UPDATE ".TABLE_PREFIX."users SET tyl_unumrcvtyls=tyl_unumrcvtyls+1 WHERE uid='".intval($post['uid'])."'");
 		}
 		$db->write_query("UPDATE ".TABLE_PREFIX.$prefix."stats SET value=value+1 WHERE title='total'");
-		if($mybb->input['ajax'])
-		{
-			// Do nothing here
-		}
-		else
-		{
-			// Go back to the post
-			$url = get_post_link($pid, $tid)."#pid{$pid}";
-			redirect($url, $lang->sprintf($lang->tyl_redirect_tyled, $pre).$lang->tyl_redirect_back);
-			exit;
-		}
 
 		// Add also reputation points on thank or like
 		if($mybb->settings[$prefix.'reputation_add'] != 0)
@@ -305,7 +294,19 @@ if($mybb->input['action'] == "add")
 			// Insert a new reputation
 			$db->insert_query("reputation", $reputation);
 			// Update user
-			$db->write_query("UPDATE ".TABLE_PREFIX."users SET reputation=reputation+{$reppoints} WHERE uid='".intval($post['uid'])."'"); 
+			$db->write_query("UPDATE ".TABLE_PREFIX."users SET reputation=reputation+{$reppoints} WHERE uid='".intval($post['uid'])."'");
+		}
+
+		if($mybb->input['ajax'])
+		{
+			// Do nothing here
+		}
+		else
+		{
+			// Go back to the post
+			$url = get_post_link($pid, $tid)."#pid{$pid}";
+			redirect($url, $lang->sprintf($lang->tyl_redirect_tyled, $pre).$lang->tyl_redirect_back);
+			exit;
 		}
 	}
 	else
@@ -356,16 +357,6 @@ if($mybb->input['action'] == "del")
 			}
 			$db->write_query("UPDATE ".TABLE_PREFIX.$prefix."stats SET value=value-1 WHERE title='total'");
 
-			if($mybb->input['ajax'])
-			{
-				// Do nothing here
-			}
-			else
-			{
-				$url = get_post_link($pid, $tid)."#pid{$pid}";
-				redirect($url, $lang->sprintf($lang->tyl_redirect_deleted, $pre).$lang->tyl_redirect_back);
-			}
-
 			// delete given reputation points for thank or like
 			if($mybb->settings[$prefix.'reputation_add'] != 0)
 			{
@@ -374,11 +365,21 @@ if($mybb->input['action'] == "del")
 				{
 					$reppoints = intval($mybb->settings[$prefix.'reputation_add_reppoints']);
 				}
-				
+
 				// delete given reputation
 				$db->delete_query("reputation", "pid='".intval($post['pid'])."' AND adduid='".intval($mybb->user['uid'])."'");
 				// Update user
-				$db->write_query("UPDATE ".TABLE_PREFIX."users SET reputation=reputation-{$reppoints} WHERE uid='".intval($post['uid'])."'"); 
+				$db->write_query("UPDATE ".TABLE_PREFIX."users SET reputation=reputation-{$reppoints} WHERE uid='".intval($post['uid'])."'");
+			}
+
+			if($mybb->input['ajax'])
+			{
+				// Do nothing here
+			}
+			else
+			{
+				$url = get_post_link($pid, $tid)."#pid{$pid}";
+				redirect($url, $lang->sprintf($lang->tyl_redirect_deleted, $pre).$lang->tyl_redirect_back);
 			}
 		}
 		else
