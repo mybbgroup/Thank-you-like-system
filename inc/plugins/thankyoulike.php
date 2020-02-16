@@ -1791,7 +1791,8 @@ function thankyoulike_postbit(&$post)
  */
 function thankyoulike_threads_udetails()
 {
-	global $mybb, $db, $templates, $lang, $thread, $tyl_forumdisplay_cached, $threadcache, $tyl_forumdisplay_thread_var;	
+	global $mybb, $db, $templates, $lang, $thread, $threadcache, $tyl_forumdisplay_thread_var;
+	static $tyl_forumdisplay_cached = array();
 	$prefix = 'g33k_thankyoulike_';	
 	$lang->load("thankyoulike");
 	if ($mybb->settings[$prefix.'display_tyl_counter_forumdisplay'] == "1")
@@ -1807,24 +1808,24 @@ function thankyoulike_threads_udetails()
 			$query = $db->simple_select("posts","tid,tyl_pnumtyls","pid IN ($pids)");
 			while ($post = $db->fetch_array($query))
 			{
+				$tyl_forumdisplay_cached[$post['tid']] = (int)$post['tyl_pnumtyls'];
 				$threadcache[$post['tid']]['tyls'] = (int)$post['tyl_pnumtyls'];
-				if ($post['tid'] == $thread['tid'])
-				{
-					$thread['tyls'] = (int)$post['tyl_pnumtyls'];
-				}
 			}
-			$tyl_forumdisplay_cached = false;
+
+			// Display likes/thanks based on user's setting in ACP
+			if ($mybb->settings[$prefix.'thankslike'] == "like")
+			{
+				$lang->tyl_firstpost_tyl_count_forumdisplay_thread = $lang->sprintf($lang->tyl_firstpost_tyl_count_forumdisplay_thread, $lang->tyl_firstpost_tyl_count_likes);
+			}
+			elseif ($mybb->settings[$prefix.'thankslike'] == "thanks")
+			{
+				$lang->tyl_firstpost_tyl_count_forumdisplay_thread = $lang->sprintf($lang->tyl_firstpost_tyl_count_forumdisplay_thread, $lang->tyl_firstpost_tyl_count_thanks);
+			}
+
+			$tyl_forumdisplay_cached;
 		}
 
-		// Display likes/thanks based on user's setting in ACP
-		if ($mybb->settings[$prefix.'thankslike'] == "like")
-		{
-			$lang->tyl_firstpost_tyl_count_forumdisplay_thread = $lang->sprintf($lang->tyl_firstpost_tyl_count_forumdisplay_thread, $lang->tyl_firstpost_tyl_count_likes);
-		}
-		elseif ($mybb->settings[$prefix.'thankslike'] == "thanks")
-		{
-			$lang->tyl_firstpost_tyl_count_forumdisplay_thread = $lang->sprintf($lang->tyl_firstpost_tyl_count_forumdisplay_thread, $lang->tyl_firstpost_tyl_count_thanks);
-		}
+		$thread['tyls'] = $tyl_forumdisplay_cached[$thread['tid']];
 
 		// Load custom template "thankyoulike_tyl_counter_forumdisplay_thread" instead of var $tyl_forumdisplay_thread_var
 		eval("\$tyl_forumdisplay_thread_var = \"" . $templates->get("thankyoulike_tyl_counter_forumdisplay_thread") . "\";");
