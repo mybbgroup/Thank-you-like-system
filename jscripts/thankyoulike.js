@@ -1,5 +1,8 @@
 var tylDataList = new Array();
-var tylExpIds = new Array();
+var tylExpIdsByUser  = new Array();
+var tylCollIdsByUser = new Array();
+var tylOurUidIdxExp  = -1;
+var tylOurUidIdxColl = -1;
 
 var thankyoulike = {
 	init: function()
@@ -7,42 +10,127 @@ var thankyoulike = {
 		$("[id^='tyl_data_']").each(function(){
 			tylDataList.push(parseInt($(this).attr('id').match(/\d+/)),10);
 		});
-		
-		tylExpIds = Cookie.get('tylexpids');
-		tylExpIds = tylExpIds ? $.uniqueSort(tylExpIds.split(/,/).map(function(pid){return parseInt(pid, 10);})) : new Array();
-		$(tylExpIds).filter(tylDataList);
+
+		var res = thankyoulike.parseExpCollCookie('tylexpids' , tylUser);
+		tylOurUidIdxExp  = res.ouruididx;
+		tylExpIdsByUser  = res.array;
+		res = thankyoulike.parseExpCollCookie('tylcollids', tylUser);
+		tylOurUidIdxColl = res.ouruididx;
+		tylCollIdsByUser = res.array;
 
 		var i = 0;
-		for (i = 0; i < tylDataList.length; ++i) {
-			if($.inArray(tylDataList[i], tylExpIds) !== -1)
-			{
-				thankyoulike.display(tylDataList[i]);
+		for(i = 0; i < tylDataList.length; ++i) {
+			var expIdx  = $.inArray(tylDataList[i], tylExpIdsByUser [tylOurUidIdxExp ].pids);
+			var collIdx = $.inArray(tylDataList[i], tylCollIdsByUser[tylOurUidIdxColl].pids);
+			if(expIdx !== -1 && collIdx !== -1) {
+				// Inconsistency: post is in both stored collapse and stored expand lists.
+				// Remove it from both.
+				tylExpIdsByUser [tylOurUidIdxExp ].pids.splice(expIdx , 1);
+				tylCollIdsByUser[tylOurUidIdxColl].pids.splice(collIdx, 1);
+				expIdx = collIdx = -1;
 			}
-			else
+			// Collapse the TYL list for this post if and only if the collapsible setting is true AND
+			// either the default collapse setting is set to collapse and this is not overridden by the expanded state,
+			// or the default collapse setting is set to uncollapsed but this IS overridden by the collapsed state.
+			if(tylCollapsible == 1 && ((tylCollDefault == 'closed' && expIdx === -1) || tylCollDefault == 'open' && collIdx !== -1))
 			{
 				thankyoulike.fleece(tylDataList[i]);
 			}
+			else
+			{
+				thankyoulike.display(tylDataList[i]);
+			}
 		}
 	},
-	
+
+	parseExpCollCookie: function(cookieName, tylUser)
+	{
+		var haveOurUid = false;
+		var ourUidIdx = -1;
+		var expCollIdsByUser = new Array();
+		var expCollCookie = Cookie.get(cookieName);
+		var idx = 0;
+		if (expCollCookie) {
+			var usersSplitCookie = expCollCookie.split(/;/);
+			for(var i = 0; i < usersSplitCookie.length; ++i)
+			{
+				splitArr = usersSplitCookie[i].split(/:/);
+				// Via the conditional, discard states which are not associated with a user ID.
+				if(splitArr.length >= 2)
+				{
+					if(splitArr[0] == tylUser)
+					{
+						haveOurUid = true;
+						ourUidIdx = idx;
+					}
+					expCollIdsByUser[idx++] = {
+						uid : parseInt(splitArr[0], 10),
+						pids: splitArr[1] ? $.uniqueSort(splitArr[1].split(/,/).map(function(pid){return parseInt(pid, 10);})) : new Array()
+					}
+				}
+			}
+		}
+		if(!haveOurUid)
+		{
+			expCollIdsByUser[idx] = {
+				uid : tylUser,
+				pids: new Array()
+			}
+			ourUidIdx = idx;
+		}
+
+		return {ouruididx: ourUidIdx, array: expCollIdsByUser};
+	},
+
+	saveExpCollCookie: function(cookieName, expCollIdsByUser)
+	{
+		var cookieData = '';
+		var i;
+		for(i = 0; i < expCollIdsByUser.length; i++)
+		{
+			if(cookieData) cookieData += ';';
+			cookieData += expCollIdsByUser[i].uid + ':' + expCollIdsByUser[i].pids.join(',');
+		}
+
+		Cookie.set(cookieName, cookieData);
+	},
+
 	tgl: function(pid)
 	{
 		if(tylCollapsible == 1)
 		{
+			var expIdx  = $.inArray(pid, tylExpIdsByUser [tylOurUidIdxExp ].pids);
+			var collIdx = $.inArray(pid, tylCollIdsByUser[tylOurUidIdxColl].pids);
+
 			if($('#tyl_data_'+pid).is(':visible'))
 			{
 				thankyoulike.fleece(pid);
 
-				tylExpIds = $.grep(tylExpIds, function(id) {
-				  return id != pid;
-				});
+				// Remove this pid from the expanded state (if it's in it) and
+				// add it to the collapsed state (if it's not already there).
+				if(expIdx !== -1)
+				{
+					tylExpIdsByUser [tylOurUidIdxExp ].pids.splice(expIdx, 1);
+				}
+				if(collIdx === -1) {
+					tylCollIdsByUser[tylOurUidIdxColl].pids.push(pid);
+				}
 			}
 			else
 			{
 				thankyoulike.display(pid);
-				tylExpIds.push(pid);
+				// Remove this pid from the collapsed state (if it's in it) and
+				// add it to the expanded state (if it's not already there).
+				if(collIdx !== -1)
+				{
+					tylCollIdsByUser[tylOurUidIdxColl].pids.splice(collIdx, 1);
+				}
+				if(expIdx === -1) {
+					tylExpIdsByUser [tylOurUidIdxExp ].pids.push(pid);
+				}
 			}
-			Cookie.set('tylexpids', tylExpIds.join(","));
+			thankyoulike.saveExpCollCookie('tylexpids' , tylExpIdsByUser );
+			thankyoulike.saveExpCollCookie('tylcollids', tylCollIdsByUser);
 		}
 	},
 

@@ -961,6 +961,7 @@ function thankyoulike_activate()
 	var tylEnabled = "{$mybb->settings[\'g33k_thankyoulike_enabled\']}";
 	var tylDisplayGrowl = "{$mybb->settings[\'g33k_thankyoulike_displaygrowl\']}";
 	var tylCollapsible = "{$mybb->settings[\'g33k_thankyoulike_collapsible\']}";
+	var tylCollDefault = "{$mybb->settings[\'g33k_thankyoulike_colldefault\']}";
 	var tylUser = "{$mybb->user[\'uid\']}";
 	var tylSend = "{$lang->tyl_send}";
 	var tylRemove = "{$lang->tyl_remove}";
@@ -997,6 +998,7 @@ function thankyoulike_deactivate()
 	var tylEnabled = "{$mybb->settings[\'g33k_thankyoulike_enabled\']}";
 	var tylDisplayGrowl = "{$mybb->settings[\'g33k_thankyoulike_displaygrowl\']}";
 	var tylCollapsible = "{$mybb->settings[\'g33k_thankyoulike_collapsible\']}";
+	var tylCollDefault = "{$mybb->settings[\'g33k_thankyoulike_colldefault\']}";
 	var tylUser = "{$mybb->user[\'uid\']}";
 	var tylSend = "{$lang->tyl_send}";
 	var tylRemove = "{$lang->tyl_remove}";
