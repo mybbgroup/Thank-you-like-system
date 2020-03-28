@@ -600,25 +600,59 @@ function tyl_insert_templates()
 	global $mybb, $db;
 
 	$tyl_templates = array(
-		'thankyoulike_postbit'			=> "<div class=\"post_controls tyllist {\$unapproved_shade}\">
+		'thankyoulike_postbit' =>
+		array(
+			'template' => "<div class=\"post_controls tyllist {\$unapproved_shade}\">
 	{\$tyl_expcol}
 	<span id=\"tyl_title_{\$post['pid']}\" style=\"{\$tyl_title_display}\">{\$lang->tyl_title}</span><span id=\"tyl_title_collapsed_{\$post['pid']}\" style=\"{\$tyl_title_display_collapsed}\">{\$lang->tyl_title_collapsed}</span><br />
 	<span id=\"tyl_data_{\$post['pid']}\" style=\"{\$tyl_data_display}\">&nbsp;&nbsp;• {\$post['thankyoulike']}</span>
 </div>",
-		'thankyoulike_postbit_classic'		=> "<div class=\"post_controls tyllist_classic {\$unapproved_shade}\">
+			'version_at_last_change' => '20200',
+		),
+		'thankyoulike_postbit_classic' =>
+		array(
+			'template' => "<div class=\"post_controls tyllist_classic {\$unapproved_shade}\">
 	{\$tyl_expcol}
 	<span id=\"tyl_title_{\$post['pid']}\" style=\"{\$tyl_title_display}\">{\$lang->tyl_title}</span><span id=\"tyl_title_collapsed_{\$post['pid']}\" style=\"{\$tyl_title_display_collapsed}\">{\$lang->tyl_title_collapsed}</span><br />
 	<span id=\"tyl_data_{\$post['pid']}\" style=\"{\$tyl_data_display}\">&nbsp;&nbsp;• {\$post['thankyoulike']}</span>
 </div>",
-		'thankyoulike_tyl_counter_forumdisplay_thread'		=> "<span title=\"{\$lang->tyl_firstpost_tyl_count_forumdisplay_thread}\" class=\"tyl_counter\">{\$thread['tyls']}</span>",
-		'thankyoulike_expcollapse'	=> "<a href=\"javascript:void(0)\" onclick=\"thankyoulike.tgl({\$post['pid']});return false;\" title=\"{\$tyl_showhide}\" id=\"tyl_a_expcol_{\$post['pid']}\"><img src=\"{\$theme['imgdir']}/{\$tyl_expcolimg}\" alt=\"{\$tyl_showhide}\" id=\"tyl_i_expcol_{\$post['pid']}\" /></a> ",
-		'thankyoulike_button_add'	=> "<a class=\"add_tyl_button\" href=\"thankyoulike.php?action=add&amp;pid={\$post['pid']}&amp;my_post_key={\$mybb->post_code}\" onclick=\"thankyoulike.add({\$post['pid']}, {\$post['tid']}); return false;\" title=\"{\$lang->add_tyl_button_title}\" id=\"tyl_btn_{\$post['pid']}\"><span id=\"tyl_i{\$post['pid']}\">{\$lang->add_tyl}</span></a>",
-		'thankyoulike_button_del'	=> "<a class=\"del_tyl_button\" href=\"thankyoulike.php?action=del&amp;pid={\$post['pid']}&amp;my_post_key={\$mybb->post_code}\" onclick=\"thankyoulike.del({\$post['pid']}, {\$post['tid']}); return false;\" title=\"{\$lang->del_tyl_button_title}\" id=\"tyl_btn_{\$post['pid']}\"><span id=\"tyl_i{\$post['pid']}\">{\$lang->del_tyl}</span></a>",
-		'thankyoulike_users'		=> "<span class=\"smalltext\">{\$comma}</span><a href=\"{\$profile_link}\" class=\"smalltext\" {\$datedisplay_title}>{\$tyl_list}</a>{\$datedisplay_next}",
-		'thankyoulike_postbit_author_user'		=> "{\$lang->tyl_rcvd}: {\$post['tyl_unumrtyls']}
+			'version_at_last_change' => '20200',
+		),
+		'thankyoulike_tyl_counter_forumdisplay_thread' =>
+		array(
+			'template' => "<span title=\"{\$lang->tyl_firstpost_tyl_count_forumdisplay_thread}\" class=\"tyl_counter\">{\$thread['tyls']}</span>",
+			'version_at_last_change' => '30300',
+		),
+		'thankyoulike_expcollapse' =>
+		array(
+			'template' => "<a href=\"javascript:void(0)\" onclick=\"thankyoulike.tgl({\$post['pid']});return false;\" title=\"{\$tyl_showhide}\" id=\"tyl_a_expcol_{\$post['pid']}\"><img src=\"{\$theme['imgdir']}/{\$tyl_expcolimg}\" alt=\"{\$tyl_showhide}\" id=\"tyl_i_expcol_{\$post['pid']}\" /></a> ",
+			'version_at_last_change' => '20000',
+		),
+		'thankyoulike_button_add' =>
+		array(
+			'template' => "<a class=\"add_tyl_button\" href=\"thankyoulike.php?action=add&amp;pid={\$post['pid']}&amp;my_post_key={\$mybb->post_code}\" onclick=\"thankyoulike.add({\$post['pid']}, {\$post['tid']}); return false;\" title=\"{\$lang->add_tyl_button_title}\" id=\"tyl_btn_{\$post['pid']}\"><span id=\"tyl_i{\$post['pid']}\">{\$lang->add_tyl}</span></a>",
+			'version_at_last_change' => '30302',
+		),
+		'thankyoulike_button_del' =>
+		array(
+			'template' => "<a class=\"del_tyl_button\" href=\"thankyoulike.php?action=del&amp;pid={\$post['pid']}&amp;my_post_key={\$mybb->post_code}\" onclick=\"thankyoulike.del({\$post['pid']}, {\$post['tid']}); return false;\" title=\"{\$lang->del_tyl_button_title}\" id=\"tyl_btn_{\$post['pid']}\"><span id=\"tyl_i{\$post['pid']}\">{\$lang->del_tyl}</span></a>",
+			'version_at_last_change' => '30302',
+		),
+		'thankyoulike_users' =>
+		array(
+			'template' => "<span class=\"smalltext\">{\$comma}</span><a href=\"{\$profile_link}\" class=\"smalltext\" {\$datedisplay_title}>{\$tyl_list}</a>{\$datedisplay_next}",
+			'version_at_last_change' => '20000',
+		),
+		'thankyoulike_postbit_author_user' =>
+		array(
+			'template' => "{\$lang->tyl_rcvd}: {\$post['tyl_unumrtyls']}
 <br />
 {\$lang->tyl_given}: {\$post['tyl_unumtyls']}",
-		'thankyoulike_member_profile'	=> "<tr>
+			'version_at_last_change' => '20000',
+		),
+		'thankyoulike_member_profile' =>
+		array(
+			'template' => "<tr>
 	<td class=\"trow1\"><strong>{\$lang->tyl_total_tyls_rcvd}</strong></td>
 	<td class=\"trow1\">{\$memprofile['tyl_unumrcvtyls']} ({\$tylrcvpd_percent_total})<br /><span class=\"smalltext\">(<a href=\"tylsearch.php?action=usertylforthreads&amp;uid={\$uid}\">{\$lang->tyl_find_threads_for}</a> &mdash; <a href=\"tylsearch.php?action=usertylforposts&amp;uid={\$uid}\">{\$lang->tyl_find_posts_for}</a>)</span></td>
 </tr>
@@ -626,14 +660,22 @@ function tyl_insert_templates()
 	<td class=\"trow2\"><strong>{\$lang->tyl_total_tyls_given}</strong></td>
 	<td class=\"trow2\">{\$memprofile['tyl_unumtyls']} ({\$tylpd_percent_total})<br /><span class=\"smalltext\">(<a href=\"tylsearch.php?action=usertylthreads&amp;uid={\$uid}\">{\$lang->tyl_find_threads}</a> &mdash; <a href=\"tylsearch.php?action=usertylposts&amp;uid={\$uid}\">{\$lang->tyl_find_posts}</a>)</span></td>
 </tr>",
-		'thankyoulike_member_profile_box'	=> "<table border=\"0\" cellspacing=\"{\$theme['borderwidth']}\" cellpadding=\"{\$theme['tablespace']}\" width=\"100%\" class=\"tborder tfixed\">
+			'version_at_last_change' => '20000',
+		),
+		'thankyoulike_member_profile_box' =>
+		array(
+			'template' => "<table border=\"0\" cellspacing=\"{\$theme['borderwidth']}\" cellpadding=\"{\$theme['tablespace']}\" width=\"100%\" class=\"tborder tfixed\">
 <tr>
 <td colspan=\"2\" class=\"thead\"><strong>{\$lang->tyl_profile_box_thead}</strong></td>
 </tr>
 {\$tyl_profile_box_content}
 </table>
 <br />",
-		'thankyoulike_member_profile_box_content'	=> "<tr>
+			'version_at_last_change' => '30100',
+		),
+		'thankyoulike_member_profile_box_content' =>
+		array(
+			'template' => "<tr>
 <td class=\"trow2\" width=\"80%\"><span class=\"smalltext\">{\$lang->tyl_profile_box_subject}</span></td>
 <td class=\"trow2\" width=\"20%\" align=\"center\"><span class=\"smalltext\">{\$lang->tyl_profile_box_number}</span></td>
 </tr>
@@ -661,22 +703,35 @@ function tyl_insert_templates()
 <tr>
 <td class=\"trow1 scaleimages\" colspan=\"2\">{\$memprofile['tylmessage']}</td>
 </tr>",
-		'thankyoulike_member_profile_box_content_none'	=> "<tr>
+			'version_at_last_change' => '30300',
+		),
+		'thankyoulike_member_profile_box_content_none' =>
+		array(
+			'template' => "<tr>
 <td class=\"trow1\" colspan=\"2\">{\$lang->tyl_profile_box_content_none}</td>
-</tr>"
+</tr>",
+			'version_at_last_change' => '20300',
+		),
 	);
 
+	// Could be zero (false) if we are installing or if upgrading a very old installation.
+	$from_version = tyl_get_installed_version();
 	foreach($tyl_templates as $template_title => $template_data)
 	{
-		// First, set the to zero the version of modified templates for this plugin.
-		// (i.e., those with an sid of other than -2). This ensures that Find Updated Templates
-		// detects them.
-		$db->update_query('templates', array('version' => 0), "title='{$template_title}' and sid <> -2");
+		// First, flag any of this plugin's templates that have been modified in the plugin since
+		// the version of the plugin from which we are upgrading, flagging all templates if that
+		// version number is not available. This ensures that Find Updated Templates detects them
+		// *if* the user has also modified them, and without false positives. The way we flag them
+		// is to zero the `version` column of the `templates` table where `sid` is not -2 for this
+		// plugin's templates.
+		if ($template_data['version_at_last_change'] > $from_version) {
+			$db->update_query('templates', array('version' => 0), "title='{$template_title}' and sid <> -2");
+		}
 
 		// Now insert/update master templates with SID -2.
 		$insert_templates = array(
 			'title'    => $db->escape_string($template_title),
-			'template' => $db->escape_string($template_data),
+			'template' => $db->escape_string($template_data['template']),
 			'sid'      => "-2",
 			'version'  => '1',
 			'dateline' => TIME_NOW
