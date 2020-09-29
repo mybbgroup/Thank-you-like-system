@@ -282,6 +282,12 @@ function tyl_create_settings($existing_setting_values = array())
 			'optionscode' => 'forumselect',
 			'value'       => ''
 		),
+		'likersdisplay'                   => array(
+			'title'       => $lang->tyl_likersdisplay_title,
+			'description' => $lang->tyl_likersdisplay_desc,
+			'optionscode' => "radio\nusernames={$lang->tyl_likersdisplay_op_1}\navatars={$lang->tyl_likersdisplay_op_2}",
+			'value'       => 'usernames'
+		),
 		'removing'                        => array(
 			'title'       => $lang->tyl_removing_title,
 			'description' => $lang->tyl_removing_desc,
@@ -618,6 +624,24 @@ function tyl_insert_templates()
 </div>",
 			'version_at_last_change' => '20200',
 		),
+		'thankyoulike_postbit_avatars' =>
+		array(
+			'template' => "<div class=\"post_controls tyllist {\$unapproved_shade}\">
+	{\$tyl_expcol}
+	<span id=\"tyl_title_{\$post['pid']}\" style=\"{\$tyl_title_display}\">{\$lang->tyl_title}</span><span id=\"tyl_title_collapsed_{\$post['pid']}\" style=\"{\$tyl_title_display_collapsed}\">{\$lang->tyl_title_collapsed}</span><br />
+	<span id=\"tyl_data_{\$post['pid']}\" style=\"{\$tyl_data_display}\">&nbsp;&nbsp; {\$post['thankyoulike']}</span>
+</div>",
+			'version_at_last_change' => '30307',
+		),
+		'thankyoulike_postbit_classic_avatars' =>
+		array(
+			'template' => "<div class=\"post_controls tyllist_classic {\$unapproved_shade}\">
+	{\$tyl_expcol}
+	<span id=\"tyl_title_{\$post['pid']}\" style=\"{\$tyl_title_display}\">{\$lang->tyl_title}</span><span id=\"tyl_title_collapsed_{\$post['pid']}\" style=\"{\$tyl_title_display_collapsed}\">{\$lang->tyl_title_collapsed}</span><br />
+	<span id=\"tyl_data_{\$post['pid']}\" style=\"{\$tyl_data_display}\">&nbsp;&nbsp; {\$post['thankyoulike']}</span>
+</div>",
+			'version_at_last_change' => '30307',
+		),
 		'thankyoulike_tyl_counter_forumdisplay_thread' =>
 		array(
 			'template' => "<span title=\"{\$lang->tyl_firstpost_tyl_count_forumdisplay_thread}\" class=\"tyl_counter\">{\$thread['tyls']}</span>",
@@ -642,6 +666,11 @@ function tyl_insert_templates()
 		array(
 			'template' => "<span class=\"smalltext\">{\$comma}</span><a href=\"{\$profile_link}\" class=\"smalltext\" {\$datedisplay_title}>{\$tyl_list}</a>{\$datedisplay_next}",
 			'version_at_last_change' => '20000',
+		),
+		'thankyoulike_users_avatars' =>
+		array(
+			'template' => "<a href=\"{\$profile_link}\" class=\"smalltext\" title=\"{\$tyl['username']} ({\$datedisplay_plain})\"><img alt=\"\" src=\"{\$avatar['image']}\" class=\"tyl_avatar\" /></a>",
+			'version_at_last_change' => '30307',
 		),
 		'thankyoulike_postbit_author_user' =>
 		array(
@@ -808,6 +837,13 @@ img[id^=tyl_i_expcol_]{
 	float: right;
 	margin: 4px 5px 0px 10px;
 	font-weight: bold;
+}
+
+.tyl_avatar{
+	width: 25px;
+	height: 25px;
+	border-radius: 12.5px;
+	margin-right: -4px;
 }
 ";
 }
@@ -1670,7 +1706,7 @@ function thankyoulike_postbit(&$post)
 			}
 
 			$query = $db->query("
-			SELECT u.username, u.usergroup, u.displaygroup, tyl.*
+			SELECT u.username, u.usergroup, u.displaygroup, u.avatar, tyl.*
 			FROM ".TABLE_PREFIX.$prefix."thankyoulike tyl
 			LEFT JOIN ".TABLE_PREFIX."users u ON (u.uid=tyl.uid)
 			WHERE ".$g33k_pids."
@@ -1693,11 +1729,13 @@ function thankyoulike_postbit(&$post)
 				$profile_link = get_profile_link($tyl['uid']);
 				$username = htmlspecialchars_uni($post['username']);
 				$profilelink = $username;
+				$avatar = format_avatar($tyl['avatar']);
 				// Format username... or not
 				$tyl_list = $mybb->settings[$prefix.'unameformat'] == "1" ? format_name($tyl['username'], $tyl['usergroup'], $tyl['displaygroup']) : $tyl['username'];
-				$datedisplay_next = $mybb->settings[$prefix.'showdt'] == "nexttoname" ? "<span class='smalltext'> (".date($mybb->settings[$prefix.'dtformat'], $tyl['dateline']).")</span>" : "";
-				$datedisplay_title = $mybb->settings[$prefix.'showdt'] == "astitle" ? "title='".date($mybb->settings[$prefix.'dtformat'], $tyl['dateline'])."'" : "";
-				eval("\$thankyoulike_users = \"".$templates->get("thankyoulike_users", 1, 0)."\";");
+				$datedisplay_plain = my_date($mybb->settings[$prefix.'dtformat'], $tyl['dateline']);
+				$datedisplay_next = $mybb->settings[$prefix.'showdt'] == "nexttoname" ? "<span class='smalltext'> (".$datedisplay_plain.")</span>" : "";
+				$datedisplay_title = $mybb->settings[$prefix.'showdt'] == "astitle" ? "title='".$datedisplay_plain."'" : "";
+				eval("\$thankyoulike_users = \"".$templates->get($mybb->settings[$prefix.'likersdisplay'] == "avatars" ? "thankyoulike_users_avatars" : "thankyoulike_users", 1, 0)."\";");
 				$tyls .= trim($thankyoulike_users);
 				$comma = ', ';
 				// Has this user tyled?
@@ -1800,11 +1838,11 @@ function thankyoulike_postbit(&$post)
 			$post['tyl_display'] = "";
 			if($mybb->settings['postlayout'] == "classic")
 			{
-				eval("\$thankyoulike = \"".$templates->get("thankyoulike_postbit_classic")."\";");
+				eval("\$thankyoulike = \"".$templates->get($mybb->settings[$prefix.'likersdisplay'] == "avatars" ? "thankyoulike_postbit_classic_avatars" : "thankyoulike_postbit_classic")."\";");
 			}
 			else
 			{
-				eval("\$thankyoulike = \"".$templates->get("thankyoulike_postbit")."\";");
+				eval("\$thankyoulike = \"".$templates->get($mybb->settings[$prefix.'likersdisplay'] == "avatars" ? "thankyoulike_postbit_avatars" : "thankyoulike_postbit")."\";");
 			}
 			$post['thankyoulike_data'] = $thankyoulike;
             $post['ty_count'] = $count;
@@ -1816,11 +1854,11 @@ function thankyoulike_postbit(&$post)
 			$post['tyl_display'] = "display: none;";
 			if($mybb->settings['postlayout'] == "classic")
 			{
-				eval("\$thankyoulike = \"".$templates->get("thankyoulike_postbit_classic")."\";");
+				eval("\$thankyoulike = \"".$templates->get($mybb->settings[$prefix.'likersdisplay'] == "avatars" ? "thankyoulike_postbit_classic_avatars" : "thankyoulike_postbit_classic")."\";");
 			}
 			else
 			{
-				eval("\$thankyoulike = \"".$templates->get("thankyoulike_postbit")."\";");
+				eval("\$thankyoulike = \"".$templates->get($mybb->settings[$prefix.'likersdisplay'] == "avatars" ? "thankyoulike_postbit_avatars" : "thankyoulike_postbit")."\";");
 			}
 			$post['thankyoulike_data'] = $thankyoulike;
 			$post['ty_count'] = $count;

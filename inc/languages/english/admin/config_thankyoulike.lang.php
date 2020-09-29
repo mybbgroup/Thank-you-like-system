@@ -39,6 +39,11 @@ $l['tyl_firstall_op_2'] = "All posts";
 $l['tyl_firstalloverride_title'] = "'First post only' forums override";
 $l['tyl_firstalloverride_desc'] = "Select any forums for which you want to override the 'First post only' setting above so that thanks/likes may be given for ALL posts in those forums (select only forums - selecting categories will have no effect!).";
 
+$l['tyl_likersdisplay_title'] = "Display of likers list";
+$l['tyl_likersdisplay_desc'] = "Choose which form you would like the list of likers at the bottom of each post to be displayed in.";
+$l['tyl_likersdisplay_op_1'] = "As usernames";
+$l['tyl_likersdisplay_op_2'] = "As avatars";
+
 $l['tyl_removing_title'] = "Allow removing";
 $l['tyl_removing_desc'] = "Do you want to allow the removing of a thank/like from a post already thanked/liked?";
 
