@@ -416,7 +416,7 @@ if($mybb->input['ajax'])
 			break;
 	}
 	$query1 = $db->query("
-		SELECT tyl.*, u.username, u.usergroup, u.displaygroup
+		SELECT tyl.*, u.username, u.usergroup, u.displaygroup, u.avatar
 		FROM ".TABLE_PREFIX.$prefix."thankyoulike tyl
 		LEFT JOIN ".TABLE_PREFIX."users u ON (u.uid=tyl.uid)
 		WHERE tyl.pid='".$post['pid']."'
@@ -430,11 +430,13 @@ if($mybb->input['ajax'])
 	while($tyl = $db->fetch_array($query1))
 	{
 		$profile_link = get_profile_link($tyl['uid']);
+		$avatar = format_avatar($tyl['avatar']);
 		// Format username... or not
 		$tyl_list = $mybb->settings[$prefix.'unameformat'] == "1" ? format_name($tyl['username'], $tyl['usergroup'], $tyl['displaygroup']) : $tyl['username'];
-		$datedisplay_next = $mybb->settings[$prefix.'showdt'] == "nexttoname" ? "<span class='smalltext'> (".my_date($mybb->settings[$prefix.'dtformat'], $tyl['dateline']).")</span>" : "";
-		$datedisplay_title = $mybb->settings[$prefix.'showdt'] == "astitle" ? "title='".my_date($mybb->settings[$prefix.'dtformat'], $tyl['dateline'])."'" : "";
-		eval("\$thankyoulike_users = \"".$templates->get("thankyoulike_users", 1, 0)."\";");
+		$datedisplay_plain = my_date($mybb->settings[$prefix.'dtformat'], $tyl['dateline']);
+		$datedisplay_next = $mybb->settings[$prefix.'showdt'] == "nexttoname" ? "<span class='smalltext'> (".$datedisplay_plain.")</span>" : "";
+		$datedisplay_title = $mybb->settings[$prefix.'showdt'] == "astitle" ? "title='".$datedisplay_plain."'" : "";
+		eval("\$thankyoulike_users = \"".$templates->get($mybb->settings[$prefix.'likersdisplay'] == "avatars" ? "thankyoulike_users_avatars" : "thankyoulike_users", 1, 0)."\";");
 		$tyls .= trim($thankyoulike_users);
 		$comma = ', ';
 		// Has this user tyled?
@@ -534,11 +536,11 @@ if($mybb->input['ajax'])
 		$post['tyl_display'] = "";
 		if($mybb->settings['postlayout'] == "classic")
 		{
-			eval("\$thankyoulike = \"".$templates->get("thankyoulike_postbit_classic")."\";");
+			eval("\$thankyoulike = \"".$templates->get($mybb->settings[$prefix.'likersdisplay'] == "avatars" ? "thankyoulike_postbit_classic_avatars" : "thankyoulike_postbit_classic")."\";");
 		}
 		else
 		{
-			eval("\$thankyoulike = \"".$templates->get("thankyoulike_postbit")."\";");
+			eval("\$thankyoulike = \"".$templates->get($mybb->settings[$prefix.'likersdisplay'] == "avatars" ? "thankyoulike_postbit_avatars" : "thankyoulike_postbit")."\";");
 		}
 		// Cleanup for JSON
 		$thankyoulike = thankyoulike_cleanup_json($thankyoulike);
