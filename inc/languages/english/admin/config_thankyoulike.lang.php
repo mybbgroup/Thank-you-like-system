@@ -107,8 +107,8 @@ $l['tyl_colldefault_op_2'] = "Closed (hidden/collapsed)";
 $l['tyl_hidelistforgroups_title'] = "Hide thanks/likes lists per usergroup";
 $l['tyl_hidelistforgroups_desc'] = "Select usergroups to whose members the thanks/likes lists should not be shown.";
 
-$l['tyl_rcvdlikesclassranges_title'] = "Received likes styling intervals";
-$l['tyl_rcvdlikesclassranges_desc'] = "Supports styling of the display of members' received likes in post metadata and on their profiles. Here, provide a comma-separated list of numbers of received likes. Where received likes are shown, they will be given a class as follows, by which they can be styled in thankyoulike.css. When a members' received likes fall into the interval from (and including) the first comma-separated number to (but not including) the second comma-separated number, the given class is 'tyl_rcvdlikesrange_1'; for the second interval, it is 'tyl_rcvdlikesrange_2; etc";
+$l['tyl_rcvdlikesclassranges_title'] = "Received likes styling ranges";
+$l['tyl_rcvdlikesclassranges_desc'] = "Supports styling of the display of members' received likes counts in post metadata and on their profiles based on the size of the count. Here, provide a comma-separated list of numbers of received likes. Where received likes are shown, they will be given a class as follows, by which they can be styled in thankyoulike.css: when a members' received likes fall into the range from (and including) the first comma-separated number to (but not including) the second comma-separated number, the given class is 'tyl_rcvdlikesrange_1'; for the second range, it is 'tyl_rcvdlikesrange_2'; etc";
 
 $l['tyl_displaygrowl_title'] = "Display of add/remove notification popup";
 $l['tyl_displaygrowl_desc'] = "Choose \"On\" to enable popup notifications when a user clicks on a button to add/remove a thank/like. These pop up in the top right corner of the page and disappear automatically after a delay (they can also be closed manually). They indicate success or failure along with any error messages and any remaining limits.";
