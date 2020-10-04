@@ -685,17 +685,27 @@ function tyl_insert_templates()
 {\$lang->tyl_given}: {\$post['tyl_unumtyls']}",
 			'version_at_last_change' => '20000',
 		),
+		'thankyoulike_member_profile_rcvd_search' =>
+		array(
+			'template'            => "<span class=\"smalltext\">(<a href=\"tylsearch.php?action=usertylforthreads&amp;uid={\$uid}\">{\$lang->tyl_find_threads_for}</a> &mdash; <a href=\"tylsearch.php?action=usertylforposts&amp;uid={\$uid}\">{\$lang->tyl_find_posts_for}</a>)</span>",
+			'version_at_last_change' => '30307',
+		),
+		'thankyoulike_member_profile_given_search' =>
+		array(
+			'template'            => "<span class=\"smalltext\">(<a href=\"tylsearch.php?action=usertylthreads&amp;uid={\$uid}\">{\$lang->tyl_find_threads}</a> &mdash; <a href=\"tylsearch.php?action=usertylposts&amp;uid={\$uid}\">{\$lang->tyl_find_posts}</a>)</span>",
+			'version_at_last_change' => '30307',
+		),
 		'thankyoulike_member_profile' =>
 		array(
 			'template' => "<tr>
 	<td class=\"trow1\"><strong>{\$lang->tyl_total_tyls_rcvd}</strong></td>
-	<td class=\"trow1\">{\$memprofile['tyl_unumrcvtyls']} ({\$tylrcvpd_percent_total})<br /><span class=\"smalltext\">(<a href=\"tylsearch.php?action=usertylforthreads&amp;uid={\$uid}\">{\$lang->tyl_find_threads_for}</a> &mdash; <a href=\"tylsearch.php?action=usertylforposts&amp;uid={\$uid}\">{\$lang->tyl_find_posts_for}</a>)</span></td>
+	<td class=\"trow1\">{\$memprofile['tyl_unumrcvtyls']} ({\$tylrcvpd_percent_total})<br />{\$tylrcvdlikessearch}</td>
 </tr>
 <tr>
 	<td class=\"trow2\"><strong>{\$lang->tyl_total_tyls_given}</strong></td>
-	<td class=\"trow2\">{\$memprofile['tyl_unumtyls']} ({\$tylpd_percent_total})<br /><span class=\"smalltext\">(<a href=\"tylsearch.php?action=usertylthreads&amp;uid={\$uid}\">{\$lang->tyl_find_threads}</a> &mdash; <a href=\"tylsearch.php?action=usertylposts&amp;uid={\$uid}\">{\$lang->tyl_find_posts}</a>)</span></td>
+	<td class=\"trow2\">{\$memprofile['tyl_unumtyls']} ({\$tylpd_percent_total})<br />{\$tylgivenlikessearch}</td>
 </tr>",
-			'version_at_last_change' => '20000',
+			'version_at_last_change' => '30307',
 		),
 		'thankyoulike_member_profile_box' =>
 		array(
@@ -2237,6 +2247,22 @@ function thankyoulike_memprofile()
 		if($percent_rcv > 100)
 		{
 			$percent_rcv = 100;
+		}
+		if($memprofile['tyl_unumrcvtyls'] > 0)
+		{
+			eval("\$tylrcvdlikessearch = \"".$templates->get("thankyoulike_member_profile_rcvd_search")."\";");
+		}
+		else
+		{
+			$tylrcvdlikessearch = '';
+		}
+		if($memprofile['tyl_unumtyls'] > 0)
+		{
+			eval("\$tylgivenlikessearch = \"".$templates->get("thankyoulike_member_profile_given_search")."\";");
+		}
+		else
+		{
+			$tylgivenlikessearch = '';
 		}
 		$memprofile['tyl_unumtyls'] = my_number_format($memprofile['tyl_unumtyls']);
 		$memprofile['tyl_unumrcvtyls'] = tyl_fmt_rcvd_likes_count($memprofile['tyl_unumrcvtyls']);
