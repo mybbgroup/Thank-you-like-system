@@ -77,7 +77,8 @@ if($mybb->input['action'] != "add" && $mybb->input['action'] != "del")
 }
 
 // Check whether the flood limit is enabled and the user added/removed this tyl too rapidly.
-if ($mybb->usergroup['tyl_flood_interval'] > 0 && $mybb->settings[$prefix.'limits'] == "1") {
+if($mybb->usergroup['tyl_flood_interval'] > 0 && $mybb->settings[$prefix.'limits'] == "1")
+{
 	$lastadddeldate =  $db->fetch_array($db->simple_select("users", "tyl_lastadddeldate", "uid='{$mybb->user['uid']}'"))['tyl_lastadddeldate'];
 	if (TIME_NOW <= $lastadddeldate + $mybb->usergroup['tyl_flood_interval']) {
 		$secondsleft = $lastadddeldate + $mybb->usergroup['tyl_flood_interval'] - TIME_NOW;
@@ -220,8 +221,8 @@ if($mybb->input['action'] == "add")
 
 	// Check if user has already thanked/liked this post.
 	$options = array(
-			"limit" => 1
-		);
+		"limit" => 1
+	);
 	$query_check = $db->simple_select($prefix."thankyoulike", "*", "pid='".$pid."' AND uid='".$mybb->user['uid']."'", $options);
 	$utyl = $db->fetch_array($query_check);
 
@@ -232,10 +233,10 @@ if($mybb->input['action'] == "add")
 
 	// Add ty/l to db
 	$tyl_data = array(
-			"pid" => intval($post['pid']),
-			"uid" => intval($mybb->user['uid']),
-			"puid" => intval($post['uid']),
-			"dateline" => TIME_NOW
+		"pid" => intval($post['pid']),
+		"uid" => intval($mybb->user['uid']),
+		"puid" => intval($post['uid']),
+		"dateline" => TIME_NOW
 	);
 
 	$tlid = $db->insert_query($prefix."thankyoulike", $tyl_data);
@@ -323,8 +324,8 @@ if($mybb->input['action'] == "del")
 	}
 	// Check tyl owner and tyl exists
 	$options = array(
-			"limit" => 1
-		);
+		"limit" => 1
+	);
 	$query_r = $db->simple_select($prefix."thankyoulike", "*", "pid='".$pid."' AND uid='".$mybb->user['uid']."'", $options);
 	$tyl_r = $db->fetch_array($query_r);
 
@@ -396,154 +397,27 @@ if($mybb->input['action'] == "del")
 if($mybb->input['ajax'])
 {
 	// Send headers.
-
 	header("Content-type: application/json; charset={$charset}");
+
 	// Get all the thanks/likes for this post
-	switch($mybb->settings[$prefix.'sortorder'])
-	{
-		case "userdesc":
-			$order = " ORDER BY username DESC";
-			break;
-		case "dtasc":
-			$order = " ORDER BY dateline ASC";
-			break;
-		case "dtdesc":
-			$order = " ORDER BY dateline DESC";
-			break;
-		case "userasc":
-		default:
-			$order = " ORDER BY username ASC";
-			break;
-	}
-	$query1 = $db->query("
-		SELECT tyl.*, u.username, u.usergroup, u.displaygroup, u.avatar
-		FROM ".TABLE_PREFIX.$prefix."thankyoulike tyl
-		LEFT JOIN ".TABLE_PREFIX."users u ON (u.uid=tyl.uid)
-		WHERE tyl.pid='".$post['pid']."'
-		".$order."
-	");
+	$query = tyl_query_post_likes($post);
 
-	$tyls = '';
-	$comma = '';
-	$tyled = 0;
-	$count = 0;
-	while($tyl = $db->fetch_array($query1))
+	$tyls = $comma = '';
+	$tyled = $count = 0;
+	while ($tyl = $db->fetch_array($query))
 	{
-		$profile_link = get_profile_link($tyl['uid']);
-		$avatar = format_avatar($tyl['avatar']);
-		// Format username... or not
-		$tyl_list = $mybb->settings[$prefix.'unameformat'] == "1" ? format_name($tyl['username'], $tyl['usergroup'], $tyl['displaygroup']) : $tyl['username'];
-		$datedisplay_plain = my_date($mybb->settings[$prefix.'dtformat'], $tyl['dateline']);
-		$datedisplay_next = $mybb->settings[$prefix.'showdt'] == "nexttoname" ? "<span class='smalltext'> (".$datedisplay_plain.")</span>" : "";
-		$datedisplay_title = $mybb->settings[$prefix.'showdt'] == "astitle" ? "title='".$datedisplay_plain."'" : "";
-		eval("\$thankyoulike_users = \"".$templates->get($mybb->settings[$prefix.'likersdisplay'] == "avatars" ? "thankyoulike_users_avatars" : "thankyoulike_users", 1, 0)."\";");
-		$tyls .= trim($thankyoulike_users);
-		$comma = ', ';
-		// Has this user tyled?
-		if($tyl['uid'] == $mybb->user['uid'])
-		{
-			$tyled = 1;
-		}
-		$count++;
+		tyl_build_likers_list($tyl, $comma, $tyls, $tyled, $count);
 	}
 
-	// Are we using thanks or like? Setup titles
-	if($count == 1)
-	{
-		$tyl_user = $lang->tyl_user;
-		$tyl_say = $lang->tyl_says;
-		$tyl_like = $lang->tyl_likes;
-	}
-	else
-	{
-		$tyl_user = $lang->tyl_users;
-		$tyl_say = $lang->tyl_say;
-		$tyl_like = $lang->tyl_like;
-	}
-
-	if ($mybb->settings[$prefix.'thankslike'] == "like")
-	{
-		$pre = "l";
-		$lang->add_tyl = $lang->add_l;
-		$lang->del_tyl = $lang->del_l;
-		$tyl_thankslikes = $lang->tyl_likes;
-		$tyl_data = get_user($post['uid']);
-		if($mybb->settings[$prefix.'unameformat'] == "1"){
-		$tyl_data['username'] = format_name($tyl_data['username'], $tyl_data['usergroup'], $tyl_data['displaygroup']);
-		$tyl_profilelink = build_profile_link($tyl_data['username'], $tyl_data['uid']);
-		}else{
-		$tyl_profilelink  = htmlspecialchars_uni($tyl_data['username']);
-		}
-		$lang->tyl_title = $lang->sprintf($lang->tyl_title_l, $count, $tyl_user, $tyl_like, $tyl_profilelink);
-		$lang->tyl_title_collapsed = $lang->sprintf($lang->tyl_title_collapsed_l, $count, $tyl_user, $tyl_like, $tyl_profilelink);
-	}
-	else if ($mybb->settings[$prefix.'thankslike'] == "thanks")
-	{
-		$pre = "ty";
-		$lang->add_tyl = $lang->add_ty;
-		$lang->del_tyl = $lang->del_ty;
-		$tyl_thankslikes = $lang->tyl_thanks;
-		$tyl_data = get_user($post['uid']);
-		if($mybb->settings[$prefix.'unameformat'] == "1"){
-		$tyl_data['username'] = format_name($tyl_data['username'], $tyl_data['usergroup'], $tyl_data['displaygroup']);
-		$tyl_profilelink = build_profile_link($tyl_data['username'], $tyl_data['uid']);
-		}else{
-		$tyl_profilelink  = htmlspecialchars_uni($tyl_data['username']);
-		}
-		$lang->tyl_title = $lang->sprintf($lang->tyl_title_ty, $count, $tyl_user, $tyl_say, $tyl_profilelink);
-		$lang->tyl_title_collapsed = $lang->sprintf($lang->tyl_title_collapsed_ty, $count, $tyl_user, $tyl_say, $tyl_profilelink);
-	}
-	// Setup the collapsible elements
-	if ($mybb->settings[$prefix.'collapsible'] == "1" && $mybb->settings[$prefix.'colldefault'] == "closed")
-	{
-		$tyl_title_display = "display: none;";
-		$tyl_title_display_collapsed = "";
-		$tyl_data_display = "display: none;";
-		$tyl_expcolimg = "collapse_collapsed.png";
-		eval("\$tyl_expcol = \"".$templates->get("thankyoulike_expcollapse", 1, 0)."\";");
-	}
-	else if ($mybb->settings[$prefix.'collapsible'] == "1" && $mybb->settings[$prefix.'colldefault'] == "open")
-	{
-		$tyl_title_display = "";
-		$tyl_title_display_collapsed = "display: none;";
-		$tyl_data_display = "";
-		$tyl_expcolimg = "collapse.png";
-		eval("\$tyl_expcol = \"".$templates->get("thankyoulike_expcollapse", 1, 0)."\";");
-	}
-	else
-	{
-		$tyl_title_display = "";
-		$tyl_title_display_collapsed = "display: none;";
-		$tyl_data_display = "";
-		$tyl_expcolimg = "";
-		$tyl_expcol = "";
-		$lang->tyl_title_collapsed = "";
-	}
-	$button_tyl = '';
-
-	if (($which_btn = tyl_get_which_btn($thread, $post['fid'], $post['pid'], $post['uid'], $mybb->user['uid'], $tyled)))
-	{
-		eval("\$button_tyl = \"".$templates->get("thankyoulike_button_$which_btn")."\";");
-	}
+	$ok = tyl_build_post_likers_display($post, $tyls, $tyled, $count);
 
 	// Cleanup for JSON
-	$button_tyl = thankyoulike_cleanup_json($button_tyl);
+	$button_tyl = thankyoulike_cleanup_json($post['button_tyl']);
 
-	if($count>0 && (($mybb->settings[$prefix.'firstall'] == "first" && $thread['firstpost'] == $post['pid']) || $mybb->settings[$prefix.'firstall'] == "all"))
+	if($ok)
 	{
-		// We have thanks/likes to show
-		$post['thankyoulike'] = $tyls;
-		$post['tyl_display'] = "";
-		if($mybb->settings['postlayout'] == "classic")
-		{
-			eval("\$thankyoulike = \"".$templates->get($mybb->settings[$prefix.'likersdisplay'] == "avatars" ? "thankyoulike_postbit_classic_avatars" : "thankyoulike_postbit_classic")."\";");
-		}
-		else
-		{
-			eval("\$thankyoulike = \"".$templates->get($mybb->settings[$prefix.'likersdisplay'] == "avatars" ? "thankyoulike_postbit_avatars" : "thankyoulike_postbit")."\";");
-		}
 		// Cleanup for JSON
-		$thankyoulike = thankyoulike_cleanup_json($thankyoulike);
+		$thankyoulike = thankyoulike_cleanup_json($post['thankyoulike_data']);
 		$msg_num_left = thankyoulike_cleanup_json($msg_num_left);
 
 		echo '{';
