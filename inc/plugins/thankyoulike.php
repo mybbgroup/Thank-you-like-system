@@ -396,6 +396,12 @@ function tyl_create_settings($existing_setting_values = array())
 			'optionscode' => 'groupselect',
 			'value'       => ''
 		),
+		'rcvdlikesclassranges'            => array(
+			'title'       => $lang->tyl_rcvdlikesclassranges_title,
+			'description' => $lang->tyl_rcvdlikesclassranges_desc,
+			'optionscode' => 'text',
+			'value'       => '1'
+		),
 		'displaygrowl'                    => array(
 			'title'       => $lang->tyl_displaygrowl_title,
 			'description' => $lang->tyl_displaygrowl_desc,
@@ -845,6 +851,11 @@ img[id^=tyl_i_expcol_]{
 	border-radius: 12.5px;
 	margin-right: -4px;
 }
+
+.tyl_rcvdlikesrange_1{
+	font-weight: bold;
+	color: green;
+}
 ";
 }
 
@@ -858,7 +869,7 @@ function tyl_create_stylesheet()
 	$css = array(
 		"name" => "thankyoulike.css",
 		"tid" => 1,
-		"attachedto" => "showthread.php|forumdisplay.php",
+		"attachedto" => "showthread.php|forumdisplay.php|member.php",
 		"stylesheet" => tyl_get_thankyoulike_css(),
 		"cachefile" => $db->escape_string(str_replace('/', '', 'thankyoulike.css')),
 		"lastmodified" => TIME_NOW
@@ -1637,11 +1648,32 @@ function tyl_set_up_stats_in_postbit(&$post)
 	$given = "tyl_{$tyl}_given";
 	$lang->tyl_given = $lang->$given;
 	$rcvd_bit = "tyl_{$tyl}_rcvd_bit";
-	$post['tyl_unumrtyls'] = $lang->sprintf($lang->$rcvd_bit, my_number_format($post['tyl_unumrcvtyls']), my_number_format($post['tyl_unumptyls']));
+	$post['tyl_unumrtyls'] = $lang->sprintf($lang->$rcvd_bit, tyl_fmt_rcvd_likes_count($post['tyl_unumrcvtyls']), my_number_format($post['tyl_unumptyls']));
 	$post['tyl_unumtyls'] = my_number_format($post['tyl_unumtyls']);
 	eval("\$tyl_thankslikes = \"".$templates->get("thankyoulike_postbit_author_user", 1, 0)."\";");
 
 	$post['user_details'] = preg_replace("#".preg_quote('%%TYL_NUMTHANKEDLIKED%%')."#i", $tyl_thankslikes, $post['user_details']);
+}
+
+function tyl_fmt_rcvd_likes_count($count) {
+	global $mybb;
+
+	$prefix = 'g33k_thankyoulike_';
+	$ret = my_number_format($count);
+	$intervals = trim($mybb->settings[$prefix.'rcvdlikesclassranges']);
+	if ($intervals) {
+		$a = explode(',', $intervals);
+		for ($i = 0; $i < count($a); $i++) {
+			if ($count < $a[$i]) {
+				break;
+			}
+		}
+		if ($i > 0) {
+			$ret = '<span class="tyl_rcvdlikesrange_'.$i.'">'.$ret.'</span>';
+		}
+	}
+
+	return $ret;
 }
 
 /**
@@ -2160,7 +2192,7 @@ function thankyoulike_memprofile()
 			$percent_rcv = 100;
 		}
 		$memprofile['tyl_unumtyls'] = my_number_format($memprofile['tyl_unumtyls']);
-		$memprofile['tyl_unumrcvtyls'] = my_number_format($memprofile['tyl_unumrcvtyls']);
+		$memprofile['tyl_unumrcvtyls'] = tyl_fmt_rcvd_likes_count($memprofile['tyl_unumrcvtyls']);
 		$tylpd_percent_total = $lang->sprintf($lang->tyl_tylpd_percent_total, my_number_format($tylpd), $percent, $totalgiv);
 		$tylrcvpd_percent_total = $lang->sprintf($lang->tyl_tylpd_percent_total, my_number_format($tylrcvpd), $percent_rcv, $totalrcv);
 		eval("\$tyl_memprofile = \"".$templates->get("thankyoulike_member_profile")."\";");
