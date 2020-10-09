@@ -435,7 +435,7 @@ function tyl_create_settings($existing_setting_values = array())
 		),
 		'display_tyl_counter_search_page'   => array(
 			'title'       => $lang->tyl_display_tyl_counter_search_page_title,
-			'description' => $lang->tyl_display_tyl_counter_search__page_desc,
+			'description' => $lang->tyl_display_tyl_counter_search_page_desc,
 			'optionscode' => 'yesno',
 			'value'       => '0'
 		),
