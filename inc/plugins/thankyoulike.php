@@ -55,6 +55,7 @@ else
 	$plugins->add_hook("postbit_prev","thankyoulike_postbit_udetails");
 	$plugins->add_hook("postbit_pm","thankyoulike_postbit_udetails");
 	$plugins->add_hook("forumdisplay_thread_end","thankyoulike_threads_udetails");
+	$plugins->add_hook("search_end","thankyoulike_threads_udetails");
 	$plugins->add_hook("postbit_announcement","thankyoulike_postbit_udetails");
 	$plugins->add_hook("member_profile_end","thankyoulike_memprofile");
 	$plugins->add_hook("fetch_wol_activity_end", "thankyoulike_wol_activity");
@@ -432,6 +433,12 @@ function tyl_create_settings($existing_setting_values = array())
 			'optionscode' => 'yesno',
 			'value'       => '0'
 		),
+		'display_tyl_counter_search_page'   => array(
+			'title'       => $lang->tyl_display_tyl_counter_search_page_title,
+			'description' => $lang->tyl_display_tyl_counter_search__page_desc,
+			'optionscode' => 'yesno',
+			'value'       => '0'
+		),
 		'show_memberprofile_box'          => array(
 			'title'       => $lang->tyl_show_memberprofile_box_title,
 			'description' => $lang->tyl_show_memberprofile_box_desc,
@@ -652,6 +659,11 @@ function tyl_insert_templates()
 		array(
 			'template' => "<span title=\"{\$lang->tyl_firstpost_tyl_count_forumdisplay_thread}\" class=\"tyl_counter\">{\$thread['tyls']}</span>",
 			'version_at_last_change' => '30300',
+		),
+		'thankyoulike_tyl_counter_search_page' =>
+		array(
+			'template' => "<span title=\"{\$lang->tyl_firstpost_tyl_count_search_page}\" class=\"tyl_counter\">{\$thread['tyls']}</span>",
+			'version_at_last_change' => '30308',
 		),
 		'thankyoulike_expcollapse' =>
 		array(
@@ -879,7 +891,7 @@ function tyl_create_stylesheet()
 	$css = array(
 		"name" => "thankyoulike.css",
 		"tid" => 1,
-		"attachedto" => "showthread.php|forumdisplay.php|member.php",
+		"attachedto" => "showthread.php|forumdisplay.php|search.php|member.php",
 		"stylesheet" => tyl_get_thankyoulike_css(),
 		"cachefile" => $db->escape_string(str_replace('/', '', 'thankyoulike.css')),
 		"lastmodified" => TIME_NOW
@@ -1107,6 +1119,7 @@ function thankyoulike_activate()
 	}
 	find_replace_templatesets("member_profile", '#{\$modoptions}(\r?)\n#', "{\$tyl_profile_box}\n{\$modoptions}\n");
 	find_replace_templatesets("forumdisplay_thread","#".preg_quote('{$attachment_count}')."#i","{\$tyl_forumdisplay_thread_var}{\$attachment_count}");
+	find_replace_templatesets("search_results_threads_thread","#".preg_quote('{$attachment_count}')."#i","{\$tyl_search_page_var}{\$attachment_count}");
 	
 	// Enable the tyl alert type if necessary.
 	tyl_myalerts_set_enabled(1);
@@ -1141,6 +1154,7 @@ function thankyoulike_deactivate()
 	find_replace_templatesets("member_profile", '#{\$tyl_memprofile}(\r?)\n#', "", 0);
 	find_replace_templatesets("member_profile", '#{\$tyl_profile_box}(\r?)\n#', "", 0);
 	find_replace_templatesets("forumdisplay_thread", '#{\$tyl_forumdisplay_thread_var}#', "", 0);
+	find_replace_templatesets("search_results_threads_thread", '#{\$tyl_search_page_var}#', "", 0);
 	
 	// Disable the tyl alert type if necessary.
 	tyl_myalerts_set_enabled(0);
@@ -1428,6 +1442,10 @@ function thankyoulike_templatelist()
 		if (THIS_SCRIPT == 'forumdisplay.php')
 		{
 			$template_list = "thankyoulike_tyl_counter_forumdisplay_thread";
+		}
+		if (THIS_SCRIPT == 'search.php')
+		{
+			$template_list = "thankyoulike_tyl_counter_search_page";
 		}
 		if (THIS_SCRIPT == 'member.php')
 		{
@@ -1971,7 +1989,7 @@ function thankyoulike_postbit(&$post)
 }
 
 /**
- * Add a support for displaying total number of tyl for the first post of the thread in the forumdisplay_thread template.
+ * Add a support for displaying total number of tyl for the first post of the thread in the forumdisplay_thread and/or search_results_threads_thread template.
  */
 function thankyoulike_threads_udetails()
 {
@@ -2013,6 +2031,42 @@ function thankyoulike_threads_udetails()
 
 		// Load custom template "thankyoulike_tyl_counter_forumdisplay_thread" instead of var $tyl_forumdisplay_thread_var
 		eval("\$tyl_forumdisplay_thread_var = \"" . $templates->get("thankyoulike_tyl_counter_forumdisplay_thread") . "\";");
+	}
+	
+	if ($mybb->settings[$prefix.'display_tyl_counter_search_page'] == "1")
+	{
+		if (!$tyl_forumdisplay_cached)
+		{
+			$pids = array();
+			foreach ($threadcache as $t)
+			{
+				$pids[] = (int)$t['firstpost'];
+			}
+			$pids = implode(',', $pids);
+			$query = $db->simple_select("posts","tid,tyl_pnumtyls","pid IN ($pids)");
+			while ($post = $db->fetch_array($query))
+			{
+				$tyl_forumdisplay_cached[$post['tid']] = (int)$post['tyl_pnumtyls'];
+				$threadcache[$post['tid']]['tyls'] = (int)$post['tyl_pnumtyls'];
+			}
+
+			// Display likes/thanks based on user's setting in ACP
+			if ($mybb->settings[$prefix.'thankslike'] == "like")
+			{
+				$lang->tyl_firstpost_tyl_count_search_page = $lang->sprintf($lang->tyl_firstpost_tyl_count_search_page, $lang->tyl_firstpost_tyl_count_likes);
+			}
+			elseif ($mybb->settings[$prefix.'thankslike'] == "thanks")
+			{
+				$lang->tyl_firstpost_tyl_count_search_page = $lang->sprintf($lang->tyl_firstpost_tyl_count_search_page, $lang->tyl_firstpost_tyl_count_thanks);
+			}
+
+			$tyl_forumdisplay_cached;
+		}
+
+		$thread['tyls'] = $tyl_forumdisplay_cached[$thread['tid']];
+
+		// Load custom template "thankyoulike_tyl_counter_search_page" instead of var $tyl_search_page_var
+		eval("\$tyl_search_page_var = \"" . $templates->get("thankyoulike_tyl_counter_search_page") . "\";");
 	}
 }
 
