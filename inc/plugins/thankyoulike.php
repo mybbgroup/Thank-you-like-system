@@ -55,7 +55,7 @@ else
 	$plugins->add_hook("postbit_prev","thankyoulike_postbit_udetails");
 	$plugins->add_hook("postbit_pm","thankyoulike_postbit_udetails");
 	$plugins->add_hook("forumdisplay_thread_end","thankyoulike_threads_udetails");
-	$plugins->add_hook("search_end","thankyoulike_threads_udetails");
+	$plugins->add_hook("search_results_thread","thankyoulike_threads_udetails");
 	$plugins->add_hook("postbit_announcement","thankyoulike_postbit_udetails");
 	$plugins->add_hook("member_profile_end","thankyoulike_memprofile");
 	$plugins->add_hook("fetch_wol_activity_end", "thankyoulike_wol_activity");
@@ -2038,7 +2038,7 @@ function thankyoulike_threads_udetails()
 		if (!$tyl_forumdisplay_cached)
 		{
 			$pids = array();
-			foreach ($threadcache as $t)
+			foreach ($thread_cache as $t)
 			{
 				$pids[] = (int)$t['firstpost'];
 			}
@@ -2047,7 +2047,7 @@ function thankyoulike_threads_udetails()
 			while ($post = $db->fetch_array($query))
 			{
 				$tyl_forumdisplay_cached[$post['tid']] = (int)$post['tyl_pnumtyls'];
-				$threadcache[$post['tid']]['tyls'] = (int)$post['tyl_pnumtyls'];
+				$thread_cache[$post['tid']]['tyls'] = (int)$post['tyl_pnumtyls'];
 			}
 
 			// Display likes/thanks based on user's setting in ACP
