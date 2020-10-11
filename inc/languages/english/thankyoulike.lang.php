@@ -57,9 +57,11 @@ $l['tyl_find_l_posts_for'] = "Find All Posts Liked For";
 $l['tyl_profile_box_thead'] = "{1}'s Most {2} Post";
 $l['tyl_profile_box_subject'] = "Post Subject";
 $l['tyl_profile_box_number'] = "Numbers of {1}";
+$l['tyl_profile_box_datetime'] = "Post Date/Time";
 $l['tyl_profile_box_message'] = "Post Message";
 $l['tyl_profile_box_thread'] = "Thread Subject";
 $l['tyl_profile_box_forum'] = "Forum Name";
+$l['tyl_profile_box_continue_reading'] = "Continue reading &raquo;";
 
 $l['tyl_profile_box_content_none'] = "Sorry, {1} has no {2} post at the moment.";
 
