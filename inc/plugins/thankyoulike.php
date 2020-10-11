@@ -709,46 +709,47 @@ function tyl_insert_templates()
 		),
 		'thankyoulike_member_profile_box' =>
 		array(
-			'template' => "<table border=\"0\" cellspacing=\"{\$theme['borderwidth']}\" cellpadding=\"{\$theme['tablespace']}\" width=\"100%\" class=\"tborder tfixed\">
+			'template' => "<table border=\"0\" cellspacing=\"{\$theme['borderwidth']}\" cellpadding=\"{\$theme['tablespace']}\" width=\"100%\" class=\"tborder\">
 <tr>
-<td colspan=\"2\" class=\"thead\"><strong>{\$lang->tyl_profile_box_thead}</strong></td>
+<td colspan=\"3\" class=\"thead\"><strong>{\$lang->tyl_profile_box_thead}</strong></td>
 </tr>
 {\$tyl_profile_box_content}
 </table>
 <br />",
-			'version_at_last_change' => '30100',
+			'version_at_last_change' => '30307',
+		),
+		'thankyoulike_member_profile_box_continue_reading' =>
+		array(
+			'template' => "<div style=\"text-align: right;\"><a href=\"{\$postlink}\">{\$lang->tyl_profile_box_continue_reading}</a></div>",
+			'version_at_last_change' => '30307',
 		),
 		'thankyoulike_member_profile_box_content' =>
 		array(
 			'template' => "<tr>
-<td class=\"trow2\" width=\"80%\"><span class=\"smalltext\">{\$lang->tyl_profile_box_subject}</span></td>
-<td class=\"trow2\" width=\"20%\" align=\"center\"><span class=\"smalltext\">{\$lang->tyl_profile_box_number}</span></td>
+	<td class=\"trow2\"><span class=\"smalltext\">{\$lang->tyl_profile_box_subject}</span></td>
+	<td class=\"trow2\"><span class=\"smalltext\">{\$lang->tyl_profile_box_datetime}</span></td>
+	<td class=\"trow2\" align=\"center\"><span class=\"smalltext\">{\$lang->tyl_profile_box_number}</span></td>
 </tr>
 <tr>
-<td class=\"trow1\"><strong>{\$memprofile['tylsubject']}</strong></td>
-<td class=\"trow1\" align=\"center\"><strong>{\$memprofile['tylcount']}</strong></td>
+	<td class=\"trow1\"><strong>{\$memprofile['tylsubject']}</strong></td>
+	<td class=\"trow1\">{\$memprofile['tyldatetime']}</td>
+	<td class=\"trow1\"align=\"center\" rowspan=\"3\"><span style=\"font-size: 45px; font-weight: bold;\">{\$memprofile['tylcount']}</span></td>
 </tr>
 <tr>
-<td class=\"trow1\" colspan=\"2\" style=\"padding: 0; border: 0;\">
-<table border=\"0\" cellspacing=\"{\$theme['borderwidth']}\" cellpadding=\"{\$theme['tablespace']}\" width=\"100%\">
-<tr>
-<td class=\"trow2\" width=\"50%\"><span class=\"smalltext\">{\$lang->tyl_profile_box_thread}</span></td>
-<td class=\"trow2\" width=\"50%\"><span class=\"smalltext\">{\$lang->tyl_profile_box_forum}</span></td>
+	<td class=\"trow2\"><span class=\"smalltext\">{\$lang->tyl_profile_box_thread}</span></td>
+	<td class=\"trow2\" style=\"border-right: 1px solid #ddd;\"><span class=\"smalltext\">{\$lang->tyl_profile_box_forum}</span></td>
 </tr>
 <tr>
-<td class=\"trow1\">{\$memprofile['tylthreadname']}</td>
-<td class=\"trow1\">{\$memprofile['tylforumname']}</td>
-</tr>
-</table>
-</td>
+	<td class=\"trow1\">{\$memprofile['threadprefix']}{\$memprofile['tylthreadname']}</td>
+	<td class=\"trow1\" style=\"border-right: 1px solid #ddd;\">{\$memprofile['tylforumname']}</td>
 </tr>
 <tr>
-<td class=\"trow2\" colspan=\"2\"><span class=\"smalltext\">{\$lang->tyl_profile_box_message}</span></td>
+	<td class=\"trow2\" colspan=\"3\"><span class=\"smalltext\">{\$lang->tyl_profile_box_message}</span></td>
 </tr>
 <tr>
-<td class=\"trow1 scaleimages\" colspan=\"2\">{\$memprofile['tylmessage']}</td>
+	<td class=\"trow1 scaleimages\" colspan=\"3\">{\$memprofile['tylmessage']}</td>
 </tr>",
-			'version_at_last_change' => '30300',
+			'version_at_last_change' => '30307',
 		),
 		'thankyoulike_member_profile_box_content_none' =>
 		array(
@@ -862,7 +863,7 @@ img[id^=tyl_i_expcol_]{
 	margin-right: -4px;
 }
 
-.tyl_rcvdlikesrange_1{
+.tyl_rcvdlikesrange_1, .tyl_rcvdlikesrange_1 a{
 	font-weight: bold;
 	color: green;
 }
@@ -1677,11 +1678,12 @@ function tyl_set_up_stats_in_postbit(&$post)
 	$post['user_details'] = preg_replace("#".preg_quote('%%TYL_NUMTHANKEDLIKED%%')."#i", $tyl_thankslikes, $post['user_details']);
 }
 
-function tyl_fmt_rcvd_likes_count($count) {
+function tyl_fmt_rcvd_likes_count($count, $link = '') {
 	global $mybb;
 
 	$prefix = 'g33k_thankyoulike_';
-	$ret = my_number_format($count);
+
+	$class = '';
 	$intervals = trim($mybb->settings[$prefix.'rcvdlikesclassranges']);
 	if ($intervals) {
 		$a = explode(',', $intervals);
@@ -1691,11 +1693,11 @@ function tyl_fmt_rcvd_likes_count($count) {
 			}
 		}
 		if ($i > 0) {
-			$ret = '<span class="tyl_rcvdlikesrange_'.$i.'">'.$ret.'</span>';
+			$class = 'tyl_rcvdlikesrange_'.$i;
 		}
 	}
 
-	return $ret;
+	return '<span'.($class ? ' class="'.$class.'"' : '').'>'.($link ? "<a href=\"{$link}\"".'>' : '').my_number_format($count).($link ? '</a>' : '').'</span>';
 }
 
 /**
@@ -2302,9 +2304,10 @@ function thankyoulike_memprofile()
 			}
 
 			$query = $db->query("
-					SELECT l.pid, count( * ) AS tylcount, p.subject, p.username, p.message, p.tid, p.fid
+					SELECT l.pid, count( * ) AS tylcount, p.subject, p.username, p.message, p.dateline, p.tid, p.fid, t.poll as threadpoll, t.prefix as threadprefix
 					FROM ".TABLE_PREFIX."g33k_thankyoulike_thankyoulike l
 					LEFT JOIN ".TABLE_PREFIX."posts p ON (l.pid=p.pid)
+					LEFT JOIN ".TABLE_PREFIX."threads t ON (t.tid=p.tid)
 					WHERE p.visible='1' AND l.puid = {$memprofile['uid']}{$unviewwhere}
 					GROUP BY l.pid
 					ORDER BY tylcount DESC, l.pid ASC
@@ -2340,9 +2343,12 @@ function thankyoulike_memprofile()
 				$post['subject'] = htmlspecialchars_uni($post['subject']);
 				$memprofile['tylsubject'] = "<a href=\"{$postlink}\"><span>{$parser->parse_badwords($post['subject'])}</span></a>";
 
-				$memprofile['tylcount'] = (int)$post['tylcount'];
+				$memprofile['tylcount'] = tyl_fmt_rcvd_likes_count((int)$post['tylcount'], $postlink);
 
-				if($mybb->settings[$prefix.'profile_box_post_cutoff'] > 0 && my_strlen($post['message']) > $mybb->settings[$prefix.'profile_box_post_cutoff'])
+				$memprofile['tyldatetime'] = my_date('relative', $post['dateline']);
+
+				$cut_post_off = ($mybb->settings[$prefix.'profile_box_post_cutoff'] > 0 && my_strlen($post['message']) > $mybb->settings[$prefix.'profile_box_post_cutoff']);
+				if($cut_post_off)
 				{
 					if($mybb->settings[$prefix.'profile_box_post_cutoff'] < 4)
 					{
@@ -2351,10 +2357,25 @@ function thankyoulike_memprofile()
 					$post['message'] = my_substr($post['message'], 0, $mybb->settings[$prefix.'profile_box_post_cutoff']-3, 0)."...";
 				}
 				$memprofile['tylmessage'] = $parser->parse_message($post['message'], $parser_options);
+				if ($cut_post_off)
+				{
+					eval("\$memprofile['tylmessage'] .= \"".$templates->get("thankyoulike_member_profile_box_continue_reading")."\";");
+				}
 
 				$thread['subject'] = htmlspecialchars_uni($thread['subject']); 
 				$memprofile['tylthreadname'] = "<a href=\"{$threadlink}\"><span>{$parser->parse_badwords($thread['subject'])}</span></a>";
 				$memprofile['tylforumname'] = "<a href=\"{$forumlink}\"><span>{$parser->parse_badwords($forum['name'])}</span></a>";
+
+				$memprofile['threadprefix'] = '';
+				if ($post['threadpoll']) {
+					$memprofile['threadprefix'] = $lang->poll_prefix.'&nbsp;';
+				}
+				if ($post['threadprefix'] != 0) {
+					$threadprefix_a = build_prefixes($post['threadprefix']);
+					if (!empty($threadprefix_a)) {
+						$memprofile['threadprefix'] .= $threadprefix_a['displaystyle'].'&nbsp;';
+					}
+				}
 
 				eval("\$tyl_profile_box_content = \"".$templates->get("thankyoulike_member_profile_box_content")."\";");
 			}
