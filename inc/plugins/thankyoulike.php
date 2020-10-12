@@ -2023,8 +2023,6 @@ function thankyoulike_threads_udetails()
 			{
 				$lang->tyl_firstpost_tyl_count_forumdisplay_thread = $lang->sprintf($lang->tyl_firstpost_tyl_count_forumdisplay_thread, $lang->tyl_firstpost_tyl_count_thanks);
 			}
-
-			//$tyl_forumdisplay_cached;
 		}
 
 		$thread['tyls'] = $tyl_forumdisplay_cached[$thread['tid']];
@@ -2059,8 +2057,6 @@ function thankyoulike_threads_udetails()
 			{
 				$lang->tyl_firstpost_tyl_count_search_page = $lang->sprintf($lang->tyl_firstpost_tyl_count_search_page, $lang->tyl_firstpost_tyl_count_thanks);
 			}
-
-			//$tyl_forumdisplay_cached;
 		}
 
 		$thread['tyls'] = $tyl_forumdisplay_cached[$thread['tid']];
