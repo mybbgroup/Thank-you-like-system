@@ -1997,7 +1997,7 @@ function thankyoulike_threads_udetails()
 	static $tyl_forumdisplay_cached = array();
 	$prefix = 'g33k_thankyoulike_';	
 	$lang->load("thankyoulike");
-	if ($mybb->settings[$prefix.'display_tyl_counter_forumdisplay'] == "1")
+	if ($mybb->settings[$prefix.'display_tyl_counter_forumdisplay'] == "1" && THIS_SCRIPT == "forumdisplay.php")
 	{
 		if (!$tyl_forumdisplay_cached)
 		{
@@ -2031,7 +2031,7 @@ function thankyoulike_threads_udetails()
 		eval("\$tyl_forumdisplay_thread_var = \"" . $templates->get("thankyoulike_tyl_counter_forumdisplay_thread") . "\";");
 	}
 	
-	if ($mybb->settings[$prefix.'display_tyl_counter_search_page'] == "1")
+	if ($mybb->settings[$prefix.'display_tyl_counter_search_page'] == "1" && THIS_SCRIPT == "search.php")
 	{
 		if (!$tyl_forumdisplay_cached)
 		{
