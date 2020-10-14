@@ -1996,15 +1996,20 @@ function thankyoulike_postbit(&$post)
 function thankyoulike_threads_udetails()
 {
 	global $mybb, $db, $templates, $lang, $thread, $threadcache, $thread_cache, $tyl_forumdisplay_thread_var, $tyl_search_page_var;
-	static $tyl_forumdisplay_cached = array();
+	static $tyl_threads_cached = array();
 	$prefix = 'g33k_thankyoulike_';	
 	$lang->load("thankyoulike");
-	if ($mybb->settings[$prefix.'display_tyl_counter_forumdisplay'] == "1" && THIS_SCRIPT == "forumdisplay.php")
+
+	$display_forum  = ($mybb->settings[$prefix.'display_tyl_counter_forumdisplay'] == "1" && THIS_SCRIPT == "forumdisplay.php");
+	$display_search = ($mybb->settings[$prefix.'display_tyl_counter_search_page' ] == "1" && THIS_SCRIPT == "search.php"      );
+	if ($display_forum || $display_search)
 	{
-		if (!$tyl_forumdisplay_cached)
+		$page_type = $display_forum ? 'forumdisplay_thread' : 'search_page';
+		$tcache    = $display_forum ? $threadcache          : $thread_cache;
+		if (!$tyl_threads_cached)
 		{
 			$pids = array();
-			foreach ($threadcache as $t)
+			foreach ($tcache as $t)
 			{
 				$pids[] = (int)$t['firstpost'];
 			}
@@ -2012,59 +2017,16 @@ function thankyoulike_threads_udetails()
 			$query = $db->simple_select("posts","tid,tyl_pnumtyls","pid IN ($pids)");
 			while ($post = $db->fetch_array($query))
 			{
-				$tyl_forumdisplay_cached[$post['tid']] = (int)$post['tyl_pnumtyls'];
-				$threadcache[$post['tid']]['tyls'] = (int)$post['tyl_pnumtyls'];
+				$tyl_threads_cached[$post['tid']] = (int)$post['tyl_pnumtyls'];
 			}
 
-			// Display likes/thanks based on user's setting in ACP
-			if ($mybb->settings[$prefix.'thankslike'] == "like")
-			{
-				$lang->tyl_firstpost_tyl_count_forumdisplay_thread = $lang->sprintf($lang->tyl_firstpost_tyl_count_forumdisplay_thread, $lang->tyl_firstpost_tyl_count_likes);
-			}
-			elseif ($mybb->settings[$prefix.'thankslike'] == "thanks")
-			{
-				$lang->tyl_firstpost_tyl_count_forumdisplay_thread = $lang->sprintf($lang->tyl_firstpost_tyl_count_forumdisplay_thread, $lang->tyl_firstpost_tyl_count_thanks);
-			}
+			$langkey1 = 'tyl_firstpost_tyl_count_'.$page_type;
+			$langkey2 = 'tyl_firstpost_tyl_count_'.$mybb->settings[$prefix.'thankslike'];
+			$lang->$langkey1 = $lang->sprintf($lang->$langkey1, $lang->$langkey2);
 		}
 
-		$thread['tyls'] = $tyl_forumdisplay_cached[$thread['tid']];
-
-		// Load custom template "thankyoulike_tyl_counter_forumdisplay_thread" instead of var $tyl_forumdisplay_thread_var
-		eval("\$tyl_forumdisplay_thread_var = \"" . $templates->get("thankyoulike_tyl_counter_forumdisplay_thread") . "\";");
-	}
-	
-	if ($mybb->settings[$prefix.'display_tyl_counter_search_page'] == "1" && THIS_SCRIPT == "search.php")
-	{
-		if (!$tyl_forumdisplay_cached)
-		{
-			$pids = array();
-			foreach ($thread_cache as $t)
-			{
-				$pids[] = (int)$t['firstpost'];
-			}
-			$pids = implode(',', $pids);
-			$query = $db->simple_select("posts","tid,tyl_pnumtyls","pid IN ($pids)");
-			while ($post = $db->fetch_array($query))
-			{
-				$tyl_forumdisplay_cached[$post['tid']] = (int)$post['tyl_pnumtyls'];
-				$thread_cache[$post['tid']]['tyls'] = (int)$post['tyl_pnumtyls'];
-			}
-
-			// Display likes/thanks based on user's setting in ACP
-			if ($mybb->settings[$prefix.'thankslike'] == "like")
-			{
-				$lang->tyl_firstpost_tyl_count_search_page = $lang->sprintf($lang->tyl_firstpost_tyl_count_search_page, $lang->tyl_firstpost_tyl_count_likes);
-			}
-			elseif ($mybb->settings[$prefix.'thankslike'] == "thanks")
-			{
-				$lang->tyl_firstpost_tyl_count_search_page = $lang->sprintf($lang->tyl_firstpost_tyl_count_search_page, $lang->tyl_firstpost_tyl_count_thanks);
-			}
-		}
-
-		$thread['tyls'] = $tyl_forumdisplay_cached[$thread['tid']];
-
-		// Load custom template "thankyoulike_tyl_counter_search_page" instead of var $tyl_search_page_var
-		eval("\$tyl_search_page_var = \"" . $templates->get("thankyoulike_tyl_counter_search_page") . "\";");
+		$thread['tyls'] = $tyl_threads_cached[$thread['tid']];
+		eval("\$tyl_{$page_type}_var = \"" . $templates->get("thankyoulike_tyl_counter_{$page_type}") . "\";");
 	}
 }
 
