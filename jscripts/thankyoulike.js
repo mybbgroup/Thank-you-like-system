@@ -3,6 +3,8 @@ var tylExpIdsByUser  = new Array();
 var tylCollIdsByUser = new Array();
 var tylOurUidIdxExp  = -1;
 var tylOurUidIdxColl = -1;
+var tylAddDoneHooks = new Array();
+var tylDelDoneHooks = new Array();
 
 var thankyoulike = {
 	init: function()
@@ -226,6 +228,13 @@ var thankyoulike = {
 				$("#tyl_"+pid).html(data.tylData);
 				$("#tyl_"+pid).css('display', "");
 				$("#tyl_btn_"+pid).before(data.tylButton).remove();
+				if (tylAddDoneHooks)
+				{
+					for (var i = 0; i < tylAddDoneHooks.length; i++)
+					{
+						tylAddDoneHooks[i](data, pid);
+					}
+				}
 			}
 		}
 		document.body.style.cursor = 'default';
@@ -288,6 +297,13 @@ var thankyoulike = {
 				$("#tyl_"+pid).html(data.tylData);
 				$("#tyl_"+pid).css('display', "");
 				$("#tyl_btn_"+pid).before(data.tylButton).remove();
+				if (tylDelDoneHooks)
+				{
+					for (var i = 0; i < tylDelDoneHooks.length; i++)
+					{
+						tylDelDoneHooks[i](data, pid);
+					}
+				}
 			}
 		}
 		document.body.style.cursor = 'default';
