@@ -396,9 +396,6 @@ if($mybb->input['action'] == "del")
 
 if($mybb->input['ajax'])
 {
-	// Send headers.
-	header("Content-type: application/json; charset={$charset}");
-
 	// Get all the thanks/likes for this post
 	$query = tyl_query_post_likes($post);
 
@@ -411,38 +408,29 @@ if($mybb->input['ajax'])
 
 	$ok = tyl_build_post_likers_display($post, $tyls, $tyled, $count);
 
-	// Cleanup for JSON
-	$button_tyl = thankyoulike_cleanup_json($post['button_tyl']);
+	$output = array(
+		'tylButton' => $post['button_tyl']
+	);
 
 	if($ok)
 	{
-		// Cleanup for JSON
-		$thankyoulike = thankyoulike_cleanup_json($post['thankyoulike_data']);
-		$msg_num_left = thankyoulike_cleanup_json($msg_num_left);
-
-		echo '{';
-		echo '"tylButton":"'.$button_tyl.'",';
-		echo '"tylData":"'.$thankyoulike.'",';
-		echo '"tylMsgNumLeft":"'.$msg_num_left.'"';
+		$output['tylData'   ] = $post['thankyoulike_data'];
+		$output['tylMsgLife'] = $msg_num_left;
 		if (isset($msg_num_left_life))
 		{
-			echo ',"tylMsgLife":'.$msg_num_left_life.'';
+			$output['tylMsgLife'] = $msg_num_left_life;
 		}
-		echo '}';
 	}
 	else
 	{
 		// Nothing to show, return blank data with buttons.
-
-		echo '{';
-		echo '"tylButton":"'.$button_tyl.'",';
-		echo '"tylData":""';
-		echo '}';
+		$output['tylData'   ] = '';
 	}
-	exit;
-}
 
-function thankyoulike_cleanup_json($data)
-{
-	return addcslashes($data, "\\\/\"\n\r\t/".chr(0).chr(8).chr(12));
+	$output = $plugins->run_hooks('thankyoulike_ajax_end', $output);
+
+	header("Content-type: application/json; charset={$charset}");
+	echo json_encode($output, JSON_PRETTY_PRINT);
+
+	exit;
 }
