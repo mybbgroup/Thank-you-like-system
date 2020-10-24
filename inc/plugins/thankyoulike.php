@@ -1130,7 +1130,7 @@ function thankyoulike_deactivate()
 {
 	require_once MYBB_ROOT."/inc/adminfunctions_templates.php";
 
-	find_replace_templatesets("showthread", "#".preg_quote('<script type="text/javascript" src="{$mybb->settings[\'bburl\']}/jscripts/thankyoulike.min.js"></script>
+	find_replace_templatesets("showthread", "#".preg_quote('<script type="text/javascript" src="{$mybb->settings[\'bburl\']}/jscripts/thankyoulike.min.js').'(\\?ver=\\d+)?'.preg_quote('"></script>
 <script type="text/javascript">
 <!--
 	var tylEnabled = "{$mybb->settings[\'g33k_thankyoulike_enabled\']}";
@@ -1142,7 +1142,7 @@ function thankyoulike_deactivate()
 	var tylRemove = "{$lang->tyl_remove}";
 // -->
 </script>
-</head>')."#i", '</head>', 0);
+')."#i", '', 0);
 
 	find_replace_templatesets("postbit", "#".preg_quote('{$post[\'styleclass\']}')."#i", '', 0);
 	find_replace_templatesets("postbit_classic", "#".preg_quote('{$post[\'styleclass\']}')."#i", '', 0);
