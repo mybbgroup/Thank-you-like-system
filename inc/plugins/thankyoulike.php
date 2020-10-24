@@ -451,6 +451,12 @@ function tyl_create_settings($existing_setting_values = array())
 			'optionscode' => 'numeric',
 			'value'       => '0'
 		),
+		'profile_box_show_parent_forums'  => array(
+			'title'       => $lang->tyl_profile_box_show_parent_forums_title,
+			'description' => $lang->tyl_profile_box_show_parent_forums_description,
+			'optionscode' => 'yesno',
+			'value'       => '1',
+		),
 		'profile_box_post_allowhtml'      => array(
 			'title'       => $lang->tyl_profile_box_post_allowhtml_title,
 			'description' => $lang->tyl_profile_box_post_allowhtml_desc,
@@ -735,6 +741,21 @@ function tyl_insert_templates()
 			'template' => "<div style=\"text-align: right;\"><a href=\"{\$postlink}\">{\$lang->tyl_profile_box_continue_reading}</a></div>",
 			'version_at_last_change' => '30307',
 		),
+		'thankyoulike_forum_separator' =>
+		array(
+			'template' => '&raquo;',
+			'version_at_last_change' => '30308',
+		),
+		'thankyoulike_forum_separator_last' =>
+		array(
+			'template' => '<br /><img src="images/nav_bit.png" alt="" />',
+			'version_at_last_change' => '30308',
+		),
+		'thankyoulike_forum_link' =>
+		array(
+			'template' => '<a href="{$forum_url}">{$forum_name}</a>',
+			'version_at_last_change' => '30308',
+		),
 		'thankyoulike_member_profile_box_content' =>
 		array(
 			'template' => "<tr>
@@ -753,7 +774,7 @@ function tyl_insert_templates()
 </tr>
 <tr>
 	<td class=\"trow1\">{\$memprofile['threadprefix']}{\$memprofile['tylthreadname']}</td>
-	<td class=\"trow1\" style=\"border-right: 1px solid #ddd;\">{\$memprofile['tylforumname']}</td>
+	<td class=\"trow1\" style=\"border-right: 1px solid #ddd;\">{\$memprofile['tylforums']}</td>
 </tr>
 <tr>
 	<td class=\"trow2\" colspan=\"3\"><span class=\"smalltext\">{\$lang->tyl_profile_box_message}</span></td>
@@ -761,7 +782,7 @@ function tyl_insert_templates()
 <tr>
 	<td class=\"trow1 scaleimages\" colspan=\"3\">{\$memprofile['tylmessage']}</td>
 </tr>",
-			'version_at_last_change' => '30307',
+			'version_at_last_change' => '30308',
 		),
 		'thankyoulike_member_profile_box_content_none' =>
 		array(
@@ -2316,10 +2337,11 @@ function thankyoulike_memprofile()
 			}
 
 			$query = $db->query("
-					SELECT l.pid, count( * ) AS tylcount, p.subject, p.username, p.message, p.dateline, p.tid, p.fid, t.poll as threadpoll, t.prefix as threadprefix
+					SELECT l.pid, count( * ) AS tylcount, p.subject, p.username, p.message, p.dateline, p.tid, p.fid, f.parentlist, t.poll as threadpoll, t.prefix as threadprefix
 					FROM ".TABLE_PREFIX."g33k_thankyoulike_thankyoulike l
 					LEFT JOIN ".TABLE_PREFIX."posts p ON (l.pid=p.pid)
 					LEFT JOIN ".TABLE_PREFIX."threads t ON (t.tid=p.tid)
+					LEFT JOIN ".TABLE_PREFIX."forums f ON (f.fid = t.fid)
 					WHERE p.visible='1' AND l.puid = {$memprofile['uid']}{$unviewwhere}
 					GROUP BY l.pid
 					ORDER BY tylcount DESC, l.pid ASC
@@ -2349,8 +2371,33 @@ function thankyoulike_memprofile()
 				$thread = get_thread($post['tid']);
 				$threadlink = get_thread_link($post['tid']);
 
-				$forum = get_forum($post['fid']);
-				$forumlink = get_forum_link($post['fid']);
+				$forum_links = '';
+				if ($mybb->settings[$prefix.'profile_box_show_parent_forums'] == 1) {
+					$forum_names = array();
+					$res = $db->simple_select('forums', 'fid,name', 'fid IN ('.$post['parentlist'].')');
+					while (($forum = $db->fetch_array($res))) {
+						$forum_names[$forum['fid']] = $forum['name'];
+					}
+
+					$fids = explode(',', $post['parentlist']);
+					$fid_last = array_pop($fids);
+					foreach ($fids as $fid2) {
+						if ($forum_links) eval('$forum_links .= "'.$templates->get('thankyoulike_forum_separator').'";');
+						$forum_url = get_forum_link($fid2);
+						$forum_name = htmlspecialchars_uni($forum_names[$fid2]);
+						eval('$forum_links .= "'.$templates->get('thankyoulike_forum_link').'";');
+					}
+					eval('$forum_links .= "'.$templates->get('thankyoulike_forum_separator_last').'";');
+					$forum_url = get_forum_link($fid_last);
+					$forum_name = htmlspecialchars_uni($forum_names[$fid_last]);
+				}
+				else
+				{
+					$forum_url = get_forum_link($post['fid']);
+					$forum = get_forum($post['fid']);
+					$forum_name = htmlspecialchars_uni($forum['name']);
+				}
+				eval('$forum_links .= "'.$templates->get('thankyoulike_forum_link').'";');
 
 				$post['subject'] = htmlspecialchars_uni($post['subject']);
 				$memprofile['tylsubject'] = "<a href=\"{$postlink}\"><span>{$parser->parse_badwords($post['subject'])}</span></a>";
@@ -2376,7 +2423,7 @@ function thankyoulike_memprofile()
 
 				$thread['subject'] = htmlspecialchars_uni($thread['subject']); 
 				$memprofile['tylthreadname'] = "<a href=\"{$threadlink}\"><span>{$parser->parse_badwords($thread['subject'])}</span></a>";
-				$memprofile['tylforumname'] = "<a href=\"{$forumlink}\"><span>{$parser->parse_badwords($forum['name'])}</span></a>";
+				$memprofile['tylforums'] = $forum_links;
 
 				$memprofile['threadprefix'] = '';
 				if ($post['threadpoll']) {
@@ -2767,7 +2814,7 @@ function thankyoulike_settings_peeker()
 			new Peeker($(".setting_'.$prefix.'showdt"), $("#row_setting_'.$prefix.'dtformat"),/^(?!none)/, true),
 			new Peeker($(".setting_'.$prefix.'collapsible"), $("#row_setting_'.$prefix.'colldefault"), 1, true),
 			new Peeker($(".setting_'.$prefix.'highlight_popular_posts"), $("#row_setting_'.$prefix.'highlight_popular_posts_count"), 1, true),
-			new Peeker($(".setting_'.$prefix.'show_memberprofile_box"), $("#row_setting_'.$prefix.'profile_box_post_cutoff, #row_setting_'.$prefix.'profile_box_post_allowhtml, #row_setting_'.$prefix.'profile_box_post_allowmycode, #row_setting_'.$prefix.'profile_box_post_allowsmilies, #row_setting_'.$prefix.'profile_box_post_allowimgcode, #row_setting_'.$prefix.'profile_box_post_allowvideocode"), 1, true)
+			new Peeker($(".setting_'.$prefix.'show_memberprofile_box"), $("#row_setting_'.$prefix.'profile_box_post_cutoff, #row_setting_'.$prefix.'profile_box_post_allowhtml, #row_setting_'.$prefix.'profile_box_post_allowmycode, #row_setting_'.$prefix.'profile_box_post_allowsmilies, #row_setting_'.$prefix.'profile_box_post_allowimgcode, #row_setting_'.$prefix.'profile_box_post_allowvideocode, #row_setting_'.$prefix.'profile_box_show_parent_forums"), 1, true)
 		});
 		</script>';
 	}

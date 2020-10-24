@@ -134,6 +134,8 @@ $l['tyl_display_tyl_counter_search_page_desc'] = "Selecting \"Yes\" will display
 
 $l['tyl_show_memberprofile_box_title'] = "Enable trophy posts in member profiles?";
 $l['tyl_show_memberprofile_box_desc'] = "When enabled (choose \"Yes\"), each member's trophy post (most thanked/liked post) will be shown on his/her profile page.";
+$l['tyl_profile_box_show_parent_forums_title'] = "Show parent forums?";
+$l['tyl_profile_box_show_parent_forums_description'] = "Selecting \"Yes\" will show the parent forums of the trophy post's forum.";
 $l['tyl_profile_box_post_cutoff_title'] = "Trophy post character cut-off";
 $l['tyl_profile_box_post_cutoff_desc'] = "Set the maximum number of (Unicode) characters to display in profile page trophy posts (0 for no limit).";
 $l['tyl_profile_box_post_allowhtml_title'] = "Allow HTML in trophy posts?";
