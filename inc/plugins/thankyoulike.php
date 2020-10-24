@@ -1459,7 +1459,7 @@ function thankyoulike_templatelist()
 		$template_list = '';
 		if (THIS_SCRIPT == 'showthread.php')
 		{
-			$template_list = "thankyoulike_users,thankyoulike_postbit_author_user,thankyoulike_postbit,thankyoulike_postbit_classic,thankyoulike_expcollapse,thankyoulike_button_add,thankyoulike_button_del";
+			$template_list = "thankyoulike_users,thankyoulike_postbit_author_user,thankyoulike_postbit,thankyoulike_postbit_classic,thankyoulike_postbit_avatars,thankyoulike_postbit_classic_avatars,thankyoulike_users_avatars,thankyoulike_expcollapse,thankyoulike_button_add,thankyoulike_button_del";
 		}
 		if (THIS_SCRIPT == 'forumdisplay.php')
 		{
@@ -1471,7 +1471,7 @@ function thankyoulike_templatelist()
 		}
 		if (THIS_SCRIPT == 'member.php')
 		{
-			$template_list = "thankyoulike_member_profile,thankyoulike_member_profile_box,thankyoulike_member_profile_box_content,thankyoulike_member_profile_box_content_none";
+			$template_list = "thankyoulike_member_profile,thankyoulike_member_profile_box,thankyoulike_member_profile_box_content,thankyoulike_member_profile_box_continue_reading,thankyoulike_member_profile_rcvd_search,thankyoulike_member_profile_given_search,thankyoulike_forum_separator,thankyoulike_forum_link,thankyoulike_forum_separator_last,thankyoulike_member_profile_box_content_none";
 		}
 		if (THIS_SCRIPT == 'announcements.php')
 		{
