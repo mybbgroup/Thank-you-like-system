@@ -90,9 +90,21 @@ $l['tyl_redirect_deleted'] = "Your {1} has been removed from the post";
 $l['tyl_redirect_back'] = "<br />You will be now taken back to the post.";
 
 
-$l['tyl_alert'] = '{1} thanked/liked your post<br /><b>"{2}"</b>.';
-$l['tyl_alert_like'] = '{1} liked your post<br /><b>"{2}"</b>.';
-$l['tyl_alert_thanks'] = '{1} thanked your post<br /><b>"{2}"</b>.';
+$l['tyl_alert'] = '{1} thanks you for or likes your post<br /><b>"{2}"</b>.';
+$l['tyl_alert_multi'] = '{1} and {2} others thank you for or like your post<br /><b>"{3}"</b>.';
+$l['tyl_alert_multi_one'] = '{1} and 1 other thank you for or like your post<br /><b>"{2}"</b>.';
+$l['tyl_alert_new'] = '{1} and {2} others thank you for or like ({3} new) your post<br /><b>"{4}"</b>.';
+$l['tyl_alert_new_one'] = '{1} and 1 other thank you for or like ({2} new) your post<br /><b>"{3}"</b>.';
+$l['tyl_alert_like'] = '{1} likes your post<br /><b>"{2}"</b>.';
+$l['tyl_alert_thanks'] = '{1} thanks you for your post<br /><b>"{2}"</b>.';
+$l['tyl_alert_like_multi'] = '{1} and {2} others like your post<br /><b>"{3}"</b>.';
+$l['tyl_alert_thanks_multi'] = '{1} and {2} others thank you for your post<br /><b>"{3}"</b>.';
+$l['tyl_alert_like_multi_one'] = '{1} and 1 other like your post<br /><b>"{2}"</b>.';
+$l['tyl_alert_thanks_multi_one'] = '{1} and 1 other thank you for your post<br /><b>"{2}"</b>.';
+$l['tyl_alert_like_new'] = '{1} and {2} others like ({3} new) your post<br /><b>"{4}"</b>.';
+$l['tyl_alert_thanks_new'] = '{1} and {2} others thank you ({3} new) for your post<br /><b>"{4}"</b>.';
+$l['tyl_alert_like_new_one'] = '{1} and 1 other like ({2} new) your post<br /><b>"{3}"</b>.';
+$l['tyl_alert_thanks_new_one'] = '{1} and 1 other thank you ({2} new) for your post<br /><b>"{3}"</b>.';
 $l['myalerts_setting_tyl'] = 'Receive an alert when someone adds a thank/like to my post?';
 $l['myalerts_setting_tyl_like'] = 'Receive an alert when someone adds a like to my post?';
 $l['myalerts_setting_tyl_thanks'] = 'Receive an alert when someone adds a thanks to my post?';
