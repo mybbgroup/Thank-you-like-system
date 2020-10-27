@@ -2309,7 +2309,7 @@ function tyl_myalerts_formatter_load()
 
 function thankyoulike_memprofile()
 {
-	global $db, $mybb, $lang, $memprofile, $templates, $tyl_memprofile, $tyl_profile_stats, $alttrow;
+	global $db, $mybb, $lang, $memprofile, $templates, $tyl_memprofile, $tyl_profile_stats, $alttrow, $uid;
 	$prefix = 'g33k_thankyoulike_';
 
 	$lang->load("thankyoulike");
