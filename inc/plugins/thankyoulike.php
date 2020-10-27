@@ -868,7 +868,7 @@ function tyl_insert_templates()
 		'thankyoulike_member_profile_like_stats_most_likedby_row' =>
 		array(
 			'template' => "	<tr>
-		<td class=\"{\$alttrow}\" style=\"text-align: right;\"><a href=\"{\$tyl_profilelink}\">{\$tyl_username}</a></td>
+		<td class=\"{\$alttrow}\" style=\"text-align: right;\">{\$tyl_member_link}</td>
 		<td class=\"{\$alttrow}\" style=\"text-align: center;\">{\$tyl_cnt}</td>
 		<td class=\"{\$alttrow}\"></td>
 	</tr>
@@ -878,11 +878,16 @@ function tyl_insert_templates()
 		'thankyoulike_member_profile_like_stats_most_liked_row' =>
 		array(
 			'template' => "	<tr>
-		<td class=\"{\$alttrow}\" style=\"text-align: right;\"><a href=\"{\$tyl_profilelink}\">{\$tyl_username}</a></td>
+		<td class=\"{\$alttrow}\" style=\"text-align: right;\">{\$tyl_member_link}</td>
 		<td class=\"{\$alttrow}\"></td>
 		<td class=\"{\$alttrow}\" style=\"text-align: center;\">{\$tyl_cnt}</td>
 	</tr>
 ",
+			'version_at_last_change' => '30308',
+		),
+		'thankyoulike_member_link' =>
+		array(
+			'template' => "<a href=\"{\$tyl_profilelink}\">{\$tyl_username}</a>",
 			'version_at_last_change' => '30308',
 		),
 		'thankyoulike_member_profile_like_stats_no_most_liked' =>
@@ -2649,9 +2654,15 @@ GROUP BY t.period";
 			$alttrow = 'trow1';
 			while($row = $db->fetch_array($query))
 			{
-				$tyl_username = $mybb->settings[$prefix.'unameformat'] == "1" ? format_name($row['username'], $row['usergroup'], $row['displaygroup']) : $row['username'];
-				$tyl_cnt      = $row['cnt'     ];
-				$tyl_profilelink = get_profile_link($row['uid']);
+				$tyl_cnt = $row['cnt'];
+				if($row['username'])
+				{
+					$tyl_username = $mybb->settings[$prefix.'unameformat'] == "1" ? format_name($row['username'], $row['usergroup'], $row['displaygroup']) : $row['username'];
+					$tyl_profilelink = get_profile_link($row['uid']);
+					eval('$tyl_member_link = "'.$templates->get('thankyoulike_member_link').'";');
+				} else {
+					$tyl_member_link = $lang->tyl_deleted_member_name;
+				}
 				eval('$tyl_most_likedby_users .= "'.$templates->get('thankyoulike_member_profile_like_stats_most_likedby_row').'";');
 				alt_trow();
 			}
@@ -2667,9 +2678,15 @@ GROUP BY t.period";
 			$alttrow = 'trow1';
 			while($row = $db->fetch_array($query))
 			{
-				$tyl_username = $mybb->settings[$prefix.'unameformat'] == "1" ? format_name($row['username'], $row['usergroup'], $row['displaygroup']) : $row['username'];
-				$tyl_cnt      = $row['cnt'     ];
-				$tyl_profilelink = get_profile_link($row['uid']);
+				$tyl_cnt = $row['cnt'];
+				if($row['username'])
+				{
+					$tyl_username = $mybb->settings[$prefix.'unameformat'] == "1" ? format_name($row['username'], $row['usergroup'], $row['displaygroup']) : $row['username'];
+					$tyl_profilelink = get_profile_link($row['uid']);
+					eval('$tyl_member_link = "'.$templates->get('thankyoulike_member_link').'";');
+				} else {
+					$tyl_member_link = $lang->tyl_deleted_member_name;
+				}
 				eval('$tyl_most_liked_users .= "'.$templates->get('thankyoulike_member_profile_like_stats_most_liked_row').'";');
 				alt_trow();
 			}
