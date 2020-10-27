@@ -2630,7 +2630,7 @@ GROUP BY t.period";
 			$tyl_received_12months = $tyl_received_6months  + (!empty($counts_rcv['12months']) ? $counts_rcv['12months'] : 0);
 			$tyl_received_all      = $tyl_received_12months + (!empty($counts_rcv['all'     ]) ? $counts_rcv['all'     ] : 0);
 
-			$sql_gv = str_replace('puid', 'uid', $sql_rcv);
+			$sql_gv = str_replace('tyl.puid = ', 'tyl.uid = ', $sql_rcv);
 			$query_gv = $db->query($sql_gv);
 			$counts_gv = array();
 			while ($row = $db->fetch_array($query_gv))
