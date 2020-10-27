@@ -486,7 +486,13 @@ function tyl_create_settings($existing_setting_values = array())
 			'description' => $lang->tyl_profile_box_post_allowvideocode_desc,
 			'optionscode' => 'yesno',
 			'value'       => '0'
-		)
+		),
+		'show_memberprofile_stats'        => array(
+			'title'       => $lang->tyl_show_memberprofile_stats_title,
+			'description' => $lang->tyl_show_memberprofile_stats_desc,
+			'optionscode' => 'yesno',
+			'value'       => '1'
+		),
 	);
 
 	$x = 1;
@@ -515,7 +521,7 @@ function tyl_create_settings($existing_setting_values = array())
  * Where necessary, create the plugin's tables in the database and
  * add to core MyBB tables those columns needed for this plugin.
  */
-function tyl_check_update_db_table_and_cols()
+function tyl_check_update_db_table_and_cols($from_version = false)
 {
 	global $db;
 	$prefix = 'g33k_thankyoulike_';
@@ -554,9 +560,23 @@ function tyl_check_update_db_table_and_cols()
 				puid int unsigned NOT NULL default '0',
 				dateline bigint(30) NOT NULL default '0',
 				UNIQUE KEY pid (pid, uid),
+				KEY uid_dateline (uid, dateline),
+				KEY puid_dateline (puid, dateline),
+				KEY puid_uid (puid, uid),
+				KEY puid_pid (puid, pid),
 				PRIMARY KEY (tlid)
 				) ENGINE=MyISAM
 				".$db->build_create_table_collation().";");
+	}
+
+	if($from_version !== false && $from_version < 30308)
+	{
+		// To speed up the member profile tyl statistics (tabulated display of date range counts of tyls).
+		$db->query("ALTER TABLE ".TABLE_PREFIX.$prefix."thankyoulike ADD KEY uid_dateline  (uid , dateline)");
+		$db->query("ALTER TABLE ".TABLE_PREFIX.$prefix."thankyoulike ADD KEY puid_dateline (puid, dateline)");
+		$db->query("ALTER TABLE ".TABLE_PREFIX.$prefix."thankyoulike ADD KEY puid_uid (puid, uid)");
+		// To speed up the determination of the member profile trophy post.
+		$db->query("ALTER TABLE ".TABLE_PREFIX.$prefix."thankyoulike ADD KEY puid_pid (puid, pid)");
 	}
 
 	// Added puid field after v1.0 so check for that
@@ -791,6 +811,96 @@ function tyl_insert_templates()
 </tr>",
 			'version_at_last_change' => '20300',
 		),
+		'thankyoulike_member_profile_like_stats' =>
+		array(
+			'template' => "<table border=\"0\" cellspacing=\"{\$theme['borderwidth']}\" cellpadding=\"{\$theme['tablespace']}\" width=\"100%\" class=\"tborder\">
+	<tr>
+	<td colspan=\"3\" class=\"thead\"><strong>{\$tyl_profile_stats_head}</strong></td>
+	</tr>
+	<tr>
+		<td class=\"trow1\">&nbsp;</td>
+		<td class=\"trow1\" style=\"text-align: center;\"><strong>{\$lang->tyl_tyl_received}</strong></td>
+		<td class=\"trow1\" style=\"text-align: center;\"><strong>{\$lang->tyl_tyl_given}</strong></td>
+	</tr>
+	<tr>
+		<td class=\"trow2\" style=\"text-align: right;\">{\$lang->last_week}</td>
+		<td class=\"trow2\" style=\"text-align: center;\">{\$tyl_received_week}</td>
+		<td class=\"trow2\" style=\"text-align: center;\">{\$tyl_given_week}</td>
+	</tr>
+	<tr>
+		<td class=\"trow1\" style=\"text-align: right;\">{\$lang->last_month}</td>
+		<td class=\"trow1\" style=\"text-align: center;\">{\$tyl_received_month}</td>
+		<td class=\"trow1\" style=\"text-align: center;\">{\$tyl_given_month}</td>
+	</tr>
+	<tr>
+		<td class=\"trow2\" style=\"text-align: right;\">{\$lang->tyl_last_3months}</td>
+		<td class=\"trow2\" style=\"text-align: center;\">{\$tyl_received_3months}</td>
+		<td class=\"trow2\" style=\"text-align: center;\">{\$tyl_given_3months}</td>
+	</tr>
+	<tr>
+		<td class=\"trow1\" style=\"text-align: right;\">{\$lang->last_6months}</td>
+		<td class=\"trow1\" style=\"text-align: center;\">{\$tyl_received_6months}</td>
+		<td class=\"trow1\" style=\"text-align: center;\">{\$tyl_given_6months}</td>
+	</tr>
+	<tr>
+		<td class=\"trow2\" style=\"text-align: right;\">{\$lang->tyl_last_12months}</td>
+		<td class=\"trow2\" style=\"text-align: center;\">{\$tyl_received_12months}</td>
+		<td class=\"trow2\" style=\"text-align: center;\">{\$tyl_given_12months}</td>
+	</tr>
+	<tr>
+		<td class=\"trow1\" style=\"text-align: right;\">{\$lang->all_time}</td>
+		<td class=\"trow1\" style=\"text-align: center;\">{\$tyl_received_all}</td>
+		<td class=\"trow1\" style=\"text-align: center;\">{\$tyl_given_all}</td>
+	</tr>
+	<tr>
+		<td class=\"trow2\" colspan=\"3\" style=\"text-align: center;\"><strong>{\$lang->tyl_most_liked_by}</strong></td>
+	</tr>
+	{\$tyl_most_likedby_users}
+	<tr>
+		<td class=\"trow2\" colspan=\"3\" style=\"text-align: center;\"><strong>{\$lang->tyl_most_liked}</strong></td>
+	</tr>
+	{\$tyl_most_liked_users}
+</table>
+<br />
+",
+			'version_at_last_change' => '30308',
+		),
+		'thankyoulike_member_profile_like_stats_most_likedby_row' =>
+		array(
+			'template' => "	<tr>
+		<td class=\"{\$alttrow}\" style=\"text-align: right;\"><a href=\"{\$tyl_profilelink}\">{\$tyl_username}</a></td>
+		<td class=\"{\$alttrow}\" style=\"text-align: center;\">{\$tyl_cnt}</td>
+		<td class=\"{\$alttrow}\"></td>
+	</tr>
+",
+			'version_at_last_change' => '30308',
+		),
+		'thankyoulike_member_profile_like_stats_most_liked_row' =>
+		array(
+			'template' => "	<tr>
+		<td class=\"{\$alttrow}\" style=\"text-align: right;\"><a href=\"{\$tyl_profilelink}\">{\$tyl_username}</a></td>
+		<td class=\"{\$alttrow}\"></td>
+		<td class=\"{\$alttrow}\" style=\"text-align: center;\">{\$tyl_cnt}</td>
+	</tr>
+",
+			'version_at_last_change' => '30308',
+		),
+		'thankyoulike_member_profile_like_stats_no_most_liked' =>
+		array(
+			'template' => "	<tr>
+		<td class=\"{\$alttrow}\" colspan=\"3\" style=\"text-align: center;\">{\$lang->tyl_no_most_tyled}</td>
+	</tr>
+",
+			'version_at_last_change' => '30308',
+		),
+		'thankyoulike_member_profile_like_stats_no_most_likedby' =>
+		array(
+			'template' => "	<tr>
+		<td class=\"{\$alttrow}\" colspan=\"3\" style=\"text-align: center;\">{\$lang->tyl_no_most_tyledby}</td>
+	</tr>
+",
+			'version_at_last_change' => '30308',
+		),
 	);
 
 	// Could be zero (false) if we are installing or if upgrading a very old installation.
@@ -933,9 +1043,9 @@ function tyl_create_stylesheet()
 
 /**
  * Perform the tasks in common between installing and upgrading.
- * @param boolean $is_upgrade Set to true if upgrading; false if installing.
+ * @param boolean $from_version Set to version from which we are upgrading if upgrading; false if installing.
  */
-function tyl_install_upgrade_common($is_upgrade = false)
+function tyl_install_upgrade_common($from_version = false)
 {
 	global $cache, $lang;
 	$lang->load('config_thankyoulike');
@@ -943,7 +1053,7 @@ function tyl_install_upgrade_common($is_upgrade = false)
 
 	// Where necessary, create the plugin's tables in the database and
 	// add to core MyBB tables those columns needed for this plugin.
-	tyl_check_update_db_table_and_cols();
+	tyl_check_update_db_table_and_cols($from_version);
 
 	// (Re)create the plugin's template group and templates.
 	tyl_create_templategroup();
@@ -1077,7 +1187,7 @@ function tyl_upgrade($from_version)
 	$db->delete_query("themestylesheets", "name = 'thankyoulike.css' AND tid = 1");
 
 	// Perform the tasks in common between installing and upgrading.
-	tyl_install_upgrade_common(/*$is_upgrade=*/true);
+	tyl_install_upgrade_common($from_version);
 }
 
 function thankyoulike_activate()
@@ -1135,11 +1245,8 @@ function thankyoulike_activate()
 	find_replace_templatesets("postbit_classic", "#".preg_quote('{$post[\'button_edit\']}')."#i", '{$post[\'button_tyl\']}{$post[\'button_edit\']}');
 	find_replace_templatesets("postbit_author_user", "#".preg_quote('{$lang->postbit_threads} {$post[\'threadnum\']}<br />')."#i", '{$lang->postbit_threads} {$post[\'threadnum\']}<br />
 	%%TYL_NUMTHANKEDLIKED%%<br />');
-	if(!find_replace_templatesets("member_profile", '#{\$reputation}(\r?)\n#', "{\$tyl_memprofile}\n{\$reputation}\n"))
-	{
-		find_replace_templatesets("member_profile", '#{\$reputation}(\r?)\n#', "{\$tyl_memprofile}\n{\$reputation}\n");
-	}
-	find_replace_templatesets("member_profile", '#{\$modoptions}(\r?)\n#', "{\$tyl_profile_box}\n{\$modoptions}\n");
+	find_replace_templatesets("member_profile", '#{\$reputation}(\r?)\n#', "{\$tyl_memprofile}\n\t\t\t\t{\$reputation}\n");
+	find_replace_templatesets("member_profile", '#{\$modoptions}(\r?)\n#', "{\$tyl_profile_box}\n\t\t\t{\$tyl_profile_stats}\n\t\t\t{\$modoptions}\n");
 	find_replace_templatesets("forumdisplay_thread","#".preg_quote('{$attachment_count}')."#i","{\$tyl_forumdisplay_thread_var}{\$attachment_count}");
 	find_replace_templatesets("search_results_threads_thread","#".preg_quote('{$attachment_count}')."#i","{\$tyl_search_page_var}{\$attachment_count}");
 	
@@ -1173,8 +1280,9 @@ function thankyoulike_deactivate()
 	find_replace_templatesets("postbit_classic", "#".preg_quote('{$post[\'button_tyl\']}')."#i", '', 0);
 	find_replace_templatesets("postbit_author_user", "#".preg_quote('
 	%%TYL_NUMTHANKEDLIKED%%<br />')."#i", '', 0);
-	find_replace_templatesets("member_profile", '#{\$tyl_memprofile}(\r?)\n#', "", 0);
-	find_replace_templatesets("member_profile", '#{\$tyl_profile_box}(\r?)\n#', "", 0);
+	find_replace_templatesets("member_profile", '#(\t*)?{\$tyl_memprofile}(\r?)(\n?)#', "", 0);
+	find_replace_templatesets("member_profile", '#(\t*)?{\$tyl_profile_box}(\r?)(\n?)#', "", 0);
+	find_replace_templatesets("member_profile", '#(\t*)?{\$tyl_profile_stats}(\r?)(\n?)#', "", 0);
 	find_replace_templatesets("forumdisplay_thread", '#{\$tyl_forumdisplay_thread_var}#', "", 0);
 	find_replace_templatesets("search_results_threads_thread", '#{\$tyl_search_page_var}#', "", 0);
 	
@@ -1471,7 +1579,7 @@ function thankyoulike_templatelist()
 		}
 		if (THIS_SCRIPT == 'member.php')
 		{
-			$template_list = "thankyoulike_member_profile,thankyoulike_member_profile_box,thankyoulike_member_profile_box_content,thankyoulike_member_profile_box_continue_reading,thankyoulike_member_profile_rcvd_search,thankyoulike_member_profile_given_search,thankyoulike_forum_separator,thankyoulike_forum_link,thankyoulike_forum_separator_last,thankyoulike_member_profile_box_content_none";
+			$template_list = "thankyoulike_member_profile,thankyoulike_member_profile_box,thankyoulike_member_profile_box_content,thankyoulike_member_profile_box_continue_reading,thankyoulike_member_profile_rcvd_search,thankyoulike_member_profile_given_search,thankyoulike_forum_separator,thankyoulike_forum_link,thankyoulike_forum_separator_last,thankyoulike_member_profile_box_content_none,thankyoulike_member_profile_like_stats,thankyoulike_member_profile_like_stats_most_likedby_row,thankyoulike_member_profile_like_stats_most_liked_row,thankyoulike_member_profile_like_stats_no_most_liked,thankyoulike_member_profile_like_stats_no_most_likedby";
 		}
 		if (THIS_SCRIPT == 'announcements.php')
 		{
@@ -2196,7 +2304,7 @@ function tyl_myalerts_formatter_load()
 
 function thankyoulike_memprofile()
 {
-	global $db, $mybb, $lang, $memprofile, $templates, $tyl_memprofile, $uid;
+	global $db, $mybb, $lang, $memprofile, $templates, $tyl_memprofile, $tyl_profile_stats, $alttrow;
 	$prefix = 'g33k_thankyoulike_';
 
 	$lang->load("thankyoulike");
@@ -2446,7 +2554,204 @@ function thankyoulike_memprofile()
 			eval("\$tyl_profile_box = \"".$templates->get("thankyoulike_member_profile_box")."\";");
 		}
 		// Member Profile Box End
+
+		if($mybb->settings[$prefix.'show_memberprofile_stats'] != 0)
+		{
+			if($mybb->settings[$prefix.'thankslike'] == 'thanks')
+			{
+				$lang->tyl_tyl_received = $lang->tyl_thanks_received;
+				$lang->tyl_tyl_given = $lang->tyl_thanks_given;
+				$key = 'tyl_thanks';
+				$lang->tyl_most_tyled_by = $lang->tyl_most_thanked_by;
+				$lang->tyl_most_tyled = $lang->tyl_most_thanked;
+				$lang->tyl_no_most_tyledby = $lang->sprintf($lang->tyl_no_most_thankedby, $memprofile['username']);
+				$lang->tyl_no_most_tyled = $lang->sprintf($lang->tyl_no_most_thanked, $memprofile['username']);
+			}
+			else
+			{
+				$lang->tyl_tyl_received = $lang->tyl_likes_received;
+				$lang->tyl_tyl_given = $lang->tyl_likes_given;
+				$key = 'tyl_likes';
+				$lang->tyl_most_tyled_by = $lang->tyl_most_liked_by;
+				$lang->tyl_most_tyled = $lang->tyl_most_liked;
+				$lang->tyl_no_most_tyledby = $lang->sprintf($lang->tyl_no_most_likedby, $memprofile['username']);
+				$lang->tyl_no_most_tyled = $lang->sprintf($lang->tyl_no_most_liked, $memprofile['username']);
+			}
+
+			$lang->load('reputation');
+			$week = 60*60*24*7;
+			$month = round(60*60*24*365/12);
+			$threemonths = $month*3;
+			$sixmonths = $threemonths*2;
+			$twelvemonths = 60*60*24*365;
+			$now = TIME_NOW;
+			$tyl_table = TABLE_PREFIX.$prefix.'thankyoulike';
+
+			$exclconds = tyl_get_exclude_conds();
+			if($exclconds)
+			{
+				$exclconds = ' AND '.$exclconds;
+			}
+
+			$sql_rcv = "
+SELECT t.period, COUNT(*) AS cnt
+FROM (SELECT
+      CASE
+        WHEN tyl.dateline >= {$now} - {$week}         THEN 'week'
+        WHEN tyl.dateline >= {$now} - {$month}        THEN 'month'
+        WHEN tyl.dateline >= {$now} - {$threemonths}  THEN '3months'
+        WHEN tyl.dateline >= {$now} - {$sixmonths}    THEN '6months'
+        WHEN tyl.dateline >= {$now} - {$twelvemonths} THEN '12months'
+        ELSE 'all'
+      END period
+      FROM            {$tyl_table} tyl
+      LEFT OUTER JOIN ".TABLE_PREFIX."posts p
+      ON              tyl.pid = p.pid
+      WHERE           tyl.puid = {$memprofile['uid']}{$exclconds}
+      ) t
+GROUP BY t.period";
+
+			$query_rcv = $db->query($sql_rcv);
+			$counts_rcv = array();
+			while ($row = $db->fetch_array($query_rcv))
+			{
+				$counts_rcv[$row['period']] = $row['cnt'];
+			}
+			$db->free_result($query_rcv);
+			$tyl_received_week     =                          (!empty($counts_rcv['week'    ]) ? $counts_rcv['week'    ] : 0);
+			$tyl_received_month    = $tyl_received_week     + (!empty($counts_rcv['month'   ]) ? $counts_rcv['month'   ] : 0);
+			$tyl_received_3months  = $tyl_received_month    + (!empty($counts_rcv['3months' ]) ? $counts_rcv['3months' ] : 0);
+			$tyl_received_6months  = $tyl_received_3months  + (!empty($counts_rcv['6months' ]) ? $counts_rcv['6months' ] : 0);
+			$tyl_received_12months = $tyl_received_6months  + (!empty($counts_rcv['12months']) ? $counts_rcv['12months'] : 0);
+			$tyl_received_all      = $tyl_received_12months + (!empty($counts_rcv['all'     ]) ? $counts_rcv['all'     ] : 0);
+
+			$sql_gv = str_replace('puid', 'uid', $sql_rcv);
+			$query_gv = $db->query($sql_gv);
+			$counts_gv = array();
+			while ($row = $db->fetch_array($query_gv))
+			{
+				$counts_gv[$row['period']] = $row['cnt'];
+			}
+			$db->free_result($query_gv);
+			$tyl_given_week     =                       (!empty($counts_gv['week'    ]) ? $counts_gv['week'    ] : 0);
+			$tyl_given_month    = $tyl_given_week     + (!empty($counts_gv['month'   ]) ? $counts_gv['month'   ] : 0);
+			$tyl_given_3months  = $tyl_given_month    + (!empty($counts_gv['3months' ]) ? $counts_gv['3months' ] : 0);
+			$tyl_given_6months  = $tyl_given_3months  + (!empty($counts_gv['6months' ]) ? $counts_gv['6months' ] : 0);
+			$tyl_given_12months = $tyl_given_6months  + (!empty($counts_gv['12months']) ? $counts_gv['12months'] : 0);
+			$tyl_given_all      = $tyl_given_12months + (!empty($counts_gv['all'     ]) ? $counts_gv['all'     ] : 0);
+
+			$max_likers = 5;
+
+			$sql = tyl_get_most_tylers_sql($max_likers, $memprofile['uid'], 'likedby');
+
+			$tyl_most_likedby_users = '';
+			$query = $db->query($sql);
+			$alttrow = 'trow1';
+			while($row = $db->fetch_array($query))
+			{
+				$tyl_username = $mybb->settings[$prefix.'unameformat'] == "1" ? format_name($row['username'], $row['usergroup'], $row['displaygroup']) : $row['username'];
+				$tyl_cnt      = $row['cnt'     ];
+				$tyl_profilelink = get_profile_link($row['uid']);
+				eval('$tyl_most_likedby_users .= "'.$templates->get('thankyoulike_member_profile_like_stats_most_likedby_row').'";');
+				alt_trow();
+			}
+			if(!$tyl_most_likedby_users)
+			{
+				eval('$tyl_most_likedby_users .= "'.$templates->get('thankyoulike_member_profile_like_stats_no_most_likedby').'";');
+			}
+
+			$sql2 = tyl_get_most_tylers_sql($max_likers, $memprofile['uid'], 'liked');
+
+			$tyl_most_liked_users = '';
+			$query = $db->query($sql2);
+			$alttrow = 'trow1';
+			while($row = $db->fetch_array($query))
+			{
+				$tyl_username = $mybb->settings[$prefix.'unameformat'] == "1" ? format_name($row['username'], $row['usergroup'], $row['displaygroup']) : $row['username'];
+				$tyl_cnt      = $row['cnt'     ];
+				$tyl_profilelink = get_profile_link($row['uid']);
+				eval('$tyl_most_liked_users .= "'.$templates->get('thankyoulike_member_profile_like_stats_most_liked_row').'";');
+				alt_trow();
+			}
+			if(!$tyl_most_liked_users)
+			{
+				eval('$tyl_most_liked_users .= "'.$templates->get('thankyoulike_member_profile_like_stats_no_most_liked').'";');
+			}
+			$tyl_profile_stats_head = $lang->sprintf($lang->tyl_profile_stats_head, $memprofile['username'], $lang->$key);
+			eval('$tyl_profile_stats = "'.$templates->get('thankyoulike_member_profile_like_stats').'";');
+		}
 	}
+}
+
+function tyl_get_exclude_conds()
+{
+	global $mybb;
+	$prefix = 'g33k_thankyoulike_';
+
+	$conds = '';
+	if($mybb->settings[$prefix.'remowntylfromc'] == 1)
+	{
+		$conds = 'tyl.uid<>tyl.puid';
+	}
+
+	$excl_count_forums = trim($mybb->settings[$prefix.'exclude_count']);
+	$exclcountcond = '';
+	if($excl_count_forums == -1)
+	{
+		$exclcountcond = '0=1';
+	}
+	else if($excl_count_forums != '')
+	{
+		$exclcountcond = "p.fid NOT IN ({$excl_count_forums})";
+	}
+	if($exclcountcond)
+	{
+		if($conds)
+		{
+			$conds .= ' AND ';
+		}
+		$conds .= $exclcountcond;
+	}
+
+	return $conds;
+}
+
+function tyl_get_most_tylers_sql($max_likers, $uid, $which = 'likedby')
+{
+	global $mybb;
+
+	$prefix = 'g33k_thankyoulike_';
+	$tyl_table = TABLE_PREFIX.$prefix.'thankyoulike';
+
+	if($which == 'liked')
+	{
+		$uidkey1 = 'uid';
+		$uidkey2 = 'puid';
+	}
+	else // assume $which == 'likedby'
+	{
+		$uidkey1 = 'puid';
+		$uidkey2 = 'uid';
+	}
+
+	$exclconds = tyl_get_exclude_conds();
+	if($exclconds)
+	{
+		$exclconds = ' AND '.$exclconds;
+	}
+
+	return "
+SELECT          u.uid, u.username, u.usergroup, u.displaygroup, COUNT(*) AS cnt
+FROM            {$tyl_table} tyl
+LEFT OUTER JOIN ".TABLE_PREFIX."users u
+ON              tyl.{$uidkey2} = u.uid
+LEFT OUTER JOIN ".TABLE_PREFIX."posts p
+ON              tyl.pid = p.pid
+WHERE           tyl.{$uidkey1} = {$uid}{$exclconds}
+GROUP BY        tyl.{$uidkey2}
+ORDER BY        cnt DESC
+LIMIT           {$max_likers}
+";
 }
 
 function thankyoulike_delete_thread($tid)

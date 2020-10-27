@@ -65,6 +65,28 @@ $l['tyl_profile_box_continue_reading'] = "Continue reading &raquo;";
 
 $l['tyl_profile_box_content_none'] = "Sorry, {1} has no {2} post at the moment.";
 
+$l['tyl_tyl_received'] = "Thanks/likes received";
+$l['tyl_likes_received'] = "Likes received";
+$l['tyl_thanks_received'] = "Thanks received";
+$l['tyl_tyl_given'] = "Thanks/likes given";
+$l['tyl_likes_given'] = "Likes given";
+$l['tyl_thanks_given'] = "Thanks given";
+$l['tyl_last_3months'] = "Last 3 months";
+$l['tyl_last_12months'] = "Last 12 months";
+$l['tyl_profile_stats_head'] = "{1}'s Received and Given {2}";
+$l['tyl_most_tyled_by'] = "Most liked/thanked by";
+$l['tyl_most_tyled'] = "Most liked/thanked";
+$l['tyl_most_liked_by'] = "Most liked by";
+$l['tyl_most_liked'] = "Most liked";
+$l['tyl_most_thanked_by'] = "Most thanked by";
+$l['tyl_most_thanked'] = "Most thanked";
+$l['tyl_no_most_tyledby'] = "Sorry, {1} has not yet been liked/thanked.";
+$l['tyl_no_most_thankedby'] = "Sorry, {1} has not yet been thanked.";
+$l['tyl_no_most_likedby'] = "Sorry, {1} has not yet been liked.";
+$l['tyl_no_most_tyled'] = "Sorry, {1} has not yet liked/thanked.";
+$l['tyl_no_most_thanked'] = "Sorry, {1} has not yet thanked.";
+$l['tyl_no_most_liked'] = "Sorry, {1} has not yet liked.";
+
 $l['tyl_wol_searching'] = "<a href=\"{1}\">Searching {2}</a>";
 
 $l['tyl_error'] = "Thank You/Like System Error Message";

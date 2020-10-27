@@ -149,6 +149,9 @@ $l['tyl_profile_box_post_allowimgcode_desc'] = "Selecting \"Yes\" will enable th
 $l['tyl_profile_box_post_allowvideocode_title'] = "Allow [video] Code";
 $l['tyl_profile_box_post_allowvideocode_desc'] = "Selecting \"Yes\" will enable the rendering of [video] MyCodes in profile page trophy posts.";
 
+$l['tyl_show_memberprofile_stats_title'] = "Enable stats in member profiles?";
+$l['tyl_show_memberprofile_stats_desc'] = "When enabled (choose \"Yes\"), a statistical breakdown of each member's likes will be shown on his/her profile page.";
+
 $l['tyl_uninstall'] = 'Thank You/Like System - uninstallation';
 $l['tyl_uninstall_message'] = "Do you wish to drop ALL plugin data from the database? Selecting \"No\" will leave untouched:<ul><li>Entries for thanks/likes given and received.</li>\n<li>Per-user counts of thanks/likes.</li>\n<li>Overall thanks/likes statistics.</li>\n<li>The Thanks/Likes alert type and any of its alerts (only applies if MyAlerts integration is enabled).</li>\n</ul>\nSelecting \"No\" will <em>not</em>, however, prevent the removal of:<ul><li>Plugin settings (including any per-usergroup settings).</li>\n<li>The plugin's stylesheet, \"thankyoulike.css\" (including any changes you've made to it), accessible for each theme via the ACP's Templates & Style -> <a href=\"index.php?module=style-themes\">Themes</a> module.</li>\n<li>The plugin's templates (including any changes you've made to them), accessible  under \"Thank You/Like Templates\" for each template set via the ACP's Templates & Style -> <a href=\"index.php?module=style-templates\">Templates</a> module.</li>\n</ul>";
 
