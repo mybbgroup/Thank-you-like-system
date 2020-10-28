@@ -64,6 +64,7 @@ else
 	$plugins->add_hook("class_moderation_delete_post_start","thankyoulike_delete_post");
 	$plugins->add_hook("class_moderation_merge_posts","thankyoulike_merge_posts");
 	$plugins->add_hook('task_promotions', 'thankyoulike_promotion_task');
+	$plugins->add_hook("myalerts_alert_manager_mark_read", "tyl_myalerts_alert_manager_mark_read");
 }
 
 function thankyoulike_info()
@@ -523,6 +524,10 @@ function tyl_check_update_db_table_and_cols()
 	if(!$db->field_exists('tyl_pnumtyls', 'posts'))
 	{
 		$db->query("ALTER TABLE ".TABLE_PREFIX."posts ADD `tyl_pnumtyls` int(100) NOT NULL default '0'");
+	}
+	if(!$db->field_exists('tyl_last_alerted_tyl_id', 'posts'))
+	{
+		$db->query("ALTER TABLE ".TABLE_PREFIX."posts ADD `tyl_last_alerted_tyl_id` int unsigned NOT NULL default '0'");
 	}
 
 	if(!$db->field_exists('tyl_unumtyls', 'users'))
@@ -1434,6 +1439,10 @@ function thankyoulike_templatelist()
 			$prelang1 = $lang->tyl_likes;
 
 			$lang->tyl_alert = $lang->tyl_alert_like;
+			$lang->tyl_alert_multi = $lang->tyl_alert_like_multi;
+			$lang->tyl_alert_multi_one = $lang->tyl_alert_like_multi_one;
+			$lang->tyl_alert_new = $lang->tyl_alert_like_new;
+			$lang->tyl_alert_new_one = $lang->tyl_alert_like_new_one;
 			$lang->myalerts_setting_tyl = $lang->myalerts_setting_tyl_like;
 		}
 		else if ($mybb->settings[$prefix.'thankslike'] == "thanks")
@@ -1443,6 +1452,10 @@ function thankyoulike_templatelist()
 			$prelang1 = $lang->tyl_thanks;
 
 			$lang->tyl_alert = $lang->tyl_alert_thanks;
+			$lang->tyl_alert_multi = $lang->tyl_alert_thanks_multi;
+			$lang->tyl_alert_multi_one = $lang->tyl_alert_thanks_multi_one;
+			$lang->tyl_alert_new = $lang->tyl_alert_thanks_new;
+			$lang->tyl_alert_new_one = $lang->tyl_alert_thanks_new_one;
 			$lang->myalerts_setting_tyl = $lang->myalerts_setting_tyl_thanks;
 		}
 
@@ -2100,13 +2113,12 @@ function thankyoulike_postbit_udetails(&$post)
 }
 
 /**
- * If this plugin and MyAlerts are both enabled and integrated, then add an alert for this tyl of this post.
+ * If this plugin and MyAlerts are both enabled and integrated, then add/update an alert for the tyls of this post.
  */
-function tyl_recordAlertThankyou()
+function tyl_manage_alert_for_added_tyl($post, $from_uid)
 {
-	global $db, $lang, $mybb, $alert, $post;
+	global $db, $mybb;
 	$prefix = 'g33k_thankyoulike_';
-	$lang->load("thankyoulike", false, true);
 
 	if($mybb->settings[$prefix.'enabled'] == "1" && tyl_have_myalerts(true, true, true))
 	{
@@ -2118,26 +2130,173 @@ function tyl_recordAlertThankyou()
 
 		$alertType = MybbStuff_MyAlerts_AlertTypeManager::getInstance()->getByCode('tyl');
 
-		// Check if already alerted
+		$counts = tyl_get_post_tyl_counts($pid, $post['tyl_last_alerted_tyl_id']);
+
+		// Check whether an existing tyl alert (unread OR read) for this post exists.
 		$query = $db->simple_select(
 			'alerts',
-			'id',
-			'object_id = ' .$pid . ' AND uid = ' . $uid . ' AND unread = 1 AND alert_type_id = ' . $alertType->getId() . ''
+			'id,unread,extra_details',
+			'object_id = '.$pid.' AND alert_type_id = '.$alertType->getId(),
+			array('order_by' => 'id', 'order_dir' => 'DESC')
 		);
 
-		if ($db->num_rows($query) == 0) {
-			$alert = new MybbStuff_MyAlerts_Entity_Alert($uid, $alertType, $pid, $mybb->user['uid']);
+		// If no existing tyls alert for this post exists, then create one.
+		if($db->num_rows($query) == 0)
+		{
+			$db->free_result($query);
+			$alert = new MybbStuff_MyAlerts_Entity_Alert($uid, $alertType, $pid, $from_uid);
 			$alert->setExtraDetails(
-				array(
-					'tid'       => $tid,
-					'pid'       => $pid,
-					't_subject' => $subject,
-					'fid'       => $fid
+				array_merge(
+					$counts,
+					array(
+						'tid'       => $tid,
+						'pid'       => $pid,
+						't_subject' => $subject,
+						'fid'       => $fid
+					)
 				)
 			);
 			MybbStuff_MyAlerts_AlertManager::getInstance()->addAlert($alert);
 		}
+		else
+		// An alert already exists - update it.
+		{
+			$fields = $db->fetch_array($query);
+			$db->free_result($query);
+			$alert_id = $fields['id'];
+			unset($fields['id']);
+			$extra_details = json_decode($fields['extra_details'], true);
+			$extra_details['total_likes_count'] = $counts['total_likes_count'];
+			$extra_details['new_likes_count'  ] = $counts['new_likes_count'  ];
+			$fields['extra_details'] = $db->escape_string(json_encode($extra_details));
+			if($fields['unread'] < 1)
+			{
+				$fields['from_user_id'] = $from_uid;
+			}
+			$fields['unread'] = 1;
+			$db->update_query('alerts', $fields, 'id = '.$alert_id);
+		}
 	}
+}
+
+function tyl_manage_alert_for_deleted_tyl($post, $from_uid)
+{
+	global $mybb, $db;
+	$prefix = 'g33k_thankyoulike_';
+
+	if($mybb->settings[$prefix.'enabled'] == "1" && tyl_have_myalerts(true, true, true) && $post && $from_uid)
+	{
+		$alertType = MybbStuff_MyAlerts_AlertTypeManager::getInstance()->getByCode('tyl');
+
+		// Check whether an existing unread likes alert for this post exists.
+		$query = $db->simple_select(
+			'alerts',
+			'id,from_user_id,extra_details',
+			'object_id = '.$post['pid'].' AND unread = 1 AND alert_type_id = '.$alertType->getId()
+		);
+
+		if($db->num_rows($query) > 0)
+		{
+			// Yes, an existing unread likes alert for this post exists. Manage it given the deleted like.
+			$fields = $db->fetch_array($query);
+			$db->free_result($query);
+			$alert_id = $fields['id'];
+			$counts = tyl_get_post_tyl_counts($post['pid'], $post['tyl_last_alerted_tyl_id']);
+			$deleted = false;
+			if($counts['new_likes_count'] <= 0)
+			{
+				if($counts['total_likes_count'] <= 0)
+				{
+					$deleted = true;
+					$db->delete_query('alerts', "id={$alert_id}");
+				}
+				else
+				{
+					$fields = array('unread' => 0);
+				}
+			}
+			else
+			{
+				unset($fields['id']);
+				$extra_details = json_decode($fields['extra_details'], true);
+				$extra_details['total_likes_count'] = $counts['total_likes_count'];
+				$extra_details['new_likes_count'  ] = $counts['new_likes_count'  ];
+				$fields['extra_details'] = $db->escape_string(json_encode($extra_details));
+				if ($from_uid == $fields['from_user_id'])
+				{
+					$tyl_table = TABLE_PREFIX.$prefix.'thankyoulike';
+					$query2 = $db->query("
+SELECT uid
+FROM {$tyl_table}
+WHERE tlid = (SELECT MIN(tlid)
+              FROM {$tyl_table}
+              WHERE pid = {$post['pid']} AND tlid > {$post['tyl_last_alerted_tyl_id']}
+             )");
+					$fields['from_user_id'] = $db->fetch_field($query2, 'uid');
+				}
+			}
+			if(!$deleted)
+			{
+				$db->update_query('alerts', $fields, 'id = '.$alert_id);
+			}
+		}
+	}
+}
+
+function tyl_myalerts_alert_manager_mark_read($params)
+{
+	global $mybb, $db;
+	$prefix = 'g33k_thankyoulike_';
+
+	if($mybb->settings[$prefix.'enabled'] == "1" && tyl_have_myalerts(true, true, true))
+	{
+		$alertType = MybbStuff_MyAlerts_AlertTypeManager::getInstance()->getByCode('tyl');
+		$query = $db->simple_select(
+			'alerts',
+			'object_id',
+			'id in ('.$params['alertIds'].') AND alert_type_id = '.$alertType->getId()
+		);
+		$pids = array();
+		while($pid = $db->fetch_field($query, 'object_id'))
+		{
+			$pids[] = $pid;
+		}
+		$db->free_result($query);
+		foreach ($pids as $pid)
+		{
+			$query2 = $db->simple_select($prefix.'thankyoulike', 'MAX(tlid) AS tyl_last_alerted_tyl_id', "pid = {$pid}");
+			$tyl_last_alerted_tyl_id = $db->fetch_field($query2, 'tyl_last_alerted_tyl_id');
+			if (!$tyl_last_alerted_tyl_id)
+			{
+				$tyl_last_alerted_tyl_id = 0;
+			}
+			$db->update_query('posts', array('tyl_last_alerted_tyl_id' => $tyl_last_alerted_tyl_id), "pid = {$pid}");
+		}
+	}
+}
+
+/**
+ * Returns an array containing two elements:
+ * 1. `total_likes_count`: the total count of likes for the post with pid $pid.
+ * 2. `new_likes_count`  : the count of new likes for that post, being those
+ *      since the last alert for that post was clicked on by the post's author,
+ *      at which point the maximum like ID for that post was $tyl_last_alerted_tyl_id.
+ */
+function tyl_get_post_tyl_counts($pid, $tyl_last_alerted_tyl_id)
+{
+	global $db;
+	$prefix = 'g33k_thankyoulike_';
+
+	$tyl_table = TABLE_PREFIX.$prefix.'thankyoulike';
+
+	$query = $db->query("
+SELECT COUNT(*) AS total_likes_count, (SELECT COUNT(*)
+                                       FROM {$tyl_table}
+                                       WHERE pid = {$pid} AND tlid > {$tyl_last_alerted_tyl_id}) AS new_likes_count
+FROM   {$tyl_table}
+WHERE  pid = {$pid}");
+
+	return $db->fetch_array($query);
 }
 
 /**
@@ -2158,11 +2317,59 @@ function tyl_myalerts_formatter_load()
 			{
 				$alertContent = $alert->getExtraDetails();
 				$postLink = $this->buildShowLink($alert);
-				return $this->lang->sprintf(
-					$this->lang->tyl_alert,
-					$outputAlert['from_user'],
-					$alertContent['t_subject']
-				);
+				if($alertContent['total_likes_count'] == $alertContent['new_likes_count'])
+				{
+					if($alertContent['total_likes_count'] > 1)
+					{
+						if($alertContent['total_likes_count'] > 2)
+						{
+							return $this->lang->sprintf(
+								$this->lang->tyl_alert_multi,
+								$outputAlert['from_user'],
+								$alertContent['total_likes_count'] - 1,
+								$alertContent['t_subject']
+							);
+						}
+						else
+						{
+							return $this->lang->sprintf(
+								$this->lang->tyl_alert_multi_one,
+								$outputAlert['from_user'],
+								$alertContent['t_subject']
+							);
+						}
+					}
+					else
+					{
+						return $this->lang->sprintf(
+							$this->lang->tyl_alert,
+							$outputAlert['from_user'],
+							$alertContent['t_subject']
+						);
+					}
+				}
+				else
+				{
+					if($alertContent['total_likes_count'] > 2)
+					{
+						return $this->lang->sprintf(
+							$this->lang->tyl_alert_new,
+							$outputAlert['from_user'],
+							$alertContent['total_likes_count'] - 1,
+							$alertContent['new_likes_count'],
+							$alertContent['t_subject']
+						);
+					}
+					else
+					{
+						return $this->lang->sprintf(
+							$this->lang->tyl_alert_new_one,
+							$outputAlert['from_user'],
+							$alertContent['new_likes_count'],
+							$alertContent['t_subject']
+						);
+					}
+				}
 			}
 
 			public function init()

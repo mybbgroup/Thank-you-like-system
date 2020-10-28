@@ -245,7 +245,7 @@ if($mybb->input['action'] == "add")
 	$db->update_query('users', array('tyl_lastadddeldate' => TIME_NOW), 'uid='.intval($mybb->user['uid']));
 
 	// If a compatible version of MyAlerts exists, then add an alert for this tyl.
-	tyl_recordAlertThankyou();
+	tyl_manage_alert_for_added_tyl($post, $mybb->user['uid']);
 
 	if($tlid)
 	{
@@ -335,10 +335,8 @@ if($mybb->input['action'] == "del")
 		{
 			// process delete
 			$db->delete_query($prefix."thankyoulike", "tlid='".$tyl_r['tlid']."'", "1");
-			// If a compatible version of MyAlerts is active, then delete any unread alert for the deleted tyl.
-			if(tyl_have_myalerts() && $mybb->user['uid']){
-				$db->query("DELETE FROM ".TABLE_PREFIX."alerts WHERE from_user_id={$mybb->user['uid']} AND object_id='{$pid}' AND unread=1 LIMIT 1");
-			}
+			// If a compatible version of MyAlerts is active, then manage any existing unread alert for the deleted tyl.
+			tyl_manage_alert_for_deleted_tyl($post, $mybb->user['uid']);
 			// Update user's last like add/del date
 			$db->update_query('users', array('tyl_lastadddeldate' => TIME_NOW), 'uid='.intval($mybb->user['uid']));
 			// Update counts
