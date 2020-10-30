@@ -815,17 +815,17 @@ function tyl_insert_templates()
 		array(
 			'template' => "<table border=\"0\" cellspacing=\"{\$theme['borderwidth']}\" cellpadding=\"{\$theme['tablespace']}\" width=\"100%\" class=\"tborder\">
 	<tr>
-	<td colspan=\"3\" class=\"thead\"><strong>{\$tyl_profile_stats_head}</strong></td>
+		<td colspan=\"3\" class=\"thead\"><strong>{\$tyl_profile_stats_head}</strong></td>
 	</tr>
 	<tr>
-		<td class=\"trow1\">&nbsp;</td>
-		<td class=\"trow1\" style=\"text-align: center;\"><strong>{\$lang->tyl_tyl_received}</strong></td>
-		<td class=\"trow1\" style=\"text-align: center;\"><strong>{\$lang->tyl_tyl_given}</strong></td>
+		<td class=\"trow2\">&nbsp;</td>
+		<td class=\"trow2\" style=\"text-align: center;\"><strong><a href=\"tylsearch.php?action=usertylforposts&amp;uid={\$uid}\">{\$lang->tyl_tyl_received}</a></strong></td>
+		<td class=\"trow2\" style=\"text-align: center;\"><strong><a href=\"tylsearch.php?action=usertylposts&amp;uid={\$uid}\">{\$lang->tyl_tyl_given}</a></strong></td>
 	</tr>
 	<tr>
-		<td class=\"trow2\" style=\"text-align: right;\">{\$lang->last_week}</td>
-		<td class=\"trow2\" style=\"text-align: center;\">{\$tyl_received_week}</td>
-		<td class=\"trow2\" style=\"text-align: center;\">{\$tyl_given_week}</td>
+		<td class=\"trow1\" style=\"text-align: right;\">{\$lang->last_week}</td>
+		<td class=\"trow1\" style=\"text-align: center;\">{\$tyl_received_week}</td>
+		<td class=\"trow1\" style=\"text-align: center;\">{\$tyl_given_week}</td>
 	</tr>
 	<tr>
 		<td class=\"trow1\" style=\"text-align: right;\">{\$lang->last_month}</td>
@@ -833,9 +833,9 @@ function tyl_insert_templates()
 		<td class=\"trow1\" style=\"text-align: center;\">{\$tyl_given_month}</td>
 	</tr>
 	<tr>
-		<td class=\"trow2\" style=\"text-align: right;\">{\$lang->tyl_last_3months}</td>
-		<td class=\"trow2\" style=\"text-align: center;\">{\$tyl_received_3months}</td>
-		<td class=\"trow2\" style=\"text-align: center;\">{\$tyl_given_3months}</td>
+		<td class=\"trow1\" style=\"text-align: right;\">{\$lang->tyl_last_3months}</td>
+		<td class=\"trow1\" style=\"text-align: center;\">{\$tyl_received_3months}</td>
+		<td class=\"trow1\" style=\"text-align: center;\">{\$tyl_given_3months}</td>
 	</tr>
 	<tr>
 		<td class=\"trow1\" style=\"text-align: right;\">{\$lang->last_6months}</td>
@@ -843,19 +843,25 @@ function tyl_insert_templates()
 		<td class=\"trow1\" style=\"text-align: center;\">{\$tyl_given_6months}</td>
 	</tr>
 	<tr>
-		<td class=\"trow2\" style=\"text-align: right;\">{\$lang->tyl_last_12months}</td>
-		<td class=\"trow2\" style=\"text-align: center;\">{\$tyl_received_12months}</td>
-		<td class=\"trow2\" style=\"text-align: center;\">{\$tyl_given_12months}</td>
+		<td class=\"trow1\" style=\"text-align: right;\">{\$lang->tyl_last_12months}</td>
+		<td class=\"trow1\" style=\"text-align: center;\">{\$tyl_received_12months}</td>
+		<td class=\"trow1\" style=\"text-align: center;\">{\$tyl_given_12months}</td>
 	</tr>
 	<tr>
 		<td class=\"trow1\" style=\"text-align: right;\">{\$lang->all_time}</td>
-		<td class=\"trow1\" style=\"text-align: center;\">{\$tyl_received_all}</td>
-		<td class=\"trow1\" style=\"text-align: center;\">{\$tyl_given_all}</td>
+		<td class=\"trow1\" style=\"text-align: center;\"><strong>{\$tyl_received_all}</strong></td>
+		<td class=\"trow1\" style=\"text-align: center;\"><strong>{\$tyl_given_all}</strong></td>
+	</tr>
+	<tr>
+		<td class=\"trow1\" colspan=\"3\">&nbsp;</td>
 	</tr>
 	<tr>
 		<td class=\"trow2\" colspan=\"3\" style=\"text-align: center;\"><strong>{\$lang->tyl_most_liked_by}</strong></td>
 	</tr>
 	{\$tyl_most_likedby_users}
+	<tr>
+		<td class=\"trow1\" colspan=\"3\">&nbsp;</td>
+	</tr>
 	<tr>
 		<td class=\"trow2\" colspan=\"3\" style=\"text-align: center;\"><strong>{\$lang->tyl_most_liked}</strong></td>
 	</tr>
@@ -868,9 +874,9 @@ function tyl_insert_templates()
 		'thankyoulike_member_profile_like_stats_most_likedby_row' =>
 		array(
 			'template' => "	<tr>
-		<td class=\"{\$alttrow}\" style=\"text-align: right;\">{\$tyl_member_link}</td>
-		<td class=\"{\$alttrow}\" style=\"text-align: center;\">{\$tyl_cnt}</td>
-		<td class=\"{\$alttrow}\"></td>
+		<td class=\"trow1\" style=\"text-align: right;\">{\$tyl_member_link}</td>
+		<td class=\"trow1\" style=\"text-align: center;\">{\$tyl_cnt}</td>
+		<td class=\"trow1\" style=\"text-align: center;\">{\$tyl_cnt_pc}</td>
 	</tr>
 ",
 			'version_at_last_change' => '30308',
@@ -878,9 +884,9 @@ function tyl_insert_templates()
 		'thankyoulike_member_profile_like_stats_most_liked_row' =>
 		array(
 			'template' => "	<tr>
-		<td class=\"{\$alttrow}\" style=\"text-align: right;\">{\$tyl_member_link}</td>
-		<td class=\"{\$alttrow}\"></td>
-		<td class=\"{\$alttrow}\" style=\"text-align: center;\">{\$tyl_cnt}</td>
+		<td class=\"trow1\" style=\"text-align: right;\">{\$tyl_member_link}</td>
+		<td class=\"trow1\" style=\"text-align: center;\">{\$tyl_cnt}</td>
+		<td class=\"trow1\" style=\"text-align: center;\">{\$tyl_cnt_pc}</td>
 	</tr>
 ",
 			'version_at_last_change' => '30308',
@@ -893,7 +899,7 @@ function tyl_insert_templates()
 		'thankyoulike_member_profile_like_stats_no_most_liked' =>
 		array(
 			'template' => "	<tr>
-		<td class=\"{\$alttrow}\" colspan=\"3\" style=\"text-align: center;\">{\$lang->tyl_no_most_tyled}</td>
+		<td class=\"trow1\" colspan=\"3\" style=\"text-align: center;\">{\$lang->tyl_no_most_tyled}</td>
 	</tr>
 ",
 			'version_at_last_change' => '30308',
@@ -901,7 +907,7 @@ function tyl_insert_templates()
 		'thankyoulike_member_profile_like_stats_no_most_likedby' =>
 		array(
 			'template' => "	<tr>
-		<td class=\"{\$alttrow}\" colspan=\"3\" style=\"text-align: center;\">{\$lang->tyl_no_most_tyledby}</td>
+		<td class=\"trow1\" colspan=\"3\" style=\"text-align: center;\">{\$lang->tyl_no_most_tyledby}</td>
 	</tr>
 ",
 			'version_at_last_change' => '30308',
@@ -2309,7 +2315,7 @@ function tyl_myalerts_formatter_load()
 
 function thankyoulike_memprofile()
 {
-	global $db, $mybb, $lang, $memprofile, $templates, $tyl_memprofile, $tyl_profile_stats, $alttrow, $uid;
+	global $db, $mybb, $lang, $memprofile, $templates, $tyl_memprofile, $tyl_profile_stats, $uid;
 	$prefix = 'g33k_thankyoulike_';
 
 	$lang->load("thankyoulike");
@@ -2647,57 +2653,50 @@ GROUP BY t.period";
 
 			$max_likers = 5;
 
-			$sql = tyl_get_most_tylers_sql($max_likers, $memprofile['uid'], 'likedby');
+			$tyl_most_likedby_users = tyl_get_memprofile_stats_most_liked_tr($max_likers, $memprofile['uid'], $tyl_received_all, 'likedby');
+			$tyl_most_liked_users   = tyl_get_memprofile_stats_most_liked_tr($max_likers, $memprofile['uid'], $tyl_given_all   , 'liked'  );
 
-			$tyl_most_likedby_users = '';
-			$query = $db->query($sql);
-			$alttrow = 'trow1';
-			while($row = $db->fetch_array($query))
-			{
-				$tyl_cnt = $row['cnt'];
-				if($row['username'])
-				{
-					$tyl_username = $mybb->settings[$prefix.'unameformat'] == "1" ? format_name($row['username'], $row['usergroup'], $row['displaygroup']) : $row['username'];
-					$tyl_profilelink = get_profile_link($row['uid']);
-					eval('$tyl_member_link = "'.$templates->get('thankyoulike_member_link').'";');
-				} else {
-					$tyl_member_link = $lang->tyl_deleted_member_name;
-				}
-				eval('$tyl_most_likedby_users .= "'.$templates->get('thankyoulike_member_profile_like_stats_most_likedby_row').'";');
-				alt_trow();
-			}
-			if(!$tyl_most_likedby_users)
-			{
-				eval('$tyl_most_likedby_users .= "'.$templates->get('thankyoulike_member_profile_like_stats_no_most_likedby').'";');
-			}
-
-			$sql2 = tyl_get_most_tylers_sql($max_likers, $memprofile['uid'], 'liked');
-
-			$tyl_most_liked_users = '';
-			$query = $db->query($sql2);
-			$alttrow = 'trow1';
-			while($row = $db->fetch_array($query))
-			{
-				$tyl_cnt = $row['cnt'];
-				if($row['username'])
-				{
-					$tyl_username = $mybb->settings[$prefix.'unameformat'] == "1" ? format_name($row['username'], $row['usergroup'], $row['displaygroup']) : $row['username'];
-					$tyl_profilelink = get_profile_link($row['uid']);
-					eval('$tyl_member_link = "'.$templates->get('thankyoulike_member_link').'";');
-				} else {
-					$tyl_member_link = $lang->tyl_deleted_member_name;
-				}
-				eval('$tyl_most_liked_users .= "'.$templates->get('thankyoulike_member_profile_like_stats_most_liked_row').'";');
-				alt_trow();
-			}
-			if(!$tyl_most_liked_users)
-			{
-				eval('$tyl_most_liked_users .= "'.$templates->get('thankyoulike_member_profile_like_stats_no_most_liked').'";');
-			}
 			$tyl_profile_stats_head = $lang->sprintf($lang->tyl_profile_stats_head, $memprofile['username'], $lang->$key);
 			eval('$tyl_profile_stats = "'.$templates->get('thankyoulike_member_profile_like_stats').'";');
 		}
 	}
+}
+
+function tyl_get_memprofile_stats_most_liked_tr($max_likers, $prof_uid, $tot_likes, $which = 'likedby')
+{
+	global $db, $templates, $lang;
+	$prefix = 'g33k_thankyoulike_';
+
+	$ret = '';
+	$sql = tyl_get_most_tylers_sql($max_likers, $prof_uid, $which);
+	$query = $db->query($sql);
+	while($row = $db->fetch_array($query))
+	{
+		$tyl_cnt = $row['cnt'];
+		$tyl_cnt_pc = tyl_format_percentage($tot_likes > 0 ? round($row['cnt']*100/$tot_likes) : 0);
+		if($row['username'])
+		{
+			$tyl_username = $mybb->settings[$prefix.'unameformat'] == "1" ? format_name($row['username'], $row['usergroup'], $row['displaygroup']) : $row['username'];
+			$tyl_profilelink = get_profile_link($row['uid']);
+			eval('$tyl_member_link = "'.$templates->get('thankyoulike_member_link').'";');
+		} else {
+			$tyl_member_link = $lang->tyl_deleted_member_name;
+		}
+		eval('$ret .= "'.$templates->get("thankyoulike_member_profile_like_stats_most_{$which}_row").'";');
+	}
+	if(!$ret)
+	{
+		eval('$ret .= "'.$templates->get("thankyoulike_member_profile_like_stats_no_most_{$which}").'";');
+	}
+
+	return $ret;
+}
+
+function tyl_format_percentage($pc)
+{
+	global $lang;
+
+	return $lang->sprintf($lang->tyl_pc, $pc);
 }
 
 function tyl_get_exclude_conds()

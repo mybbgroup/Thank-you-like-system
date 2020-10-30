@@ -87,6 +87,7 @@ $l['tyl_no_most_tyled'] = "Sorry, {1} has not yet liked/thanked.";
 $l['tyl_no_most_thanked'] = "Sorry, {1} has not yet thanked.";
 $l['tyl_no_most_liked'] = "Sorry, {1} has not yet liked.";
 $l['tyl_deleted_member_name'] = "[Deleted member]";
+$l['tyl_pc'] = "{1}%";
 
 $l['tyl_wol_searching'] = "<a href=\"{1}\">Searching {2}</a>";
 
