@@ -2664,7 +2664,7 @@ GROUP BY t.period";
 
 function tyl_get_memprofile_stats_most_liked_tr($max_likers, $prof_uid, $tot_likes, $which = 'likedby')
 {
-	global $db, $templates, $lang;
+	global $db, $templates, $lang, $mybb;
 	$prefix = 'g33k_thankyoulike_';
 
 	$ret = '';
