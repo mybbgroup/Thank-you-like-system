@@ -1549,6 +1549,7 @@ function tyl_get_own_single_tyl_post_count($uid)
 function tyl_check_remove_self_likes_from_post_array(&$post, $skip_postcounts = false)
 {
 	global $mybb;
+	$prefix = 'g33k_thankyoulike_';
 
 	if($mybb->settings[$prefix.'remowntylfromc'] == 1)
 	{
