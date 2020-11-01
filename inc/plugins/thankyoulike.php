@@ -723,10 +723,10 @@ function tyl_insert_templates()
 		),
 		'thankyoulike_postbit_author_user' =>
 		array(
-			'template' => "{\$lang->tyl_rcvd}: {\$post['tyl_unumrtyls']}
+			'template' => "{\$lang->tyl_rcvd}: {\$post['tyl_unumrcvtyls_fmt']}
 <br />
-{\$lang->tyl_given}: {\$post['tyl_unumtyls']}",
-			'version_at_last_change' => '20000',
+{\$lang->tyl_given}: {\$post['tyl_unumtyls_fmt']}",
+			'version_at_last_change' => '30308',
 		),
 		'thankyoulike_member_profile_rcvd_search' =>
 		array(
@@ -742,13 +742,13 @@ function tyl_insert_templates()
 		array(
 			'template' => "<tr>
 	<td class=\"trow1\"><strong>{\$lang->tyl_total_tyls_rcvd}</strong></td>
-	<td class=\"trow1\">{\$memprofile['tyl_unumrcvtyls']} ({\$tylrcvpd_percent_total})<br />{\$tylrcvdlikessearch}</td>
+	<td class=\"trow1\">{\$memprofile['tyl_unumrcvtyls_fmt']} ({\$tylrcvpd_percent_total})<br />{\$tylrcvdlikessearch}</td>
 </tr>
 <tr>
 	<td class=\"trow2\"><strong>{\$lang->tyl_total_tyls_given}</strong></td>
-	<td class=\"trow2\">{\$memprofile['tyl_unumtyls']} ({\$tylpd_percent_total})<br />{\$tylgivenlikessearch}</td>
+	<td class=\"trow2\">{\$memprofile['tyl_unumtyls_fmt']} ({\$tylpd_percent_total})<br />{\$tylgivenlikessearch}</td>
 </tr>",
-			'version_at_last_change' => '30307',
+			'version_at_last_change' => '30308',
 		),
 		'thankyoulike_member_profile_box' =>
 		array(
@@ -1670,14 +1670,17 @@ function tyl_check_remove_self_likes_from_post_array(&$post, $skip_postcounts = 
 	global $mybb;
 	$prefix = 'g33k_thankyoulike_';
 
+	$post['tyl_unumrcvtyls_self_rem'] = $post['tyl_unumrcvtyls'];
+	$post['tyl_unumtyls_self_rem'   ] = $post['tyl_unumtyls'   ];
+	$post['tyl_unumptyls_self_rem'  ] = $post['tyl_unumptyls'  ];
 	if($mybb->settings[$prefix.'remowntylfromc'] == 1)
 	{
 		$owntylusercount = tyl_get_own_tyl_count($post['uid']);
-		$post['tyl_unumtyls']    -= $owntylusercount;
-		$post['tyl_unumrcvtyls'] -= $owntylusercount;
+		$post['tyl_unumrcvtyls_self_rem'] -= $owntylusercount;
+		$post['tyl_unumtyls_self_rem'   ] -= $owntylusercount;
 		if(!$skip_postcounts)
 		{
-			$post['tyl_unumptyls'] -= tyl_get_own_single_tyl_post_count($post['uid']);
+			$post['tyl_unumptyls_self_rem'] -= tyl_get_own_single_tyl_post_count($post['uid']);
 		}
 	}
 }
@@ -1843,8 +1846,8 @@ function tyl_set_up_stats_in_postbit(&$post)
 	$given = "tyl_{$tyl}_given";
 	$lang->tyl_given = $lang->$given;
 	$rcvd_bit = "tyl_{$tyl}_rcvd_bit";
-	$post['tyl_unumrtyls'] = $lang->sprintf($lang->$rcvd_bit, tyl_fmt_rcvd_likes_count($post['tyl_unumrcvtyls']), my_number_format($post['tyl_unumptyls']));
-	$post['tyl_unumtyls'] = my_number_format($post['tyl_unumtyls']);
+	$post['tyl_unumrcvtyls_fmt'] = $lang->sprintf($lang->$rcvd_bit, tyl_fmt_rcvd_likes_count($post['tyl_unumrcvtyls_self_rem']), my_number_format($post['tyl_unumptyls_self_rem']));
+	$post['tyl_unumtyls_fmt'] = my_number_format($post['tyl_unumtyls_self_rem']);
 	eval("\$tyl_thankslikes = \"".$templates->get("thankyoulike_postbit_author_user", 1, 0)."\";");
 
 	$post['user_details'] = preg_replace("#".preg_quote('%%TYL_NUMTHANKEDLIKED%%')."#i", $tyl_thankslikes, $post['user_details']);
@@ -2554,17 +2557,17 @@ function thankyoulike_memprofile()
 		tyl_check_remove_self_likes_from_post_array($memprofile, true);
 
 		$daysreg = (TIME_NOW - $memprofile['regdate']) / (24*3600);
-		$tylpd = $memprofile['tyl_unumtyls'] / $daysreg;
+		$tylpd = $memprofile['tyl_unumtyls_self_rem'] / $daysreg;
 		$tylpd = round($tylpd, 2);
-		if($tylpd > $memprofile['tyl_unumtyls'])
+		if($tylpd > $memprofile['tyl_unumtyls_self_rem'])
 		{
-			$tylpd = $memprofile['tyl_unumtyls'];
+			$tylpd = $memprofile['tyl_unumtyls_self_rem'];
 		}
-		$tylrcvpd = $memprofile['tyl_unumrcvtyls'] / $daysreg;
+		$tylrcvpd = $memprofile['tyl_unumrcvtyls_self_rem'] / $daysreg;
 		$tylrcvpd = round($tylrcvpd, 2);
-		if($tylrcvpd > $memprofile['tyl_unumrcvtyls'])
+		if($tylrcvpd > $memprofile['tyl_unumrcvtyls_self_rem'])
 		{
-			$tylrcvpd = $memprofile['tyl_unumrcvtyls'];
+			$tylrcvpd = $memprofile['tyl_unumrcvtyls_self_rem'];
 		}
 
 		// Get total tyl and percentage
@@ -2584,7 +2587,7 @@ function thankyoulike_memprofile()
 
 		if($totalgiv > 0)
 		{
-			$percent = $memprofile['tyl_unumtyls']*100/$totalgiv;
+			$percent = $memprofile['tyl_unumtyls_self_rem']*100/$totalgiv;
 			$percent = round($percent, 2);
 		}
 		else
@@ -2594,7 +2597,7 @@ function thankyoulike_memprofile()
 
 		if($totalrcv > 0)
 		{
-			$percent_rcv = $memprofile['tyl_unumrcvtyls']*100/$totalrcv;
+			$percent_rcv = $memprofile['tyl_unumrcvtyls_self_rem']*100/$totalrcv;
 			$percent_rcv = round($percent_rcv, 2);
 		}
 		else
@@ -2610,7 +2613,7 @@ function thankyoulike_memprofile()
 		{
 			$percent_rcv = 100;
 		}
-		if($memprofile['tyl_unumrcvtyls'] > 0)
+		if($memprofile['tyl_unumrcvtyls_self_rem'] > 0)
 		{
 			eval("\$tylrcvdlikessearch = \"".$templates->get("thankyoulike_member_profile_rcvd_search")."\";");
 		}
@@ -2618,7 +2621,7 @@ function thankyoulike_memprofile()
 		{
 			$tylrcvdlikessearch = '';
 		}
-		if($memprofile['tyl_unumtyls'] > 0)
+		if($memprofile['tyl_unumtyls_self_rem'] > 0)
 		{
 			eval("\$tylgivenlikessearch = \"".$templates->get("thankyoulike_member_profile_given_search")."\";");
 		}
@@ -2626,9 +2629,9 @@ function thankyoulike_memprofile()
 		{
 			$tylgivenlikessearch = '';
 		}
-		$memprofile['tyl_unumtyls'] = my_number_format($memprofile['tyl_unumtyls']);
-		$memprofile['tyl_unumrcvtyls'] = tyl_fmt_rcvd_likes_count($memprofile['tyl_unumrcvtyls']);
-		$tylpd_percent_total = $lang->sprintf($lang->tyl_tylpd_percent_total, my_number_format($tylpd), $percent, $totalgiv);
+		$memprofile['tyl_unumtyls_fmt'   ] = my_number_format        ($memprofile['tyl_unumtyls_self_rem'   ]);
+		$memprofile['tyl_unumrcvtyls_fmt'] = tyl_fmt_rcvd_likes_count($memprofile['tyl_unumrcvtyls_self_rem']);
+		$tylpd_percent_total    = $lang->sprintf($lang->tyl_tylpd_percent_total, my_number_format($tylpd   ), $percent    , $totalgiv);
 		$tylrcvpd_percent_total = $lang->sprintf($lang->tyl_tylpd_percent_total, my_number_format($tylrcvpd), $percent_rcv, $totalrcv);
 		eval("\$tyl_memprofile = \"".$templates->get("thankyoulike_member_profile")."\";");
 
