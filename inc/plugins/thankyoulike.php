@@ -861,14 +861,14 @@ function tyl_insert_templates()
 		<td class=\"trow1\" colspan=\"3\">&nbsp;</td>
 	</tr>
 	<tr>
-		<td class=\"trow2\" colspan=\"3\" style=\"text-align: center;\"><strong>{\$lang->tyl_most_liked_by}</strong></td>
+		<td class=\"trow2\" colspan=\"3\" style=\"text-align: center;\"><strong>{\$lang->tyl_most_tyled_by}</strong></td>
 	</tr>
 	{\$tyl_most_likedby_users}
 	<tr>
 		<td class=\"trow1\" colspan=\"3\">&nbsp;</td>
 	</tr>
 	<tr>
-		<td class=\"trow2\" colspan=\"3\" style=\"text-align: center;\"><strong>{\$lang->tyl_most_liked}</strong></td>
+		<td class=\"trow2\" colspan=\"3\" style=\"text-align: center;\"><strong>{\$lang->tyl_most_tyled}</strong></td>
 	</tr>
 	{\$tyl_most_liked_users}
 </table>
