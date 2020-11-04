@@ -1846,7 +1846,7 @@ function tyl_set_up_stats_in_postbit(&$post)
 	$given = "tyl_{$tyl}_given";
 	$lang->tyl_given = $lang->$given;
 	$rcvd_bit = "tyl_{$tyl}_rcvd_bit";
-	$post['tyl_unumrcvtyls_fmt'] = $lang->sprintf($lang->$rcvd_bit, tyl_fmt_rcvd_likes_count($post['tyl_unumrcvtyls_self_rem']), my_number_format($post['tyl_unumptyls_self_rem']));
+	$post['tyl_unumrcvtyls_fmt'] = $post['tyl_unumrtyls'] = $lang->sprintf($lang->$rcvd_bit, tyl_fmt_rcvd_likes_count($post['tyl_unumrcvtyls_self_rem']), my_number_format($post['tyl_unumptyls_self_rem']));
 	$post['tyl_unumtyls_fmt'] = my_number_format($post['tyl_unumtyls_self_rem']);
 	eval("\$tyl_thankslikes = \"".$templates->get("thankyoulike_postbit_author_user", 1, 0)."\";");
 
