@@ -1024,6 +1024,7 @@ img[id^=tyl_i_expcol_]{
 
 .tyl_rcvdlikesrange_1, .tyl_rcvdlikesrange_1 a{
 	font-weight: bold;
+	text-decoration: none;
 	color: green;
 }
 
