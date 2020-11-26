@@ -2440,58 +2440,32 @@ function tyl_myalerts_formatter_load()
 			{
 				$alertContent = $alert->getExtraDetails();
 				$postLink = $this->buildShowLink($alert);
-				if($alertContent['total_likes_count'] == $alertContent['new_likes_count'])
+				if($alertContent['total_likes_count'] == 1)
 				{
-					if($alertContent['total_likes_count'] > 1)
-					{
-						if($alertContent['total_likes_count'] > 2)
-						{
-							return $this->lang->sprintf(
-								$this->lang->tyl_alert_multi,
-								$outputAlert['from_user'],
-								$alertContent['total_likes_count'] - 1,
-								$alertContent['t_subject']
-							);
-						}
-						else
-						{
-							return $this->lang->sprintf(
-								$this->lang->tyl_alert_multi_one,
-								$outputAlert['from_user'],
-								$alertContent['t_subject']
-							);
-						}
-					}
-					else
-					{
-						return $this->lang->sprintf(
-							$this->lang->tyl_alert,
-							$outputAlert['from_user'],
-							$alertContent['t_subject']
-						);
-					}
+					return $this->lang->sprintf(
+						$this->lang->tyl_alert,
+						$outputAlert['from_user'],
+						$alertContent['t_subject']
+					);
+				}
+				else if($alertContent['total_likes_count'] > 2)
+				{
+					return $this->lang->sprintf(
+						$this->lang->tyl_alert_new,
+						$outputAlert['from_user'],
+						$alertContent['total_likes_count'] - 1,
+						$alertContent['new_likes_count'],
+						$alertContent['t_subject']
+					);
 				}
 				else
 				{
-					if($alertContent['total_likes_count'] > 2)
-					{
-						return $this->lang->sprintf(
-							$this->lang->tyl_alert_new,
-							$outputAlert['from_user'],
-							$alertContent['total_likes_count'] - 1,
-							$alertContent['new_likes_count'],
-							$alertContent['t_subject']
-						);
-					}
-					else
-					{
-						return $this->lang->sprintf(
-							$this->lang->tyl_alert_new_one,
-							$outputAlert['from_user'],
-							$alertContent['new_likes_count'],
-							$alertContent['t_subject']
-						);
-					}
+					return $this->lang->sprintf(
+						$this->lang->tyl_alert_new_one,
+						$outputAlert['from_user'],
+						$alertContent['new_likes_count'],
+						$alertContent['t_subject']
+					);
 				}
 			}
 
