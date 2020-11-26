@@ -824,8 +824,8 @@ function tyl_insert_templates()
 	</tr>
 	<tr>
 		<td class=\"trow2\">&nbsp;</td>
-		<td class=\"trow2\" style=\"text-align: center;\"><strong><a href=\"tylsearch.php?action=usertylforposts&amp;uid={\$uid}\">{\$lang->tyl_tyl_received}</a></strong></td>
-		<td class=\"trow2\" style=\"text-align: center;\"><strong><a href=\"tylsearch.php?action=usertylposts&amp;uid={\$uid}\">{\$lang->tyl_tyl_given}</a></strong></td>
+		<td class=\"trow2\" style=\"text-align: center;\"><strong><a href=\"tylsearch.php?action=usertylforposts&amp;uid={\$uid}\">{\$lang->tyl_rcvd}</a></strong></td>
+		<td class=\"trow2\" style=\"text-align: center;\"><strong><a href=\"tylsearch.php?action=usertylposts&amp;uid={\$uid}\">{\$lang->tyl_given}</a></strong></td>
 	</tr>
 	<tr>
 		<td class=\"trow1\" style=\"text-align: right;\">{\$lang->last_week}</td>
@@ -874,7 +874,7 @@ function tyl_insert_templates()
 </table>
 <br />
 ",
-			'version_at_last_change' => '30308',
+			'version_at_last_change' => '30309',
 		),
 		'thankyoulike_member_profile_like_stats_most_likedby_row' =>
 		array(
@@ -1562,34 +1562,20 @@ function thankyoulike_templatelist()
 {
 	global $mybb, $lang, $templatelist;
 	$prefix = 'g33k_thankyoulike_';
-	if ($mybb->settings[$prefix.'enabled'] == "1")
+	if($mybb->settings[$prefix.'enabled'] == "1")
 	{
 		$lang->load('thankyoulike', false, true);
-		if ($mybb->settings[$prefix.'thankslike'] == "like")
+		if($mybb->settings[$prefix.'thankslike'] == "like")
 		{
 			$prelang = $lang->tyl_like;
-			$prelang1 = $lang->tyl_likes;
-
-			$lang->tyl_alert = $lang->tyl_alert_like;
-			$lang->tyl_alert_multi = $lang->tyl_alert_like_multi;
-			$lang->tyl_alert_multi_one = $lang->tyl_alert_like_multi_one;
-			$lang->tyl_alert_new = $lang->tyl_alert_like_new;
-			$lang->tyl_alert_new_one = $lang->tyl_alert_like_new_one;
-			$lang->myalerts_setting_tyl = $lang->myalerts_setting_tyl_like;
+			$key_tyl_noun_one_sm = 'tyl_like_sm';
 		}
-		else if ($mybb->settings[$prefix.'thankslike'] == "thanks")
+		else
 		{
-
 			$prelang = $lang->tyl_thankyou;
-			$prelang1 = $lang->tyl_thanks;
-
-			$lang->tyl_alert = $lang->tyl_alert_thanks;
-			$lang->tyl_alert_multi = $lang->tyl_alert_thanks_multi;
-			$lang->tyl_alert_multi_one = $lang->tyl_alert_thanks_multi_one;
-			$lang->tyl_alert_new = $lang->tyl_alert_thanks_new;
-			$lang->tyl_alert_new_one = $lang->tyl_alert_thanks_new_one;
-			$lang->myalerts_setting_tyl = $lang->myalerts_setting_tyl_thanks;
+			$key_tyl_noun_one_sm = 'tyl_thankyou_sm';
 		}
+		$lang->myalerts_setting_tyl = $lang->sprintf($lang->myalerts_setting_tyl, $lang->$key_tyl_noun_one_sm);
 
 		$lang->tyl_send = $lang->sprintf($lang->tyl_send, $prelang);
 		$lang->tyl_remove = $lang->sprintf($lang->tyl_remove, $prelang);
@@ -1836,6 +1822,48 @@ function tyl_get_which_btn($thread, $fid, $pid, $post_userid, $tyl_userid, $has_
 	return $which_btn;
 }
 
+function tyl_get_lang_key_likes_or_thanks($suffix = '')
+{
+	global $mybb;
+	$prefix = 'g33k_thankyoulike_';
+
+	$ret = $mybb->settings[$prefix.'thankslike'];
+
+	if(substr($ret, -1) == 's')
+	{
+		$ret = substr($ret, 0, -1);
+	}
+
+	switch($suffix)
+	{
+		case 's':
+			$ret .= 's';
+			break;
+		case 'ed';
+			if(substr($ret, -1) != 'e')
+			{
+				$ret .= 'e';
+			}
+			$ret .= 'd';
+			break;
+	}
+
+	return $ret; // Either "like", "likes", "liked", "thank", "thanks", or "thanked".
+}
+
+function tyl_set_lang_rcvd_given($tok_tyls = '')
+{
+	global $lang;
+
+	if(!$tok_tyls)
+	{
+		$tok_tyls = tyl_get_lang_key_likes_or_thanks('s');
+	}
+	$key_tyls = 'tyl_'.$tok_tyls;
+	$lang->tyl_rcvd = $lang->sprintf($lang->tyl_tyls_rcvd, $lang->$key_tyls);
+	$lang->tyl_given = $lang->sprintf($lang->tyl_tyls_given, $lang->$key_tyls);
+}
+
 /**
  * Insert into the given post's 'user_details' field the user's tyl statistics
  * by replacing the placeholder '%%TYL_NUMTHANKEDLIKED%%'.
@@ -1849,24 +1877,17 @@ function tyl_set_up_stats_in_postbit(&$post)
 	// If removal of self-likes from counts is enabled, then remove self-likes from counts.
 	tyl_check_remove_self_likes_from_post_array($post);
 
-	$tyl = $mybb->settings[$prefix.'thankslike'];
-	if (substr($tyl, -1) != 's')
-	{
-		$tyl .= 's';
-	} // Now $tyl is set to either "likes" or "thanks".
-	$rcvd = "tyl_{$tyl}_rcvd";
-	$lang->tyl_rcvd = $lang->$rcvd;
-	$given = "tyl_{$tyl}_given";
-	$lang->tyl_given = $lang->$given;
-	$rcvd_bit = "tyl_{$tyl}_rcvd_bit";
-	$post['tyl_unumrcvtyls_fmt'] = $post['tyl_unumrtyls'] = $lang->sprintf($lang->$rcvd_bit, tyl_fmt_rcvd_likes_count($post['tyl_unumrcvtyls_self_rem']), my_number_format($post['tyl_unumptyls_self_rem']));
+	tyl_set_lang_rcvd_given();
+
+	$post['tyl_unumrcvtyls_fmt'] = $post['tyl_unumrtyls'] = $lang->sprintf($lang->tyl_tyls_rcvd_bit, tyl_fmt_rcvd_tyls_count($post['tyl_unumrcvtyls_self_rem']), my_number_format($post['tyl_unumptyls_self_rem']));
 	$post['tyl_unumtyls_fmt'] = my_number_format($post['tyl_unumtyls_self_rem']);
 	eval("\$tyl_thankslikes = \"".$templates->get("thankyoulike_postbit_author_user", 1, 0)."\";");
 
 	$post['user_details'] = preg_replace("#".preg_quote('%%TYL_NUMTHANKEDLIKED%%')."#i", $tyl_thankslikes, $post['user_details']);
 }
 
-function tyl_fmt_rcvd_likes_count($count, $link = '') {
+function tyl_fmt_rcvd_tyls_count($count, $link = '')
+{
 	global $mybb;
 
 	$prefix = 'g33k_thankyoulike_';
@@ -1991,7 +2012,6 @@ function tyl_build_post_likers_display(&$post, $tyls, $tyled, $count) {
 		$lang->del_tyl = $lang->del_l;
 		$lang->add_tyl_button_title = $lang->add_l_button_title;
 		$lang->del_tyl_button_title = $lang->del_l_button_title;
-		$tyl_thankslikes = $lang->tyl_likes;
 		$tyl_like_or_say = $tyl_like;
 		$tyl_title_collapsed = $lang->tyl_title_collapsed_l;
 		$tyl_title = $lang->tyl_title_l;
@@ -2003,7 +2023,6 @@ function tyl_build_post_likers_display(&$post, $tyls, $tyled, $count) {
 		$lang->del_tyl = $lang->del_ty;
 		$lang->add_tyl_button_title = $lang->add_ty_button_title;
 		$lang->del_tyl_button_title = $lang->del_ty_button_title;
-		$tyl_thankslikes = $lang->tyl_thanks;
 		$tyl_like_or_say = $tyl_say;
 		$tyl_title_collapsed = $lang->tyl_title_collapsed_ty;
 		$tyl_title = $lang->tyl_title_ty;
@@ -2172,27 +2191,27 @@ function thankyoulike_threads_udetails()
 
 	$display_forum  = ($mybb->settings[$prefix.'display_tyl_counter_forumdisplay'] == "1" && THIS_SCRIPT == "forumdisplay.php");
 	$display_search = ($mybb->settings[$prefix.'display_tyl_counter_search_page' ] == "1" && THIS_SCRIPT == "search.php"      );
-	if ($display_forum || $display_search)
+	if($display_forum || $display_search)
 	{
 		$page_type = $display_forum ? 'forumdisplay_thread' : 'search_page';
 		$tcache    = $display_forum ? $threadcache          : $thread_cache;
-		if (!$tyl_threads_cached)
+		if(!$tyl_threads_cached)
 		{
 			$pids = array();
-			foreach ($tcache as $t)
+			foreach($tcache as $t)
 			{
 				$pids[] = (int)$t['firstpost'];
 			}
 			$pids = implode(',', $pids);
 			$query = $db->simple_select("posts","tid,tyl_pnumtyls","pid IN ($pids)");
-			while ($post = $db->fetch_array($query))
+			while($post = $db->fetch_array($query))
 			{
 				$tyl_threads_cached[$post['tid']] = (int)$post['tyl_pnumtyls'];
 			}
 
-			$langkey1 = 'tyl_firstpost_tyl_count_'.$page_type;
-			$langkey2 = 'tyl_firstpost_tyl_count_'.$mybb->settings[$prefix.'thankslike'];
-			$lang->$langkey1 = $lang->sprintf($lang->$langkey1, $lang->$langkey2);
+			$key_1st_post_tyl_count = 'tyl_firstpost_tyl_count_'.$page_type;
+			$key_tyls_sm = 'tyl_'.tyl_get_lang_key_likes_or_thanks('s').'_sm';
+			$lang->$key_1st_post_tyl_count = $lang->sprintf($lang->$key_1st_post_tyl_count, $lang->$key_tyls_sm);
 		}
 
 		$thread['tyls'] = $tyl_threads_cached[$thread['tid']];
@@ -2449,32 +2468,46 @@ function tyl_myalerts_formatter_load()
 		{
 			public function formatAlert(MybbStuff_MyAlerts_Entity_Alert $alert, array $outputAlert)
 			{
-				$alertContent = $alert->getExtraDetails();
-				$postLink = $this->buildShowLink($alert);
-				if($alertContent['total_likes_count'] == 1)
+				global $mybb;
+				$prefix = 'g33k_thankyoulike_';
+
+				if($mybb->settings[$prefix.'thankslike'] == "like")
 				{
-					return $this->lang->sprintf(
-						$this->lang->tyl_alert,
-						$outputAlert['from_user'],
-						$alertContent['t_subject']
-					);
-				}
-				else if($alertContent['total_likes_count'] > 2)
-				{
-					return $this->lang->sprintf(
-						$this->lang->tyl_alert_new,
-						$outputAlert['from_user'],
-						$alertContent['total_likes_count'] - 1,
-						$alertContent['new_likes_count'],
-						$alertContent['t_subject']
-					);
+					$key_tyl_you_for_sm  = 'tyl_likeyoufor_sm' ;
+					$key_tyls_you_for_sm = 'tyl_likesyoufor_sm';
 				}
 				else
 				{
+					$key_tyl_you_for_sm  = 'tyl_thankyoufor_sm' ;
+					$key_tyls_you_for_sm = 'tyl_thanksyoufor_sm';
+				}
+
+				$alertContent = $alert->getExtraDetails();
+				$postLink = $this->buildShowLink($alert);
+
+				switch($alertContent['total_likes_count']) {
+				case 1:
 					return $this->lang->sprintf(
-						$this->lang->tyl_alert_new_one,
+						$this->lang->tyl_alert_one_tyl,
+						$outputAlert['from_user'],
+						$this->lang->$key_tyls_you_for_sm,
+						$alertContent['t_subject']
+					);
+				case 2:
+					return $this->lang->sprintf(
+						$this->lang->tyl_alert_two_tyls,
 						$outputAlert['from_user'],
 						$alertContent['new_likes_count'],
+						$this->lang->$key_tyl_you_for_sm,
+						$alertContent['t_subject']
+					);
+				default: // Three or more tyls
+					return $this->lang->sprintf(
+						$this->lang->tyl_alert_three_or_more_tyls,
+						$outputAlert['from_user'],
+						$alertContent['total_likes_count'] - 1,
+						$alertContent['new_likes_count'],
+						$this->lang->$key_tyl_you_for_sm,
 						$alertContent['t_subject']
 					);
 				}
@@ -2518,26 +2551,14 @@ function thankyoulike_memprofile()
 
 	if ($mybb->settings[$prefix.'enabled'] == "1")
 	{
-		if ($mybb->settings[$prefix.'thankslike'] == "like")
-		{
-			$lang->tyl_total_tyls_rcvd = $lang->tyl_total_likes_rcvd;
-			$lang->tyl_total_tyls_given = $lang->tyl_total_likes_given;
-			$lang->tyl_find_threads = $lang->tyl_find_l_threads;
-			$lang->tyl_find_posts = $lang->tyl_find_l_posts;
-			$lang->tyl_find_threads_for = $lang->tyl_find_l_threads_for;
-			$lang->tyl_find_posts_for = $lang->tyl_find_l_posts_for;
-			$tyl_thankslikes = $lang->tyl_likes;
-		}
-		else if ($mybb->settings[$prefix.'thankslike'] == "thanks")
-		{
-			$lang->tyl_total_tyls_rcvd = $lang->tyl_total_thanks_rcvd;
-			$lang->tyl_total_tyls_given = $lang->tyl_total_thanks_given;
-			$lang->tyl_find_threads = $lang->tyl_find_ty_threads;
-			$lang->tyl_find_posts = $lang->tyl_find_ty_posts;
-			$lang->tyl_find_threads_for = $lang->tyl_find_ty_threads_for;
-			$lang->tyl_find_posts_for = $lang->tyl_find_ty_posts_for;
-			$tyl_thankslikes = $lang->tyl_thanks;
-		}
+		$key_tyls  = 'tyl_'.tyl_get_lang_key_likes_or_thanks('s');
+		$key_tyled = 'tyl_'.tyl_get_lang_key_likes_or_thanks('ed');
+		$lang->tyl_total_tyls_rcvd  = $lang->sprintf($lang->tyl_total_tyls_rcvd       , $lang->$key_tyls);
+		$lang->tyl_total_tyls_given = $lang->sprintf($lang->tyl_total_tyls_given      , $lang->$key_tyls);
+		$lang->tyl_find_threads     = $lang->sprintf($lang->tyl_find_tyled_threads    , $lang->$key_tyled);
+		$lang->tyl_find_posts       = $lang->sprintf($lang->tyl_find_tyled_posts      , $lang->$key_tyled);
+		$lang->tyl_find_threads_for = $lang->sprintf($lang->tyl_find_tyled_threads_for, $lang->$key_tyled);
+		$lang->tyl_find_posts_for   = $lang->sprintf($lang->tyl_find_tyled_posts_for  , $lang->$key_tyled);
 
 		tyl_check_remove_self_likes_from_post_array($memprofile, true);
 
@@ -2615,7 +2636,7 @@ function thankyoulike_memprofile()
 			$tylgivenlikessearch = '';
 		}
 		$memprofile['tyl_unumtyls_fmt'   ] = my_number_format        ($memprofile['tyl_unumtyls_self_rem'   ]);
-		$memprofile['tyl_unumrcvtyls_fmt'] = tyl_fmt_rcvd_likes_count($memprofile['tyl_unumrcvtyls_self_rem']);
+		$memprofile['tyl_unumrcvtyls_fmt'] = tyl_fmt_rcvd_tyls_count ($memprofile['tyl_unumrcvtyls_self_rem']);
 		$tylpd_percent_total    = $lang->sprintf($lang->tyl_tylpd_percent_total, my_number_format($tylpd   ), $percent    , $totalgiv);
 		$tylrcvpd_percent_total = $lang->sprintf($lang->tyl_tylpd_percent_total, my_number_format($tylrcvpd), $percent_rcv, $totalrcv);
 		eval("\$tyl_memprofile = \"".$templates->get("thankyoulike_member_profile")."\";");
@@ -2717,7 +2738,7 @@ function thankyoulike_memprofile()
 				$post['subject'] = htmlspecialchars_uni($post['subject']);
 				$memprofile['tylsubject'] = "<a href=\"{$postlink}\"><span>{$parser->parse_badwords($post['subject'])}</span></a>";
 
-				$memprofile['tylcount'] = tyl_fmt_rcvd_likes_count((int)$post['tylcount'], $postlink);
+				$memprofile['tylcount'] = tyl_fmt_rcvd_tyls_count((int)$post['tylcount'], $postlink);
 
 				$memprofile['tyldatetime'] = my_date('relative', $post['dateline']);
 
@@ -2766,24 +2787,19 @@ function thankyoulike_memprofile()
 		{
 			if($mybb->settings[$prefix.'thankslike'] == 'thanks')
 			{
-				$lang->tyl_tyl_received = $lang->tyl_thanks_received;
-				$lang->tyl_tyl_given = $lang->tyl_thanks_given;
-				$key = 'tyl_thanks';
-				$lang->tyl_most_tyled_by = $lang->tyl_most_thanked_by;
-				$lang->tyl_most_tyled = $lang->tyl_most_thanked;
-				$lang->tyl_no_most_tyledby = $lang->sprintf($lang->tyl_no_most_thankedby, $memprofile['username']);
-				$lang->tyl_no_most_tyled = $lang->sprintf($lang->tyl_no_most_thanked, $memprofile['username']);
+				$key_tyls     = 'tyl_thanks'    ;
+				$key_tyled_sm = 'tyl_thanked_sm';
 			}
 			else
 			{
-				$lang->tyl_tyl_received = $lang->tyl_likes_received;
-				$lang->tyl_tyl_given = $lang->tyl_likes_given;
-				$key = 'tyl_likes';
-				$lang->tyl_most_tyled_by = $lang->tyl_most_liked_by;
-				$lang->tyl_most_tyled = $lang->tyl_most_liked;
-				$lang->tyl_no_most_tyledby = $lang->sprintf($lang->tyl_no_most_likedby, $memprofile['username']);
-				$lang->tyl_no_most_tyled = $lang->sprintf($lang->tyl_no_most_liked, $memprofile['username']);
+				$key_tyls     = 'tyl_likes'   ;
+				$key_tyled_sm = 'tyl_liked_sm';
 			}
+			tyl_set_lang_rcvd_given();
+			$lang->tyl_most_tyled_by   = $lang->sprintf($lang->tyl_most_tyled_by  , $lang->$key_tyled_sm);
+			$lang->tyl_most_tyled      = $lang->sprintf($lang->tyl_most_tyled     , $lang->$key_tyled_sm);;
+			$lang->tyl_no_most_tyledby = $lang->sprintf($lang->tyl_no_most_tyledby, $memprofile['username'], $lang->$key_tyled_sm);
+			$lang->tyl_no_most_tyled   = $lang->sprintf($lang->tyl_no_most_tyled  , $memprofile['username'], $lang->$key_tyled_sm);
 
 			$lang->load('reputation');
 			$week = 60*60*24*7;
@@ -2852,7 +2868,7 @@ GROUP BY t.period";
 			$tyl_most_likedby_users = tyl_get_memprofile_stats_most_liked_tr($max_likers, $memprofile['uid'], $tyl_received_all, 'likedby');
 			$tyl_most_liked_users   = tyl_get_memprofile_stats_most_liked_tr($max_likers, $memprofile['uid'], $tyl_given_all   , 'liked'  );
 
-			$tyl_profile_stats_head = $lang->sprintf($lang->tyl_profile_stats_head, $memprofile['username'], $lang->$key);
+			$tyl_profile_stats_head = $lang->sprintf($lang->tyl_profile_stats_head, $memprofile['username'], $lang->$key_tyls);
 			eval('$tyl_profile_stats = "'.$templates->get('thankyoulike_member_profile_like_stats').'";');
 		}
 	}
