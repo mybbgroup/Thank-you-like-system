@@ -62,15 +62,15 @@ $l['tyl_profile_box_thread'] = "Thread Subject";
 $l['tyl_profile_box_forum'] = "Forum Name";
 $l['tyl_profile_box_continue_reading'] = "Continue reading &raquo;";
 
-$l['tyl_profile_box_content_none'] = "Sorry, {1} has no {2} post at the moment.";
+$l['tyl_profile_box_content_none'] = "{1} has no {2} post at the moment.";
 
 $l['tyl_last_3months'] = "Last 3 months";
 $l['tyl_last_12months'] = "Last 12 months";
 $l['tyl_profile_stats_head'] = "{1}'s Received and Given {2}";
 $l['tyl_most_tyled_by'] = "Most {1} by";
 $l['tyl_most_tyled'] = "Most {1}";
-$l['tyl_no_most_tyledby'] = "Sorry, {1} has not yet been {2}.";
-$l['tyl_no_most_tyled'] = "Sorry, {1} has not yet {2}.";
+$l['tyl_no_most_tyledby'] = "{1} has not yet been {2}.";
+$l['tyl_no_most_tyled'] = "{1} has not yet {2}.";
 $l['tyl_deleted_member_name'] = "[Deleted member]";
 $l['tyl_pc'] = "{1}%";
 
