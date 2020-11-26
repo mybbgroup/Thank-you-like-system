@@ -1026,6 +1026,18 @@ img[id^=tyl_i_expcol_]{
 	font-weight: bold;
 	color: green;
 }
+
+.jGrowl .jGrowl-notification.jgrowl_success.tyl_jgrowl,
+.jGrowl .jGrowl-notification.jgrowl_error.tyl_jgrowl{
+	background: black;
+	border: 1px solid black;
+	color: white;
+}
+
+.jGrowl .jGrowl-notification.jgrowl_success.tyl_jgrowl .jGrowl-close,
+.jGrowl .jGrowl-notification.jgrowl_error.tyl_jgrowl .jGrowl-close {
+	color: black;
+}
 ";
 }
 

@@ -194,7 +194,7 @@ var thankyoulike = {
 			{
 				if(tylDisplayGrowl == 1)
 				{
-					$.jGrowl(result, {theme:'jgrowl_error'});
+					$.jGrowl(result, {theme:'jgrowl_error', group:'tyl_jgrowl'});
 				}
 				else
 				{
@@ -207,14 +207,14 @@ var thankyoulike = {
 		{
 			if (data.errors)
 			{
-				$.jGrowl(data.errors.join(' '), {theme:'jgrowl_error'});
+				$.jGrowl(data.errors.join(' '), {theme:'jgrowl_error', group:'tyl_jgrowl'});
 			}
 			else
 			{
 				if(tylDisplayGrowl == 1)
 				{
 					var msg = tylSend;
-					var options = {theme:'jgrowl_success'};
+					var options = {theme:'jgrowl_success', group:'tyl_jgrowl'};
 					if (data.tylMsgNumLeft)
 					{
 						msg += "<br />\n<br />\n" + data.tylMsgNumLeft;
@@ -273,7 +273,7 @@ var thankyoulike = {
 			if(result){
 				if(tylDisplayGrowl == 1)
 				{
-					$.jGrowl(result, {theme:'jgrowl_error'});
+					$.jGrowl(result, {theme:'jgrowl_error', group:'tyl_jgrowl'});
 				}
 				else
 				{
@@ -286,13 +286,13 @@ var thankyoulike = {
 		{
 			if (data.errors)
 			{
-				$.jGrowl(data.errors.join(' '), {theme:'jgrowl_error'});
+				$.jGrowl(data.errors.join(' '), {theme:'jgrowl_error', group:'tyl_jgrowl'});
 			}
 			else
 			{
 				if(tylDisplayGrowl == 1)
 				{
-					$.jGrowl(tylRemove, {theme:'jgrowl_success'});
+					$.jGrowl(tylRemove, {theme:'jgrowl_success', group:'tyl_jgrowl'});
 				}
 				$("#tyl_"+pid).html(data.tylData);
 				$("#tyl_"+pid).css('display', "");
