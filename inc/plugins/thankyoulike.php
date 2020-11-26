@@ -2268,18 +2268,22 @@ function tyl_manage_alert_for_added_tyl($post, $from_uid)
 
 		$counts = tyl_get_post_tyl_counts($pid, $post['tyl_last_alerted_tyl_id']);
 
-		// Check whether an existing tyl alert (unread OR read) for this post exists.
+		// Check whether one or more tyl alerts for this post exist,
+		// with the latest alert ordered first.
 		$query = $db->simple_select(
 			'alerts',
 			'id,unread,extra_details',
 			'object_id = '.$pid.' AND alert_type_id = '.$alertType->getId(),
 			array('order_by' => 'id', 'order_dir' => 'DESC')
 		);
+		$fields = $db->fetch_array($query);
+		$db->free_result($query);
 
-		// If no existing tyls alert for this post exists, then create one.
-		if($db->num_rows($query) == 0)
+		// If there are no existing tyl alerts for this post,
+		// or if the latest tyl alert for this post has already been read,
+		// then create (another) one.
+		if(!$fields || $fields['unread'] < 1)
 		{
-			$db->free_result($query);
 			$alert = new MybbStuff_MyAlerts_Entity_Alert($uid, $alertType, $pid, $from_uid);
 			$alert->setExtraDetails(
 				array_merge(
@@ -2295,21 +2299,15 @@ function tyl_manage_alert_for_added_tyl($post, $from_uid)
 			MybbStuff_MyAlerts_AlertManager::getInstance()->addAlert($alert);
 		}
 		else
-		// An alert already exists - update it.
+		// An unread alert for this post already exists - update it.
 		{
-			$fields = $db->fetch_array($query);
-			$db->free_result($query);
 			$alert_id = $fields['id'];
 			unset($fields['id']);
 			$extra_details = json_decode($fields['extra_details'], true);
 			$extra_details['total_likes_count'] = $counts['total_likes_count'];
 			$extra_details['new_likes_count'  ] = $counts['new_likes_count'  ];
 			$fields['extra_details'] = $db->escape_string(json_encode($extra_details));
-			if($fields['unread'] < 1)
-			{
-				$fields['from_user_id'] = $from_uid;
-			}
-			$fields['unread'] = 1;
+			$fields['from_user_id'] = $from_uid;
 			$db->update_query('alerts', $fields, 'id = '.$alert_id);
 		}
 	}
