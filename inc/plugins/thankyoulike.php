@@ -828,12 +828,12 @@ function tyl_insert_templates()
 		<td class=\"trow2\" style=\"text-align: center;\"><strong><a href=\"tylsearch.php?action=usertylposts&amp;uid={\$uid}\">{\$lang->tyl_given}</a></strong></td>
 	</tr>
 	<tr>
-		<td class=\"trow1\" style=\"text-align: right;\">{\$lang->last_week}</td>
+		<td class=\"trow1\" style=\"text-align: right;\">{\$lang->tyl_last_week}</td>
 		<td class=\"trow1\" style=\"text-align: center;\">{\$tyl_received_week}</td>
 		<td class=\"trow1\" style=\"text-align: center;\">{\$tyl_given_week}</td>
 	</tr>
 	<tr>
-		<td class=\"trow1\" style=\"text-align: right;\">{\$lang->last_month}</td>
+		<td class=\"trow1\" style=\"text-align: right;\">{\$lang->tyl_last_month}</td>
 		<td class=\"trow1\" style=\"text-align: center;\">{\$tyl_received_month}</td>
 		<td class=\"trow1\" style=\"text-align: center;\">{\$tyl_given_month}</td>
 	</tr>
@@ -843,7 +843,7 @@ function tyl_insert_templates()
 		<td class=\"trow1\" style=\"text-align: center;\">{\$tyl_given_3months}</td>
 	</tr>
 	<tr>
-		<td class=\"trow1\" style=\"text-align: right;\">{\$lang->last_6months}</td>
+		<td class=\"trow1\" style=\"text-align: right;\">{\$lang->tyl_last_6months}</td>
 		<td class=\"trow1\" style=\"text-align: center;\">{\$tyl_received_6months}</td>
 		<td class=\"trow1\" style=\"text-align: center;\">{\$tyl_given_6months}</td>
 	</tr>
@@ -853,7 +853,7 @@ function tyl_insert_templates()
 		<td class=\"trow1\" style=\"text-align: center;\">{\$tyl_given_12months}</td>
 	</tr>
 	<tr>
-		<td class=\"trow1\" style=\"text-align: right;\">{\$lang->all_time}</td>
+		<td class=\"trow1\" style=\"text-align: right;\">{\$lang->tyl_all_time}</td>
 		<td class=\"trow1\" style=\"text-align: center;\"><strong>{\$tyl_received_all}</strong></td>
 		<td class=\"trow1\" style=\"text-align: center;\"><strong>{\$tyl_given_all}</strong></td>
 	</tr>

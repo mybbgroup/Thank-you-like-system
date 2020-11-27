@@ -64,8 +64,12 @@ $l['tyl_profile_box_continue_reading'] = "Continue reading &raquo;";
 
 $l['tyl_profile_box_content_none'] = "{1} has no {2} post at the moment.";
 
-$l['tyl_last_3months'] = "Last 3 months";
+$l['tyl_last_week'    ] = "Last week";
+$l['tyl_last_month'   ] = "Last month";
+$l['tyl_last_3months' ] = "Last 3 months";
+$l['tyl_last_6months' ] = "Last 6 months";
 $l['tyl_last_12months'] = "Last 12 months";
+$l['tyl_all_time'     ] = "All Time";
 $l['tyl_profile_stats_head'] = "{1}'s Received and Given {2}";
 $l['tyl_most_tyled_by'] = "Most {1} by";
 $l['tyl_most_tyled'] = "Most {1}";
