@@ -76,9 +76,11 @@ $l['tyl_pc'] = "{1}%";
 
 $l['tyl_wol_searching'] = "<a href=\"{1}\">Searching {2}</a>";
 
+$l['tyl_this'] = 'This';
+
 $l['tyl_error'] = "Thank You/Like System Error Message";
 $l['tyl_error_invalid_action'] = "You are trying to perform an invalid action.";
-$l['tyl_error_disabled'] = "{1} Feature has been disabled.";
+$l['tyl_error_disabled'] = "{1} feature has been disabled.";
 $l['tyl_error_not_allowed'] = "Not allowed for this post.";
 $l['tyl_error_first_post_only'] = "You may only add/remove a {1} for the first post of threads in this forum.";
 $l['tyl_error_excluded'] = "Not allowed for this post because this forum has been excluded.";

@@ -576,12 +576,33 @@ function tyl_check_update_db_table_and_cols($from_version = false)
 
 	if($from_version !== false && $from_version < 30308)
 	{
-		// To speed up the member profile tyl statistics (tabulated display of date range counts of tyls).
-		$db->query("ALTER TABLE ".TABLE_PREFIX.$prefix."thankyoulike ADD KEY uid_dateline  (uid , dateline)");
-		$db->query("ALTER TABLE ".TABLE_PREFIX.$prefix."thankyoulike ADD KEY puid_dateline (puid, dateline)");
-		$db->query("ALTER TABLE ".TABLE_PREFIX.$prefix."thankyoulike ADD KEY puid_uid (puid, uid)");
-		// To speed up the determination of the member profile trophy post.
-		$db->query("ALTER TABLE ".TABLE_PREFIX.$prefix."thankyoulike ADD KEY puid_pid (puid, pid)");
+		// These indexes speed up the member profile tyl statistics (tabulated display of date range counts of tyls).
+		$query = $db->query("SHOW INDEX FROM ".TABLE_PREFIX.$prefix."thankyoulike WHERE Key_name='uid_dateline'");
+		if($db->num_rows($query) == 0)
+		{
+			$db->query("ALTER TABLE ".TABLE_PREFIX.$prefix."thankyoulike ADD KEY uid_dateline  (uid , dateline)");
+		}
+		$db->free_result($query);
+		$query = $db->query("SHOW INDEX FROM ".TABLE_PREFIX.$prefix."thankyoulike WHERE Key_name='puid_dateline'");
+		if($db->num_rows($query) == 0)
+		{
+			$db->query("ALTER TABLE ".TABLE_PREFIX.$prefix."thankyoulike ADD KEY puid_dateline (puid, dateline)");
+		}
+		$db->free_result($query);
+		$query = $db->query("SHOW INDEX FROM ".TABLE_PREFIX.$prefix."thankyoulike WHERE Key_name='puid_uid'");
+		if($db->num_rows($query) == 0)
+		{
+			$db->query("ALTER TABLE ".TABLE_PREFIX.$prefix."thankyoulike ADD KEY puid_uid (puid, uid)");
+		}
+		$db->free_result($query);
+
+		// This index speeds up the determination of the member profile trophy post.
+		$query = $db->query("SHOW INDEX FROM ".TABLE_PREFIX.$prefix."thankyoulike WHERE Key_name='puid_pid'");
+		if($db->num_rows($query) == 0)
+		{
+			$db->query("ALTER TABLE ".TABLE_PREFIX.$prefix."thankyoulike ADD KEY puid_pid (puid, pid)");
+		}
+		$db->free_result($query);
 	}
 
 	// Added puid field after v1.0 so check for that
@@ -1252,7 +1273,7 @@ function thankyoulike_activate()
 
 	require_once MYBB_ROOT."/inc/adminfunctions_templates.php";
 
-	find_replace_templatesets("showthread", "#".preg_quote('</head>')."#i", '<script type="text/javascript" src="{$mybb->settings[\'bburl\']}/jscripts/thankyoulike.min.js?ver=30306"></script>
+	find_replace_templatesets("showthread", "#".preg_quote('</head>')."#i", '<script type="text/javascript" src="{$mybb->settings[\'bburl\']}/jscripts/thankyoulike.min.js?ver=30309"></script>
 <script type="text/javascript">
 <!--
 	var tylEnabled = "{$mybb->settings[\'g33k_thankyoulike_enabled\']}";
@@ -3340,7 +3361,7 @@ function thankyoulike_settings_peeker()
 	{
 		echo '<script type="text/javascript">
 		$(document).ready(function(){
-			new Peeker($(".setting_'.$prefix.'enabled"), $("#row_setting_'.$prefix.'thankslike, #row_setting_'.$prefix.'firstall, #row_setting_'.$prefix.'firstalloverride, #row_setting_'.$prefix.'removing, #row_setting_'.$prefix.'tylownposts, #row_setting_'.$prefix.'reputation_add, #row_setting_'.$prefix.'remowntylfroms, #row_setting_'.$prefix.'remowntylfromc, #row_setting_'.$prefix.'closedthreads, #row_setting_'.$prefix.'exclude, #row_setting_'.$prefix.'exclude_count, #row_setting_'.$prefix.'unameformat, #row_setting_'.$prefix.'hideforgroups, #row_setting_'.$prefix.'showdt, #row_setting_'.$prefix.'dtformat, #row_setting_'.$prefix.'sortorder, #row_setting_'.$prefix.'collapsible, #row_setting_'.$prefix.'colldefault, #row_setting_'.$prefix.'hidelistforgroups, #row_setting_'.$prefix.'displaygrowl, #row_setting_'.$prefix.'limits, #row_setting_'.$prefix.'highlight_popular_posts, #row_setting_'.$prefix.'show_memberprofile_box"), 1, true),
+			new Peeker($(".setting_'.$prefix.'enabled"), $("#row_setting_'.$prefix.'thankslike, #row_setting_'.$prefix.'firstall, #row_setting_'.$prefix.'firstalloverride, #row_setting_'.$prefix.'removing, #row_setting_'.$prefix.'tylownposts, #row_setting_'.$prefix.'reputation_add, #row_setting_'.$prefix.'remowntylfroms, #row_setting_'.$prefix.'remowntylfromc, #row_setting_'.$prefix.'closedthreads, #row_setting_'.$prefix.'exclude, #row_setting_'.$prefix.'exclude_count, #row_setting_'.$prefix.'unameformat, #row_setting_'.$prefix.'hideforgroups, #row_setting_'.$prefix.'showdt, #row_setting_'.$prefix.'dtformat, #row_setting_'.$prefix.'sortorder, #row_setting_'.$prefix.'collapsible, #row_setting_'.$prefix.'colldefault, #row_setting_'.$prefix.'hidelistforgroups, #row_setting_'.$prefix.'displaygrowl, #row_setting_'.$prefix.'limits, #row_setting_'.$prefix.'highlight_popular_posts, #row_setting_'.$prefix.'show_memberprofile_box, #row_setting_'.$prefix.'likersdisplay, #row_setting_'.$prefix.'rcvdlikesclassranges, #row_setting_'.$prefix.'display_tyl_counter_forumdisplay, #row_setting_'.$prefix.'display_tyl_counter_search_page, #row_setting_'.$prefix.'show_memberprofile_stats"), 1, true),
 			new Peeker($(".setting_'.$prefix.'firstall"), $("#row_setting_'.$prefix.'firstalloverride"), "first", true),
 			new Peeker($(".setting_'.$prefix.'tylownposts"), $("#row_setting_'.$prefix.'remowntylfroms, #row_setting_'.$prefix.'remowntylfromc"), 1, true),
 			new Peeker($(".setting_'.$prefix.'reputation_add"), $("#row_setting_'.$prefix.'reputation_add_reppoints, #row_setting_'.$prefix.'reputation_add_repcomment"), 1, true),
