@@ -46,21 +46,19 @@ $prefix = "g33k_thankyoulike_";
 $lang->load("search");
 $lang->load("thankyoulike");
 
-// Access to this file only if plugin is existant and active
-if (!$mybb->settings[$prefix.'enabled'])
+// Access to this file only if plugin is active and enabled
+if(!in_array('thankyoulike', $cache->read('plugins')['active']) || !$mybb->settings[$prefix.'enabled'])
 {
-	error($lang->sprintf($lang->tyl_error_disabled, "This"));
+	error($lang->sprintf($lang->tyl_error_disabled, $lang->tyl_this));
 }
 
-if ($mybb->settings[$prefix.'thankslike'] == "like")
+if($mybb->settings[$prefix.'thankslike'] == "like")
 {
 	$pre = $lang->tyl_like;
-	$pre1 = $lang->tyl_liked;
 }
 else
 {
 	$pre = $lang->tyl_thankyou;
-	$pre1 = $lang->tyl_thanked;
 }
 
 if($mybb->settings[$prefix.'enabled'] != "1")
