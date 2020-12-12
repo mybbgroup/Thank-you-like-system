@@ -134,6 +134,36 @@ function thankyoulike_info()
 			}
 		}
 
+		$missing_indexes = '';
+		$query = $db->query("SHOW INDEX FROM ".TABLE_PREFIX.$prefix."thankyoulike WHERE Key_name='uid_dateline'");
+		if($db->num_rows($query) == 0)
+		{
+			$missing_indexes .= "<li style=\"list-style-image: url(styles/default/images/icons/warning.png)\">".$lang->sprintf($lang->tyl_missing_index, 'uid_dateline', TABLE_PREFIX.$prefix.'thankyoulike', $lang->tyl_missing_index_purpose1, 'tyl_create_index_uid_dateline')."</li>";
+		}
+		$db->free_result($query);
+		$query = $db->query("SHOW INDEX FROM ".TABLE_PREFIX.$prefix."thankyoulike WHERE Key_name='puid_dateline'");
+		if($db->num_rows($query) == 0)
+		{
+			$missing_indexes .= "<li style=\"list-style-image: url(styles/default/images/icons/warning.png)\">".$lang->sprintf($lang->tyl_missing_index, 'puid_dateline', TABLE_PREFIX.$prefix.'thankyoulike', $lang->tyl_missing_index_purpose1, 'tyl_create_index_puid_dateline')."</li>";
+		}
+		$db->free_result($query);
+		$query = $db->query("SHOW INDEX FROM ".TABLE_PREFIX.$prefix."thankyoulike WHERE Key_name='puid_uid'");
+		if($db->num_rows($query) == 0)
+		{
+			$missing_indexes .= "<li style=\"list-style-image: url(styles/default/images/icons/warning.png)\">".$lang->sprintf($lang->tyl_missing_index, 'puid_uid', TABLE_PREFIX.$prefix.'thankyoulike', $lang->tyl_missing_index_purpose1, 'tyl_create_index_puid_uid')."</li>";
+		}
+		$db->free_result($query);
+		$query = $db->query("SHOW INDEX FROM ".TABLE_PREFIX.$prefix."thankyoulike WHERE Key_name='puid_pid'");
+		if($db->num_rows($query) == 0)
+		{
+			$missing_indexes .= "<li style=\"list-style-image: url(styles/default/images/icons/warning.png)\">".$lang->sprintf($lang->tyl_missing_index, 'puid_pid', TABLE_PREFIX.$prefix.'thankyoulike', $lang->tyl_missing_index_purpose2, 'tyl_create_index_puid_pid')."</li>";
+		}
+		$db->free_result($query);
+		if ($missing_indexes)
+		{
+			$info_desc .= "<ul><li style=\"list-style-image: url(styles/default/images/icons/warning.png)\">Missing index(es):<ul>$missing_indexes</ul></li></ul>";
+		}
+
 		$result = $db->simple_select('settinggroups', 'gid', "name = '{$prefix}settings'", array('limit' => 1));
 		$group = $db->fetch_array($result);
 		if(!empty($group['gid']))
@@ -163,11 +193,13 @@ function thankyoulike_info()
 
 function thankyoulike_admin_load()
 {
-	global $mybb, $lang;
+	global $mybb, $lang, $db;
+	$prefix = 'g33k_thankyoulike_';
 	$lang->load('config_thankyoulike');
 
-	if($mybb->input['action'] == 'tyl_myalerts_integrate')
+	switch($mybb->input['action'])
 	{
+	case 'tyl_myalerts_integrate':
 		if (tyl_myalerts_integrate())
 		{
 			$msg = $lang->tyl_alerts_integration_success_msg;
@@ -180,6 +212,37 @@ function thankyoulike_admin_load()
 		}
 		flash_message($msg, $type);
 		admin_redirect('index.php?module=config-plugins');
+		break;
+	case 'tyl_create_index_uid_dateline';
+		$db->query("ALTER TABLE ".TABLE_PREFIX.$prefix."thankyoulike ADD KEY uid_dateline  (uid , dateline)");
+		$msg = $lang->sprintf($lang->tyl_success_index_create, 'uid_dateline', TABLE_PREFIX.$prefix.'thankyoulike');
+		$type = 'success';
+		flash_message($msg, $type);
+		admin_redirect('index.php?module=config-plugins');
+		break;
+	case 'tyl_create_index_puid_dateline';
+		$db->query("ALTER TABLE ".TABLE_PREFIX.$prefix."thankyoulike ADD KEY puid_dateline (puid, dateline)");
+		$msg = $lang->sprintf($lang->tyl_success_index_create, 'puid_dateline', TABLE_PREFIX.$prefix.'thankyoulike');
+		$type = 'success';
+		flash_message($msg, $type);
+		admin_redirect('index.php?module=config-plugins');
+		break;
+	case 'tyl_create_index_puid_uid':
+		$db->query("ALTER TABLE ".TABLE_PREFIX.$prefix."thankyoulike ADD KEY puid_uid (puid, uid)");
+		$msg = $lang->sprintf($lang->tyl_success_index_create, 'puid_uid', TABLE_PREFIX.$prefix.'thankyoulike');
+		$type = 'success';
+		flash_message($msg, $type);
+		admin_redirect('index.php?module=config-plugins');
+		break;
+	case 'tyl_create_index_puid_pid':
+		$db->query("ALTER TABLE ".TABLE_PREFIX.$prefix."thankyoulike ADD KEY puid_pid (puid, pid)");
+		$msg = $lang->sprintf($lang->tyl_success_index_create, 'puid_pid', TABLE_PREFIX.$prefix.'thankyoulike');
+		$type = 'success';
+		flash_message($msg, $type);
+		admin_redirect('index.php?module=config-plugins');
+		break;
+	default:
+		break;
 	}
 }
 
