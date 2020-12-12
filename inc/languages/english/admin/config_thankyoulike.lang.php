@@ -166,3 +166,9 @@ $l['tyl_recount_do_desc'] = "When this is run, the thanks/likes count for each u
 $l['tyl_success_thankyoulike_rebuilt'] = "The thanks/likes have been recounted successfully.";
 
 $l['tyl_admin_log_action'] = "Thanks/likes successfully recounted.";
+
+$l['tyl_recount2'] = "(Re)initialise last alerted thank/like for each post";
+$l['tyl_recount_do_desc2'] = "When this is run, the ID of the last alerted thank/like for each post for which all alerts for its thanks/likes have already been viewed will be updated so that subsequent alerts show the correct count of new thanks/likes.";
+$l['tyl_success_thankyoulike_rebuilt2'] = "The ID of the last alerted thank/like for each post has been (re)initialised successfully.";
+
+$l['tyl_admin_log_action2'] = "ID of last alerted thank/like for each post successfully (re)initialised.";
