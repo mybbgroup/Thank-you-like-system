@@ -166,3 +166,8 @@ $l['tyl_recount_do_desc'] = "When this is run, the thanks/likes count for each u
 $l['tyl_success_thankyoulike_rebuilt'] = "The thanks/likes have been recounted successfully.";
 
 $l['tyl_admin_log_action'] = "Thanks/likes successfully recounted.";
+
+$l['tyl_missing_index'] = "The `{1}` index is missing from the `{2}` database table. {3} Click <a href=\"index.php?module=config-plugins&amp;action={4}\">here</a> to create it. If the `{2}` database table has a lot of entries, the creation of this index might take some time.";
+$l['tyl_missing_index_purpose1'] = "This index speeds up the generation of the tabulated display of thank you / like statistics in member profiles.";
+$l['tyl_missing_index_purpose2'] = "This index speeds up the determination of the trophy post in member profiles.";
+$l['tyl_success_index_create'] = 'Successfully created the `{1}` index on the `{2}` table.';
