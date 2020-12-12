@@ -3707,6 +3707,86 @@ function acp_tyl_do_recounting()
 			}
 			check_proceed($num_tyls, $end, ++$page, $per_page, "tyls", "do_recounttyls", $lang->tyl_success_thankyoulike_rebuilt);
 		}
+		else if(isset($mybb->input['do_reinitlasttylid']))
+		{
+			if($mybb->input['page'] == 1)
+			{
+				// Log admin action
+				log_admin_action($lang->tyl_admin_log_action2);
+			}
+
+			if(!$mybb->get_input('lasttylids', MyBB::INPUT_INT))
+			{
+				$mybb->input['lasttylids'] = 500;
+			}
+
+			$next_pid = $mybb->get_input('page', MyBB::INPUT_INT);
+			$per_page = $mybb->get_input('lasttylids', MyBB::INPUT_INT);
+			if($per_page <= 0)
+			{
+				$per_page = 500;
+			}
+
+			$res = $db->simple_select('posts', 'MAX(pid) AS max_pid', 'tyl_last_alerted_tyl_id = 0');
+			$max_pid = $db->fetch_field($res, 'max_pid');
+			$db->free_result($res);
+
+			$pids = '';
+			$res = $db->simple_select('posts', 'pid', "tyl_last_alerted_tyl_id = 0 AND pid >= {$next_pid}", array(
+				'order_by' => 'pid',
+				'order_dir' => 'ASC',
+				'limit' => $per_page
+			));
+			while($pid = $db->fetch_field($res, 'pid'))
+			{
+				if($pids)
+				{
+					$pids .= ',';
+				}
+				$pids .= $pid;
+				$next_pid = $pid;
+			}
+			$next_pid++;
+
+			if($pids)
+			{
+				$alerts_sql = ($db->table_exists('alerts') && $db->table_exists('alert_types')) ? "AND
+               NOT EXISTS (
+                           SELECT *
+                           FROM   ".TABLE_PREFIX."alerts a
+                           WHERE  p.pid = a.object_id
+                                  AND
+                                  alert_type_id = (
+                                                   SELECT id
+                                                   FROM   ".TABLE_PREFIX."alert_types
+                                                   WHERE  code='tyl'
+                                                  )
+                                  AND
+                                  unread=1
+                          )" : '';
+
+				$db->query("
+UPDATE ".TABLE_PREFIX."posts AS dest,
+       (
+        SELECT p.pid,
+               (SELECT MAX(tyl.tlid) FROM ".TABLE_PREFIX.$prefix."thankyoulike tyl WHERE p.pid = tyl.pid) AS max_tlid
+        FROM   ".TABLE_PREFIX."posts p
+        WHERE  tyl_last_alerted_tyl_id = 0
+               {$alerts_sql}
+               AND
+               EXISTS (
+                       SELECT *
+                       FROM   ".TABLE_PREFIX.$prefix."thankyoulike tyl2
+                       WHERE  p.pid = tyl2.pid
+                      )
+               AND p.pid IN ({$pids})
+       ) AS src
+SET   dest.tyl_last_alerted_tyl_id = src.max_tlid
+WHERE dest.pid = src.pid");
+			}
+
+			check_proceed($max_pid, $next_pid, $next_pid, $per_page, 'per_page', 'do_reinitlasttylid', $lang->tyl_success_thankyoulike_rebuilt2);
+		}
 	}
 }
 
@@ -3718,6 +3798,11 @@ function acp_tyl_recount_form()
 	$form_container->output_cell("<label>{$lang->tyl_recount}</label><div class=\"description\">{$lang->tyl_recount_do_desc}</div>");
 	$form_container->output_cell($form->generate_numeric_field("tyls", 500, array('style' => 'width: 150px;', 'min' => 0)));
 	$form_container->output_cell($form->generate_submit_button($lang->go, array("name" => "do_recounttyls")));
+	$form_container->construct_row();
+
+	$form_container->output_cell("<label>{$lang->tyl_recount2}</label><div class=\"description\">{$lang->tyl_recount_do_desc2}</div>");
+	$form_container->output_cell($form->generate_numeric_field("lasttylids", 500, array('style' => 'width: 150px;', 'min' => 0)));
+	$form_container->output_cell($form->generate_submit_button($lang->go, array("name" => "do_reinitlasttylid")));
 	$form_container->construct_row();
 }
 
