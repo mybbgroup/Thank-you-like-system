@@ -19,6 +19,7 @@ $l['tyl_info_desc_alerts_integrated'] = "<b>The Thank You/Like System is current
 $l['tyl_alerts_integration_success_msg'] = 'The Thank You/Like System was successfully integrated with MyAlerts!';
 $l['tyl_alerts_integration_failure_msg'] = 'Failed to integrate the Thank You/Like System with MyAlerts. Is MyAlerts version 2.0.0 or above installed and activated? If so, is it already integrated with the Thank You/Like System?';
 $l['tyl_info_desc_alerts_registeralerttype'] = "Register a new alert type into MyAlerts";
+$l['tyl_myalerts_version_under_2_0_4'] = "Your MyAlerts version ({1}) is less than the required version (2.0.4) for full support: until you upgrade MyAlerts, alerts of thanks/likes for a post will incorrectly <em>always</em> show <em>all</em> thanks/likes as \"new\".";
 
 $l['tyl_title'] = "Thank You/Like System";
 $l['tyl_desc'] = "Settings to customize the Thank You/Like System plugin.";
