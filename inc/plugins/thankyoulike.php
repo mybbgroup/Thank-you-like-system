@@ -132,6 +132,11 @@ function thankyoulike_info()
 				// Too bad, it isn't, so offer the admin the chance to fully integrate with MyAlerts.
 				$info_desc .= "<ul><li style=\"list-style-image: url(styles/default/images/icons/warning.png)\"><a href=\"index.php?module=config-plugins&amp;action=tyl_myalerts_integrate\" style=\"color: red;\">".$lang->tyl_info_desc_alerts_integrate."</a></li></ul>";
 			}
+			$myalerts_info = myalerts_info();
+			if(version_compare($myalerts_info['version'], '2.0.4') < 0)
+			{
+				$info_desc .= '<ul><li style="list-style-image: url(styles/default/images/icons/warning.png)"><span style="color: red;">'.$lang->sprintf($lang->tyl_myalerts_version_under_2_0_4, $myalerts_info['version']).'</span></li></ul>';
+			}
 		}
 
 		$missing_indexes = '';
