@@ -6,7 +6,7 @@
  * @author MyBB Group - Eldenroot - <eldenroot@gmail.com>
  * @copyright 2020 MyBB Group <http://mybb.group>
  * @link <https://github.com/mybbgroup/MyBB_Thank-you-like-plugin>
- * @version 3.4.0
+ * @version 3.4.1
  * @license GPL-3.0
  *
  */
@@ -91,10 +91,10 @@ function thankyoulike_info()
 		"website"	=> "https://community.mybb.com/thread-169382.html",
 		"author"	=> "MyBB Group with love <3",
 		"authorsite"	=> "https://community.mybb.com/thread-169382.html",
-		"version"	=> "3.4.0",
+		"version"	=> "3.4.1",
 		// Constructed by converting each digit of "version" above into two digits (zero-padded if necessary),
 		// then concatenating them, then removing any leading zero to avoid the value being interpreted as octal.
-		"version_code"  => 30400,
+		"version_code"  => 30401,
 		"codename"	=> "thankyoulikesystem",
 		"compatibility"	=> "18*"
 	);
