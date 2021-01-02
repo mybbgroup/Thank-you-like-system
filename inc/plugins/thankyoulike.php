@@ -642,37 +642,6 @@ function tyl_check_update_db_table_and_cols($from_version = false)
 				".$db->build_create_table_collation().";");
 	}
 
-	if($from_version !== false && $from_version < 30308)
-	{
-		// These indexes speed up the member profile tyl statistics (tabulated display of date range counts of tyls).
-		$query = $db->query("SHOW INDEX FROM ".TABLE_PREFIX.$prefix."thankyoulike WHERE Key_name='uid_dateline'");
-		if($db->num_rows($query) == 0)
-		{
-			$db->query("ALTER TABLE ".TABLE_PREFIX.$prefix."thankyoulike ADD KEY uid_dateline  (uid , dateline)");
-		}
-		$db->free_result($query);
-		$query = $db->query("SHOW INDEX FROM ".TABLE_PREFIX.$prefix."thankyoulike WHERE Key_name='puid_dateline'");
-		if($db->num_rows($query) == 0)
-		{
-			$db->query("ALTER TABLE ".TABLE_PREFIX.$prefix."thankyoulike ADD KEY puid_dateline (puid, dateline)");
-		}
-		$db->free_result($query);
-		$query = $db->query("SHOW INDEX FROM ".TABLE_PREFIX.$prefix."thankyoulike WHERE Key_name='puid_uid'");
-		if($db->num_rows($query) == 0)
-		{
-			$db->query("ALTER TABLE ".TABLE_PREFIX.$prefix."thankyoulike ADD KEY puid_uid (puid, uid)");
-		}
-		$db->free_result($query);
-
-		// This index speeds up the determination of the member profile trophy post.
-		$query = $db->query("SHOW INDEX FROM ".TABLE_PREFIX.$prefix."thankyoulike WHERE Key_name='puid_pid'");
-		if($db->num_rows($query) == 0)
-		{
-			$db->query("ALTER TABLE ".TABLE_PREFIX.$prefix."thankyoulike ADD KEY puid_pid (puid, pid)");
-		}
-		$db->free_result($query);
-	}
-
 	// Added puid field after v1.0 so check for that
 	if($db->table_exists($prefix.'thankyoulike') && !$db->field_exists('puid', $prefix.'thankyoulike'))
 	{
