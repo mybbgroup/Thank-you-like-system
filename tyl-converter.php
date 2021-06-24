@@ -3,7 +3,7 @@
  * Filename   : tyl-converter.php
  * Author     : Dark Neo and martec; combined and refactored by Laird.
  * Description: Imports into the Thank You/Like System plugin either the
- *              thanks/likes of the SimpleLikes[1] plugin or the Thanks[2][3]
+ *              thanks/likes of the SimpleLikes[1] plugin or the Thanks[2]
  *              plugin, or the reputations of the core reputation system, the
  *              latter of which supports migration from the MyLikes[3] plugin.
  *              [1] https://community.mybb.com/mods.php?action=view&pid=24
@@ -28,7 +28,7 @@
 
 define('IN_MYBB', 1);
 require_once './inc/init.php';
-define('THIS_SCRIPT', 'MULTI_SRC_TYL_CONVERSION_SCRIPT');
+define('THIS_SCRIPT', 'TYL_CONVERSION_SCRIPT');
 ini_set('max_execution_time', 300);
 $prefix = 'g33k_';
 $sort_function = $do_conversion = false;
@@ -81,7 +81,7 @@ if ($do_conversion) {
 	if (empty($query)) {
 		echo "<span style=\"color: orange;\">Warning:</span> no {$tyl_from_type} found in the database table for {$from_plugin_name}. Nothing to convert, so no conversion performed.";
 	} else {
-		$sel_rows = array();
+		$ins_rows = $sel_rows = array();
 		while ($row = $db->fetch_array($query)) {
 			$sel_rows[] = $row;
 		}
