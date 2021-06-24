@@ -81,7 +81,7 @@ if ($do_conversion) {
 	if (empty($query)) {
 		echo "<span style=\"color: orange;\">Warning:</span> no {$tyl_from_type} found in the database table for {$from_plugin_name}. Nothing to convert, so no conversion performed.";
 	} else {
-		$sel_rows = array();
+		$ins_rows = $sel_rows = array();
 		while ($row = $db->fetch_array($query)) {
 			$sel_rows[] = $row;
 		}
