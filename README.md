@@ -15,7 +15,7 @@ For more information, see the plugin's:
 
 2. *Copy files*.
 
-   Extract the files in that archive to a temporary location, and then copy them into the root of your MyBB installation. That is to say that "tylsearch.php" should be copied to your MyBB root, "jscripts/thankyoulike.js" should be copied to your MyBB root's "jscripts/" directory, etc.
+   Extract the files in that archive to a temporary location, and then copy everything in the "upload" directory into the root of your MyBB installation (note that in earlier versions, there is no "upload" directory, and the files and directories to be uploaded are in the root extracted directory). That is to say that "tylsearch.php" should be copied to your MyBB root, "jscripts/thankyoulike.js" should be copied to your MyBB root's "jscripts/" directory, etc.
 
 3. *Install via the ACP*.
 
@@ -116,6 +116,10 @@ N.B. If MyAlerts is integrated *and* you don't want to lose any existing thanks/
 5. *Recreate changes*.
 
    Re-enter your settings for the plugin including any per-usergroup settings and any changes you had made to the plugin's stylesheet and templates (this is why it is important to have made a note of them before uninstalling the plugin).
+
+## Migrating from other thanks/likes plugins
+
+A conversion script, "tyl-converter.php", is included in the "scripts" directory for this purpose. For directions on its use, see the comments at the top of that file.
 
 ## FAQ
 
