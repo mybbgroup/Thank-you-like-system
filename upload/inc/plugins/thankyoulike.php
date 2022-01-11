@@ -91,7 +91,7 @@ function thankyoulike_info()
 		"website"	=> "https://community.mybb.com/thread-169382.html",
 		"author"	=> "MyBB Group with love <3",
 		"authorsite"	=> "https://community.mybb.com/thread-169382.html",
-		"version"	=> "3.4.2",
+		"version"	=> "3.4.3",
 		// Constructed by converting each digit of "version" above into two digits (zero-padded if necessary),
 		// then concatenating them, then removing any leading zero to avoid the value being interpreted as octal.
 		"version_code"  => 30402,
