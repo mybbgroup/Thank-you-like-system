@@ -493,7 +493,7 @@ function tyl_create_settings($existing_setting_values = array())
 		'highlight_popular_posts_count'   => array(
 			'title'       => $lang->tyl_highlight_popular_posts_count_title,
 			'description' => $lang->tyl_highlight_popular_posts_count_desc,
-			'optionscode' => 'numeric',
+			'optionscode' => 'numeric \n min=0',
 			'value'       => '0'
 		),
 		'display_tyl_counter_forumdisplay'   => array(
@@ -517,7 +517,7 @@ function tyl_create_settings($existing_setting_values = array())
 		'profile_box_post_cutoff'         => array(
 			'title'       => $lang->tyl_profile_box_post_cutoff_title,
 			'description' => $lang->tyl_profile_box_post_cutoff_desc,
-			'optionscode' => 'numeric',
+			'optionscode' => 'numeric \n min=0',
 			'value'       => '0'
 		),
 		'profile_box_show_parent_forums'  => array(
@@ -572,7 +572,7 @@ function tyl_create_settings($existing_setting_values = array())
 			'name' => $db->escape_string($prefix.$name),
 			'title' => $db->escape_string($setting['title']),
 			'description' => $db->escape_string($setting['description']),
-			'optionscode' => $db->escape_string($setting['optionscode']),
+			'optionscode' => $setting['optionscode'],
 			// ...keeping any existing values.
 			'value' => $db->escape_string($value),
 			'disporder' => $x,
@@ -1340,7 +1340,7 @@ function thankyoulike_activate()
 	find_replace_templatesets("member_profile", '#{\$modoptions}(\r?)\n#', "{\$tyl_profile_box}\n\t\t\t{\$tyl_profile_stats}\n\t\t\t{\$modoptions}\n");
 	find_replace_templatesets("forumdisplay_thread","#".preg_quote('{$attachment_count}')."#i","{\$tyl_forumdisplay_thread_var}{\$attachment_count}");
 	find_replace_templatesets("search_results_threads_thread","#".preg_quote('{$attachment_count}')."#i","{\$tyl_search_page_var}{\$attachment_count}");
-	
+
 	// Enable the tyl alert type if necessary.
 	tyl_myalerts_set_enabled(1);
 }
@@ -1376,7 +1376,7 @@ function thankyoulike_deactivate()
 	find_replace_templatesets("member_profile", '#(\t*)?{\$tyl_profile_stats}(\r?)(\n?)#', "", 0);
 	find_replace_templatesets("forumdisplay_thread", '#{\$tyl_forumdisplay_thread_var}#', "", 0);
 	find_replace_templatesets("search_results_threads_thread", '#{\$tyl_search_page_var}#', "", 0);
-	
+
 	// Disable the tyl alert type if necessary.
 	tyl_myalerts_set_enabled(0);
 }
@@ -1647,7 +1647,7 @@ function thankyoulike_templatelist()
 		{
 			tyl_myalerts_formatter_load();
 		}
-		
+
 		// Cache all templates
 		$template_list = '';
 		if (THIS_SCRIPT == 'showthread.php')
@@ -2258,7 +2258,7 @@ function thankyoulike_threads_udetails()
 {
 	global $mybb, $db, $templates, $lang, $thread, $threadcache, $thread_cache, $tyl_forumdisplay_thread_var, $tyl_search_page_var;
 	static $tyl_threads_cached = array();
-	$prefix = 'g33k_thankyoulike_';	
+	$prefix = 'g33k_thankyoulike_';
 	$lang->load("thankyoulike");
 
 	$display_forum  = ($mybb->settings[$prefix.'display_tyl_counter_forumdisplay'] == "1" && THIS_SCRIPT == "forumdisplay.php");
@@ -2764,16 +2764,6 @@ function thankyoulike_memprofile()
 					$parser = new postParser;
 				}
 
-				$parser_options = array(
-					"allow_html" => (int)$mybb->settings[$prefix.'profile_box_post_allowhtml'],
-					"allow_mycode" => (int)$mybb->settings[$prefix.'profile_box_post_allowmycode'],
-					"allow_smilies" => (int)$mybb->settings[$prefix.'profile_box_post_allowsmilies'],
-					"allow_imgcode" => (int)$mybb->settings[$prefix.'profile_box_post_allowimgcode'],
-					"allow_videocode" => (int)$mybb->settings[$prefix.'profile_box_post_allowvideocode'],
-					"nofollow_on" => 1,
-					"filter_badwords" => 1
-				);
-
 				$postlink = get_post_link($post['pid'], $post['tid'])."#pid".$post['pid'];
 
 				$thread = get_thread($post['tid']);
@@ -2814,22 +2804,41 @@ function thankyoulike_memprofile()
 
 				$memprofile['tyldatetime'] = my_date('relative', $post['dateline']);
 
-				$cut_post_off = ($mybb->settings[$prefix.'profile_box_post_cutoff'] > 0 && my_strlen($post['message']) > $mybb->settings[$prefix.'profile_box_post_cutoff']);
-				if($cut_post_off)
+				$parser_options = array(
+					"allow_html" => (int)$mybb->settings[$prefix.'profile_box_post_allowhtml'],
+					"allow_mycode" => (int)$mybb->settings[$prefix.'profile_box_post_allowmycode'],
+					"allow_smilies" => (int)$mybb->settings[$prefix.'profile_box_post_allowsmilies'],
+					"allow_imgcode" => (int)$mybb->settings[$prefix.'profile_box_post_allowimgcode'],
+					"allow_videocode" => (int)$mybb->settings[$prefix.'profile_box_post_allowvideocode'],
+					"nofollow_on" => 1,
+					"filter_badwords" => 1
+				);
+				$post['message'] = strip_tags($parser->text_parse_message($post['message'], $parser_options));
+
+				$cut_post_off = NULL;
+
+				if($mybb->settings[$prefix.'profile_box_post_cutoff'] > 0)
 				{
-					if($mybb->settings[$prefix.'profile_box_post_cutoff'] < 4)
-					{
-						$mybb->settings[$prefix.'profile_box_post_cutoff'] = 4;
-					}
-					$post['message'] = my_substr($post['message'], 0, $mybb->settings[$prefix.'profile_box_post_cutoff']-3, 0)."...";
-				}
-				$memprofile['tylmessage'] = $parser->parse_message($post['message'], $parser_options);
-				if ($cut_post_off)
-				{
-					eval("\$memprofile['tylmessage'] .= \"".$templates->get("thankyoulike_member_profile_box_continue_reading")."\";");
+					$cut_post_off = (int)$mybb->settings[$prefix.'profile_box_post_cutoff'];
 				}
 
-				$thread['subject'] = htmlspecialchars_uni($thread['subject']); 
+				if (isset($cut_post_off) && $cut_post_off < 4)
+				{
+					$cut_post_off = 4;
+				}
+
+				if(isset($cut_post_off) && my_strlen($post['message']) > $cut_post_off)
+				{
+					$cut_post_off = $cut_post_off - 3;
+					$memprofile['tylmessage'] = my_substr($post['message'], 0, $cut_post_off)."...";
+					eval("\$memprofile['tylmessage'] .= \"".$templates->get("thankyoulike_member_profile_box_continue_reading")."\";");
+				}
+				else
+				{
+					$memprofile['tylmessage'] = $post['message'];
+				}
+
+				$thread['subject'] = htmlspecialchars_uni($thread['subject']);
 				$memprofile['tylthreadname'] = "<a href=\"{$threadlink}\"><span>{$parser->parse_badwords($thread['subject'])}</span></a>";
 				$memprofile['tylforums'] = $forum_links;
 
