@@ -101,7 +101,7 @@ function thankyoulike_info()
 
 	$info_desc = '';
 
-	if(is_array($plugins_cache) && is_array($plugins_cache['active']) && $plugins_cache['active'][$codename])
+	if(is_array($plugins_cache) && is_array($plugins_cache['active']) && isset($plugins_cache['active'][$codename]))
 	{
 		$msg = "<a href=\"".htmlspecialchars_uni($changelog_url)."\">".$lang->tyl_view_changelog."</a>";
 		if(!empty($admin_session['data']['tyl_plugin_info_upgrade_message']))
@@ -1208,6 +1208,10 @@ function tyl_get_installed_version()
 	global $db;
 	$prefix = 'g33k_thankyoulike_';
 
+	$options = array(
+			"limit" => 1
+	);
+
 	$query = $db->simple_select($prefix."stats", "*", "title='version'", $options);
 	$version = $db->fetch_array($query);
 	if ($version)
@@ -2049,6 +2053,8 @@ function tyl_build_post_likers_display(&$post, $tyls, $tyled, $count) {
 
 	$prefix = 'g33k_thankyoulike_';
 
+	$unapproved_shade = '';
+
 	// Are we using thanks or like? Setup titles
 	if($count == 1)
 	{
@@ -2137,6 +2143,8 @@ function tyl_build_post_likers_display(&$post, $tyls, $tyled, $count) {
 
 	$forbidden_due_to_first_thread_post_restriction = tyl_is_forbidden_due_to_first_thread_post_restriction($post['fid'], $thread, $post['pid']);
 	$is_member_of_hidden_group = (is_member($mybb->settings[$prefix.'hidelistforgroups']) || $mybb->settings[$prefix.'hidelistforgroups'] == "-1");
+
+	$post['thankyoulike'] = "";
 	if($count>0 && !$forbidden_due_to_first_thread_post_restriction && !$is_member_of_hidden_group)
 	{
 		// We have thanks/likes to show
@@ -2167,6 +2175,8 @@ function thankyoulike_postbit(&$post)
 	$prefix = 'g33k_thankyoulike_';
 
 	$lang->load("thankyoulike");
+
+	$unapproved_shade = '';
 
 	if ($mybb->settings[$prefix.'enabled'] == "1")
 	{
@@ -2204,6 +2214,10 @@ function thankyoulike_postbit(&$post)
 		}
 
 		if (!tyl_build_post_likers_display($post, $tyls, $tyled, $count)) {
+			$tyl_title_display = "";
+			$tyl_title_display_collapsed = "display: none;";
+			$tyl_data_display = "";
+			$tyl_expcol = "";
 			$lang->tyl_title = '';
 			$lang->tyl_title_collapsed = '';
 			$post['tyl_display'] = "display: none;";
@@ -3338,10 +3352,10 @@ function thankyoulike_delete_user()
 
 function thankyoulike_wol_activity($user_activity)
 {
-	global $user;
+	global $user, $location;
 
 	$split_loc = explode(".php", $user_activity['location']);
-	if($split_loc[0] == $user['location'])
+	if(isset($user['location']) && $split_loc[0] == $user['location'])
 	{
 		$filename = '';
 	}
