@@ -3827,8 +3827,12 @@ function tyl_limits_usergroup_permission()
 function tyl_limits_usergroup_permission_commit()
 {
 	global $db, $mybb, $updated_group;
-	$updated_group['tyl_limits_max'] = $db->escape_string((int)$mybb->input['tyl_limits_max']);
-	$updated_group['tyl_flood_interval'] = $db->escape_string((int)$mybb->input['tyl_flood_interval']);
+	if (isset($mybb->input['tyl_limits_max'])) {
+		$updated_group['tyl_limits_max'] = $db->escape_string((int)$mybb->input['tyl_limits_max']);
+	}
+	if (isset($mybb->input['tyl_flood_interval'])) {
+		$updated_group['tyl_flood_interval'] = $db->escape_string((int)$mybb->input['tyl_flood_interval']);
+	}
 }
 
 function tyl_preinstall_cleanup($for_upgrade = false)
