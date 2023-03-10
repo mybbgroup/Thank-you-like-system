@@ -141,13 +141,13 @@ function thankyoulike_info()
 			}
 		}
 
-		if($mybb->settings[$prefix.'nofindreplacetemplatesetsonactivationchange'] == 1)
+		if($mybb->settings[$prefix.'disablecoretplchanges'] == 1)
 		{
-			$info_desc .= '<ul><li style="font-weight: bold; list-style-image: url(styles/default/images/icons/warning.png)"><span style="color: red;">'.$lang->tyl_info_desc_findreplacetemplatesetsonactivationchange_disabled.'</span></li></ul>';
+			$info_desc .= '<ul><li style="font-weight: bold; list-style-image: url(styles/default/images/icons/warning.png)"><span style="color: red;">'.$lang->tyl_info_desc_coretplchanges_disabled.'</span></li></ul>';
 		}
 		else
 		{
-			$info_desc .= '<ul><li style="font-weight: bold; list-style-image: url(styles/default/images/icons/success.png)"><span style="color: green;">'.$lang->tyl_info_desc_findreplacetemplatesetsonactivationchange_enabled.'</span></li></ul>';
+			$info_desc .= '<ul><li style="font-weight: bold; list-style-image: url(styles/default/images/icons/success.png)"><span style="color: green;">'.$lang->tyl_info_desc_coretplchanges_enabled.'</span></li></ul>';
 		}
 
 		$missing_indexes = '';
@@ -345,9 +345,9 @@ function tyl_create_settings($existing_setting_values = array())
 			'optionscode' => 'onoff',
 			'value'       => '1'
 		),
-		'nofindreplacetemplatesetsonactivationchange' => array(
-			'title'       => $lang->tyl_nofindrepltplsets_title,
-			'description' => $lang->tyl_nofindrepltplsets_desc,
+		'disablecoretplchanges' => array(
+			'title'       => $lang->tyl_disablecoretplchanges_title,
+			'description' => $lang->tyl_disablecoretplchanges_desc,
 			'optionscode' => 'yesno',
 			'value'       => '0'
 		),
@@ -1336,7 +1336,7 @@ function thankyoulike_activate()
 		tyl_create_stylesheet();
 	}
 
-	if($mybb->settings[$prefix.'nofindreplacetemplatesetsonactivationchange'] != 1)
+	if($mybb->settings[$prefix.'disablecoretplchanges'] != 1)
 	{
 		require_once MYBB_ROOT."/inc/adminfunctions_templates.php";
 
@@ -1379,7 +1379,7 @@ function thankyoulike_deactivate()
 
 	require_once MYBB_ROOT."/inc/adminfunctions_templates.php";
 
-	if($mybb->settings[$prefix.'nofindreplacetemplatesetsonactivationchange'] != 1)
+	if($mybb->settings[$prefix.'disablecoretplchanges'] != 1)
 	{
 		find_replace_templatesets("showthread", "#".preg_quote('<script type="text/javascript" src="{$mybb->settings[\'bburl\']}/jscripts/thankyoulike.min.js').'(\\?ver=\\d+)?'.preg_quote('"></script>
 <script type="text/javascript">

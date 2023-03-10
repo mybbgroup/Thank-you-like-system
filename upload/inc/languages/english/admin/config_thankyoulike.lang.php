@@ -20,8 +20,8 @@ $l['tyl_alerts_integration_success_msg'] = 'The Thank You/Like System was succes
 $l['tyl_alerts_integration_failure_msg'] = 'Failed to integrate the Thank You/Like System with MyAlerts. Is MyAlerts version 2.0.0 or above installed and activated? If so, is it already integrated with the Thank You/Like System?';
 $l['tyl_info_desc_alerts_registeralerttype'] = "Register a new alert type into MyAlerts";
 $l['tyl_myalerts_version_under_2_0_4'] = "Your MyAlerts version ({1}) is less than the required version (2.0.4) for full support: until you upgrade MyAlerts, alerts of thanks/likes for a post will incorrectly <em>always</em> show <em>all</em> thanks/likes as \"new\".";
-$l['tyl_info_desc_findreplacetemplatesetsonactivationchange_disabled'] = "Changes to MyBB core templates on (de)activation are disabled";
-$l['tyl_info_desc_findreplacetemplatesetsonactivationchange_enabled'] = "Changes to MyBB core templates on (de)activation are enabled";
+$l['tyl_info_desc_coretplchanges_disabled'] = "Changes to MyBB core templates on (de)activation are disabled";
+$l['tyl_info_desc_coretplchanges_enabled'] = "Changes to MyBB core templates on (de)activation are enabled";
 
 $l['tyl_title'] = "Thank You/Like System";
 $l['tyl_desc'] = "Settings to customize the Thank You/Like System plugin.";
@@ -29,8 +29,8 @@ $l['tyl_desc'] = "Settings to customize the Thank You/Like System plugin.";
 $l['tyl_enabled_title'] = "Enable/Disable";
 $l['tyl_enabled_desc'] = "Enable/Disable the Thank You/Like System.";
 
-$l['tyl_nofindrepltplsets_title'] = "Disable core template changes on (de)activation";
-$l['tyl_nofindrepltplsets_desc'] = "Do you want to suppress the changes this plugin usually makes to MyBB core templates (such as `postbit`) when it is activated or deactivated? Choosing 'Yes' is useful when you have customised the changes this plugin has made to those templates and don't want the plugin to interfere with those customisations when you upgrade it by deactivating and then reactivating it. Warning: you will then need to manually implement any new changes that an upgraded version of the plugin makes to those templates.";
+$l['tyl_disablecoretplchanges_title'] = "Disable core template changes on (de)activation";
+$l['tyl_disablecoretplchanges_desc'] = "Do you want to suppress the changes this plugin usually makes to MyBB core templates (such as `postbit`) upon its being activated or deactivated? Choosing 'Yes' is useful when you have customised the changes this plugin has made to those templates and don't want the plugin to interfere with those customisations when you upgrade it by deactivating and then reactivating it. Warning: you will then need to manually implement any new changes that an upgraded version of the plugin makes to those templates.";
 
 $l['tyl_thankslike_title'] = "Thank you or like";
 $l['tyl_thankslike_desc'] = "Choose whether you want to use the thank you system or the like system (affects only wordings; does not affect functionality).";
