@@ -63,6 +63,8 @@ else
 	$plugins->add_hook("class_moderation_delete_thread_start","thankyoulike_delete_thread");
 	$plugins->add_hook("class_moderation_delete_post_start","thankyoulike_delete_post");
 	$plugins->add_hook("class_moderation_merge_posts","thankyoulike_merge_posts");
+	$plugins->add_hook("class_moderation_merge_threads","thankyoulike_merge_threads");
+	$plugins->add_hook("class_moderation_split_posts","thankyoulike_split_posts");
 	$plugins->add_hook('task_promotions', 'thankyoulike_promotion_task');
 	$plugins->add_hook("myalerts_alert_manager_mark_read", "tyl_myalerts_alert_manager_mark_read");
 }
@@ -602,6 +604,12 @@ function tyl_check_update_db_table_and_cols($from_version = false)
 	if(!$db->field_exists('tyl_last_alerted_tyl_id', 'posts'))
 	{
 		$db->query("ALTER TABLE ".TABLE_PREFIX."posts ADD `tyl_last_alerted_tyl_id` int unsigned NOT NULL default '0'");
+	}
+
+	if(!$db->field_exists('tyl_tnumtyls', 'threads'))
+	{
+		$db->query("ALTER TABLE ".TABLE_PREFIX."threads ADD `tyl_tnumtyls` int(100) NOT NULL default '0'");
+		$db->write_query('UPDATE '.TABLE_PREFIX.'threads t SET tyl_tnumtyls = IFNULL((SELECT SUM(tyl_pnumtyls) FROM '.TABLE_PREFIX.'posts p WHERE p.tid = t.tid), 0)');
 	}
 
 	if(!$db->field_exists('tyl_unumtyls', 'users'))
@@ -1551,7 +1559,6 @@ function thankyoulike_uninstall()
 		{
 			$db->query("ALTER TABLE ".TABLE_PREFIX."posts DROP column `tyl_pnumtyls`");
 		}
-		// Was dropped in 3.1.0; will not be present for that version and later.
 		if($db->field_exists('tyl_tnumtyls', 'threads'))
 		{
 			$db->query("ALTER TABLE ".TABLE_PREFIX."threads DROP column `tyl_tnumtyls`");
@@ -3070,64 +3077,67 @@ function thankyoulike_delete_thread($tid)
 
 	$thread = get_thread($tid);
 
-	// Find all tyl data for this tid
-	$query = $db->query("
-		SELECT tyl.*
-		FROM ".TABLE_PREFIX.$prefix."thankyoulike tyl
-		LEFT JOIN ".TABLE_PREFIX."posts p ON (p.pid=tyl.pid)
-		WHERE p.tid='{$tid}'
-	");
-	$tlids = array();
-	$user_tyls = array();
-	$user_prcvtyls = array();
-	while($tyl_post = $db->fetch_array($query))
+	// Only delete if there are any tyls
+	if(!empty($thread) && $thread['tyl_tnumtyls'] != 0)
 	{
-		$tlids[] = $tyl_post['tlid'];
+		// Find all tyl data for this tid
+		$query = $db->query("
+			SELECT tyl.*
+			FROM ".TABLE_PREFIX.$prefix."thankyoulike tyl
+			LEFT JOIN ".TABLE_PREFIX."posts p ON (p.pid=tyl.pid)
+			WHERE p.tid='{$tid}'
+		");
+		$tlids = array();
+		$user_tyls = array();
+		$user_prcvtyls = array();
+		while($tyl_post = $db->fetch_array($query))
+		{
+			$tlids[] = $tyl_post['tlid'];
 
-		// Count # of posts and # of thanks received for every post to be subtracted
-		if($user_prcvtyls[$tyl_post['puid']][$tyl_post['pid']])
-		{
-			$user_prcvtyls[$tyl_post['puid']][$tyl_post['pid']]--;
-		}
-		else
-		{
-			$user_prcvtyls[$tyl_post['puid']][$tyl_post['pid']] = -1;
-		}
+			// Count # of posts and # of thanks received for every post to be subtracted
+			if($user_prcvtyls[$tyl_post['puid']][$tyl_post['pid']])
+			{
+				$user_prcvtyls[$tyl_post['puid']][$tyl_post['pid']]--;
+			}
+			else
+			{
+				$user_prcvtyls[$tyl_post['puid']][$tyl_post['pid']] = -1;
+			}
 
-		// Count the tyl counts for each user to be subtracted
-		if($user_tyls[$tyl_post['uid']])
-		{
-			$user_tyls[$tyl_post['uid']]--;
+			// Count the tyl counts for each user to be subtracted
+			if($user_tyls[$tyl_post['uid']])
+			{
+				$user_tyls[$tyl_post['uid']]--;
+			}
+			else
+			{
+				$user_tyls[$tyl_post['uid']] = -1;
+			}
 		}
-		else
+		// Remove tyl count from users
+		foreach($user_tyls as $uid => $subtract)
 		{
-			$user_tyls[$tyl_post['uid']] = -1;
+			$db->write_query("UPDATE ".TABLE_PREFIX."users SET tyl_unumtyls=tyl_unumtyls$subtract WHERE uid='$uid'");
 		}
-	}
-	// Remove tyl count from users
-	foreach($user_tyls as $uid => $subtract)
-	{
-		$db->write_query("UPDATE ".TABLE_PREFIX."users SET tyl_unumtyls=tyl_unumtyls$subtract WHERE uid='$uid'");
-	}
-	foreach($user_prcvtyls as $puid => $value)
-	{
-		$rcv = 0;
-		$prcv = count($value);
-		foreach($value as $ppid => $value1)
+		foreach($user_prcvtyls as $puid => $value)
 		{
-			$rcv = $rcv + $value1;
+			$rcv = 0;
+			$prcv = count($value);
+			foreach($value as $ppid => $value1)
+			{
+				$rcv = $rcv + $value1;
+			}
+			$db->write_query("UPDATE ".TABLE_PREFIX."users SET tyl_unumptyls=tyl_unumptyls-$prcv WHERE uid='$puid'");
+			$db->write_query("UPDATE ".TABLE_PREFIX."users SET tyl_unumrcvtyls=tyl_unumrcvtyls$rcv WHERE uid='$puid'");
 		}
-		$db->write_query("UPDATE ".TABLE_PREFIX."users SET tyl_unumptyls=tyl_unumptyls-$prcv WHERE uid='$puid'");
-		$db->write_query("UPDATE ".TABLE_PREFIX."users SET tyl_unumrcvtyls=tyl_unumrcvtyls$rcv WHERE uid='$puid'");
-	}
-
-	// Delete the tyls
-	if($tlids)
-	{
-		$tlids_count = count($tlids);
-		$tlids = implode(',', $tlids);
-		$db->write_query("UPDATE ".TABLE_PREFIX.$prefix."stats SET value=value-$tlids_count WHERE title='total'");
-		$db->delete_query($prefix."thankyoulike", "tlid IN ($tlids)");
+		// Delete the tyls
+		if($tlids)
+		{
+			$tlids_count = count($tlids);
+			$tlids = implode(',', $tlids);
+			$db->write_query("UPDATE ".TABLE_PREFIX.$prefix."stats SET value=value-$tlids_count WHERE title='total'");
+			$db->delete_query($prefix."thankyoulike", "tlid IN ($tlids)");
+		}
 	}
 }
 
@@ -3174,6 +3184,8 @@ function thankyoulike_delete_post($pid)
 				$db->write_query("UPDATE ".TABLE_PREFIX."users SET tyl_unumtyls=tyl_unumtyls$subtract WHERE uid='$uid'");
 			}
 		}
+		// Remove tyl count from the thread and user's tyl received
+		$db->write_query("UPDATE ".TABLE_PREFIX."threads SET tyl_tnumtyls=tyl_tnumtyls-".$post['tyl_pnumtyls']." WHERE tid='".$post['tid']."'");
 		// Delete the tyls
 		if($tlids)
 		{
@@ -3285,9 +3297,56 @@ function thankyoulike_merge_posts($args)
 	{
 		$tlids_count = count($tlids_remove);
 		$tlids_remove = implode(',', $tlids_remove);
+		$db->write_query("UPDATE ".TABLE_PREFIX."threads SET tyl_tnumtyls=tyl_tnumtyls-$tlids_count WHERE tid='$tid'");
 		$db->write_query("UPDATE ".TABLE_PREFIX.$prefix."stats SET value=value-$tlids_count WHERE title='total'");
 		// Delete the tyls
 		$db->delete_query($prefix."thankyoulike", "tlid IN ($tlids_remove)");
+	}
+}
+
+function thankyoulike_merge_threads($args)
+{
+	global $db;
+
+	$mergetid = $args['mergetid'];
+	$tid = $args['tid'];
+
+	// Get the tyl num from old thread
+	$query = $db->simple_select("threads", "tyl_tnumtyls", "tid='$mergetid'");
+	$merge_tyltnum = $db->fetch_field($query, "tyl_tnumtyls");
+
+	// Add tyl count from old thread to new one
+	if ($merge_tyltnum != 0)
+	{
+		$db->write_query("UPDATE ".TABLE_PREFIX."threads SET tyl_tnumtyls=tyl_tnumtyls+$merge_tyltnum WHERE tid='$tid'");
+	}
+}
+
+function thankyoulike_split_posts($args)
+{
+	global $db;
+
+	$pids = $args['pids'];
+	$tid = $args['tid'];
+
+	$pids_list = implode(',', $pids);
+
+	// Get tyl count for each post
+	$query = $db->simple_select("posts", "tid, tyl_pnumtyls", "pid IN ($pids_list)");
+	$tyl_pnumtyls = 0;
+	$newtid = 0;
+	while ($tyl_pnum = $db->fetch_array($query))
+	{
+		$tyl_pnumtyls = $tyl_pnumtyls + $tyl_pnum['tyl_pnumtyls'];
+		$newtid = $tyl_pnum['tid'];
+	}
+
+	if ($tyl_pnumtyls != 0)
+	{
+		// Add it to new thread
+		$db->write_query("UPDATE ".TABLE_PREFIX."threads SET tyl_tnumtyls=tyl_tnumtyls+$tyl_pnumtyls WHERE tid='$newtid'");
+		// Remove from old thread
+		$db->write_query("UPDATE ".TABLE_PREFIX."threads SET tyl_tnumtyls=tyl_tnumtyls-$tyl_pnumtyls WHERE tid='$tid'");
 	}
 }
 
@@ -3308,6 +3367,7 @@ function thankyoulike_delete_user()
 		");
 		$tlids = array();
 		$post_tyls = array();
+		$thread_tyls = array();
 		$user_tyls = array();
 		while($tyl_user = $db->fetch_array($query))
 		{
@@ -3321,6 +3381,15 @@ function thankyoulike_delete_user()
 			else
 			{
 				$post_tyls[$tyl_user['pid']] = -1;
+			}
+			// Same for threads
+			if($thread_tyls[$tyl_user['tid']])
+			{
+				$thread_tyls[$tyl_user['tid']]--;
+			}
+			else
+			{
+				$thread_tyls[$tyl_user['tid']] = -1;
 			}
 			// Count tyls received by this user to be removed
 			if($user_tyls[$tyl_user['puid']])
@@ -3338,6 +3407,14 @@ function thankyoulike_delete_user()
 			foreach($post_tyls as $pid => $subtract)
 			{
 				$db->write_query("UPDATE ".TABLE_PREFIX."posts SET tyl_pnumtyls=tyl_pnumtyls$subtract WHERE pid='$pid'");
+			}
+		}
+		// Remove tyl count from threads
+		if(is_array($thread_tyls))
+		{
+			foreach($thread_tyls as $tid => $subtract)
+			{
+				$db->write_query("UPDATE ".TABLE_PREFIX."threads SET tyl_tnumtyls=tyl_tnumtyls$subtract WHERE tid='$tid'");
 			}
 		}
 		// Remove tyl received count from users
@@ -3590,6 +3667,7 @@ function acp_tyl_do_recounting()
 			{
 				$db->write_query("UPDATE ".TABLE_PREFIX.$prefix."stats SET value=0 WHERE title='total'");
 				$db->write_query("UPDATE ".TABLE_PREFIX."posts SET tyl_pnumtyls=0");
+				$db->write_query("UPDATE ".TABLE_PREFIX."threads SET tyl_tnumtyls=0");
 				$db->write_query("UPDATE ".TABLE_PREFIX."users SET tyl_unumtyls=0, tyl_unumptyls=0, tyl_unumrcvtyls=0");
 
 				$query = $db->query("
@@ -3640,6 +3718,7 @@ function acp_tyl_do_recounting()
 				");
 			$tlids = array();
 			$post_tyls = array();
+			$thread_tyls = array();
 			$user_tyls = array();
 			$user_rcvtyls = array();
 			while($tyl = $db->fetch_array($query2))
@@ -3654,6 +3733,14 @@ function acp_tyl_do_recounting()
 				else
 				{
 					$post_tyls[$tyl['pid']] = 1;
+				}
+				if($thread_tyls[$tyl['tid']])
+				{
+					$thread_tyls[$tyl['tid']]++;
+				}
+				else
+				{
+					$thread_tyls[$tyl['tid']] = 1;
 				}
 				if(!tyl_in_forums($tyl['fid'], $mybb->settings[$prefix.'exclude_count']))
 				{
@@ -3681,6 +3768,13 @@ function acp_tyl_do_recounting()
 				foreach($post_tyls as $pid => $add)
 				{
 					$db->write_query("UPDATE ".TABLE_PREFIX."posts SET tyl_pnumtyls=tyl_pnumtyls+$add WHERE pid='$pid'");
+				}
+			}
+			if(is_array($thread_tyls))
+			{
+				foreach($thread_tyls as $tid => $add)
+				{
+					$db->write_query("UPDATE ".TABLE_PREFIX."threads SET tyl_tnumtyls=tyl_tnumtyls+$add WHERE tid='$tid'");
 				}
 			}
 			if(is_array($user_tyls))
@@ -3850,13 +3944,6 @@ function tyl_preinstall_cleanup($for_upgrade = false)
 	{
 		@unlink(MYBB_ROOT."/inc/languages/english/admin/tools_thankyoulike_recount.lang.php");
 	}
-
-	// This column was dropped in 3.1.0
-	if($db->field_exists('tyl_tnumtyls', 'threads'))
-	{
-		$db->query("ALTER TABLE ".TABLE_PREFIX."threads DROP column `tyl_tnumtyls`");
-	}
-
 
 	// Remove old templates, except, when we are upgrading, for user-modified templates.
 	$and_where = ($for_upgrade ? ' AND sid=-2' : '');
