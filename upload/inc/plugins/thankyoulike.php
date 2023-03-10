@@ -71,7 +71,7 @@ else
 
 function thankyoulike_info()
 {
-	global $plugins_cache, $db, $lang, $admin_session;
+	global $mybb, $plugins_cache, $db, $lang, $admin_session;
 	$lang->load('config_thankyoulike');
 	$prefix = 'g33k_thankyoulike_';
 	$codename = 'thankyoulike';
@@ -139,6 +139,15 @@ function thankyoulike_info()
 			{
 				$info_desc .= '<ul><li style="list-style-image: url(styles/default/images/icons/warning.png)"><span style="color: red;">'.$lang->sprintf($lang->tyl_myalerts_version_under_2_0_4, $myalerts_info['version']).'</span></li></ul>';
 			}
+		}
+
+		if($mybb->settings[$prefix.'nofindreplacetemplatesetsonactivationchange'] == 1)
+		{
+			$info_desc .= '<ul><li style="font-weight: bold; list-style-image: url(styles/default/images/icons/warning.png)"><span style="color: red;">'.$lang->tyl_info_desc_findreplacetemplatesetsonactivationchange_disabled.'</span></li></ul>';
+		}
+		else
+		{
+			$info_desc .= '<ul><li style="font-weight: bold; list-style-image: url(styles/default/images/icons/success.png)"><span style="color: green;">'.$lang->tyl_info_desc_findreplacetemplatesetsonactivationchange_enabled.'</span></li></ul>';
 		}
 
 		$missing_indexes = '';
@@ -335,6 +344,12 @@ function tyl_create_settings($existing_setting_values = array())
 			'description' => $lang->tyl_enabled_desc,
 			'optionscode' => 'onoff',
 			'value'       => '1'
+		),
+		'nofindreplacetemplatesetsonactivationchange' => array(
+			'title'       => $lang->tyl_nofindrepltplsets_title,
+			'description' => $lang->tyl_nofindrepltplsets_desc,
+			'optionscode' => 'yesno',
+			'value'       => '0'
 		),
 		'thankslike'                      => array(
 			'title'       => $lang->tyl_thankslike_title,
@@ -1291,7 +1306,8 @@ function tyl_upgrade($from_version)
 
 function thankyoulike_activate()
 {
-	global $db, $lang, $tyl_plugin_upgrade_message;
+	global $mybb, $db, $lang, $tyl_plugin_upgrade_message;
+	$prefix = 'g33k_thankyoulike_';
 
 	$info = thankyoulike_info();
 	$from_version = tyl_get_installed_version();
@@ -1320,9 +1336,11 @@ function thankyoulike_activate()
 		tyl_create_stylesheet();
 	}
 
-	require_once MYBB_ROOT."/inc/adminfunctions_templates.php";
+	if($mybb->settings[$prefix.'nofindreplacetemplatesetsonactivationchange'] != 1)
+	{
+		require_once MYBB_ROOT."/inc/adminfunctions_templates.php";
 
-	find_replace_templatesets("showthread", "#".preg_quote('</head>')."#i", '<script type="text/javascript" src="{$mybb->settings[\'bburl\']}/jscripts/thankyoulike.min.js?ver=30309"></script>
+		find_replace_templatesets("showthread", "#".preg_quote('</head>')."#i", '<script type="text/javascript" src="{$mybb->settings[\'bburl\']}/jscripts/thankyoulike.min.js?ver=30309"></script>
 <script type="text/javascript">
 <!--
 	var tylEnabled = "{$mybb->settings[\'g33k_thankyoulike_enabled\']}";
@@ -1336,18 +1354,19 @@ function thankyoulike_activate()
 </script>
 </head>');
 
-	find_replace_templatesets("postbit","#".preg_quote('<div class="post_content">')."#i","<div class=\"post_content{\$post['styleclass']}\">");
-	find_replace_templatesets("postbit_classic","#".preg_quote('<div class="post_content">')."#i","<div class=\"post_content{\$post['styleclass']}\">");
-	find_replace_templatesets("postbit_classic","#".preg_quote('<div class="post_controls">')."#i","<div style=\"{\$post['tyl_display']}\" id=\"tyl_{\$post['pid']}\">{\$post['thankyoulike_data']}</div>\n<div class=\"post_controls\">");
-	find_replace_templatesets("postbit","#".preg_quote('<div class="post_controls">')."#i","<div style=\"{\$post['tyl_display']}\" id=\"tyl_{\$post['pid']}\">{\$post['thankyoulike_data']}</div>\n<div class=\"post_controls\">");
-	find_replace_templatesets("postbit", "#".preg_quote('{$post[\'button_edit\']}')."#i", '{$post[\'button_tyl\']}{$post[\'button_edit\']}');
-	find_replace_templatesets("postbit_classic", "#".preg_quote('{$post[\'button_edit\']}')."#i", '{$post[\'button_tyl\']}{$post[\'button_edit\']}');
-	find_replace_templatesets("postbit_author_user", "#".preg_quote('{$lang->postbit_threads} {$post[\'threadnum\']}<br />')."#i", '{$lang->postbit_threads} {$post[\'threadnum\']}<br />
-	%%TYL_NUMTHANKEDLIKED%%<br />');
-	find_replace_templatesets("member_profile", '#{\$reputation}(\r?)\n#', "{\$tyl_memprofile}\n\t\t\t\t{\$reputation}\n");
-	find_replace_templatesets("member_profile", '#{\$modoptions}(\r?)\n#', "{\$tyl_profile_box}\n\t\t\t{\$tyl_profile_stats}\n\t\t\t{\$modoptions}\n");
-	find_replace_templatesets("forumdisplay_thread","#".preg_quote('{$attachment_count}')."#i","{\$tyl_forumdisplay_thread_var}{\$attachment_count}");
-	find_replace_templatesets("search_results_threads_thread","#".preg_quote('{$attachment_count}')."#i","{\$tyl_search_page_var}{\$attachment_count}");
+		find_replace_templatesets("postbit","#".preg_quote('<div class="post_content">')."#i","<div class=\"post_content{\$post['styleclass']}\">");
+		find_replace_templatesets("postbit_classic","#".preg_quote('<div class="post_content">')."#i","<div class=\"post_content{\$post['styleclass']}\">");
+		find_replace_templatesets("postbit_classic","#".preg_quote('<div class="post_controls">')."#i","<div style=\"{\$post['tyl_display']}\" id=\"tyl_{\$post['pid']}\">{\$post['thankyoulike_data']}</div>\n<div class=\"post_controls\">");
+		find_replace_templatesets("postbit","#".preg_quote('<div class="post_controls">')."#i","<div style=\"{\$post['tyl_display']}\" id=\"tyl_{\$post['pid']}\">{\$post['thankyoulike_data']}</div>\n<div class=\"post_controls\">");
+		find_replace_templatesets("postbit", "#".preg_quote('{$post[\'button_edit\']}')."#i", '{$post[\'button_tyl\']}{$post[\'button_edit\']}');
+		find_replace_templatesets("postbit_classic", "#".preg_quote('{$post[\'button_edit\']}')."#i", '{$post[\'button_tyl\']}{$post[\'button_edit\']}');
+		find_replace_templatesets("postbit_author_user", "#".preg_quote('{$lang->postbit_threads} {$post[\'threadnum\']}<br />')."#i", '{$lang->postbit_threads} {$post[\'threadnum\']}<br />
+		%%TYL_NUMTHANKEDLIKED%%<br />');
+		find_replace_templatesets("member_profile", '#{\$reputation}(\r?)\n#', "{\$tyl_memprofile}\n\t\t\t\t{\$reputation}\n");
+		find_replace_templatesets("member_profile", '#{\$modoptions}(\r?)\n#', "{\$tyl_profile_box}\n\t\t\t{\$tyl_profile_stats}\n\t\t\t{\$modoptions}\n");
+		find_replace_templatesets("forumdisplay_thread","#".preg_quote('{$attachment_count}')."#i","{\$tyl_forumdisplay_thread_var}{\$attachment_count}");
+		find_replace_templatesets("search_results_threads_thread","#".preg_quote('{$attachment_count}')."#i","{\$tyl_search_page_var}{\$attachment_count}");
+	}
 
 	// Enable the tyl alert type if necessary.
 	tyl_myalerts_set_enabled(1);
@@ -1355,9 +1374,14 @@ function thankyoulike_activate()
 
 function thankyoulike_deactivate()
 {
+	global $mybb;
+	$prefix = 'g33k_thankyoulike_';
+
 	require_once MYBB_ROOT."/inc/adminfunctions_templates.php";
 
-	find_replace_templatesets("showthread", "#".preg_quote('<script type="text/javascript" src="{$mybb->settings[\'bburl\']}/jscripts/thankyoulike.min.js').'(\\?ver=\\d+)?'.preg_quote('"></script>
+	if($mybb->settings[$prefix.'nofindreplacetemplatesetsonactivationchange'] != 1)
+	{
+		find_replace_templatesets("showthread", "#".preg_quote('<script type="text/javascript" src="{$mybb->settings[\'bburl\']}/jscripts/thankyoulike.min.js').'(\\?ver=\\d+)?'.preg_quote('"></script>
 <script type="text/javascript">
 <!--
 	var tylEnabled = "{$mybb->settings[\'g33k_thankyoulike_enabled\']}";
@@ -1371,19 +1395,20 @@ function thankyoulike_deactivate()
 </script>
 ')."#i", '', 0);
 
-	find_replace_templatesets("postbit", "#".preg_quote('{$post[\'styleclass\']}')."#i", '', 0);
-	find_replace_templatesets("postbit_classic", "#".preg_quote('{$post[\'styleclass\']}')."#i", '', 0);
-	find_replace_templatesets("postbit", "#".preg_quote('<div style="{$post[\'tyl_display\']}" id="tyl_{$post[\'pid\']}">{$post[\'thankyoulike_data\']}</div>')."(\r?)\n#", '', 0);
-	find_replace_templatesets("postbit_classic", "#".preg_quote('<div style="{$post[\'tyl_display\']}" id="tyl_{$post[\'pid\']}">{$post[\'thankyoulike_data\']}</div>')."(\r?)\n#", '', 0);
-	find_replace_templatesets("postbit", "#".preg_quote('{$post[\'button_tyl\']}')."#i", '', 0);
-	find_replace_templatesets("postbit_classic", "#".preg_quote('{$post[\'button_tyl\']}')."#i", '', 0);
-	find_replace_templatesets("postbit_author_user", "#".preg_quote('
-	%%TYL_NUMTHANKEDLIKED%%<br />')."#i", '', 0);
-	find_replace_templatesets("member_profile", '#(\t*)?{\$tyl_memprofile}(\r?)(\n?)#', "", 0);
-	find_replace_templatesets("member_profile", '#(\t*)?{\$tyl_profile_box}(\r?)(\n?)#', "", 0);
-	find_replace_templatesets("member_profile", '#(\t*)?{\$tyl_profile_stats}(\r?)(\n?)#', "", 0);
-	find_replace_templatesets("forumdisplay_thread", '#{\$tyl_forumdisplay_thread_var}#', "", 0);
-	find_replace_templatesets("search_results_threads_thread", '#{\$tyl_search_page_var}#', "", 0);
+		find_replace_templatesets("postbit", "#".preg_quote('{$post[\'styleclass\']}')."#i", '', 0);
+		find_replace_templatesets("postbit_classic", "#".preg_quote('{$post[\'styleclass\']}')."#i", '', 0);
+		find_replace_templatesets("postbit", "#".preg_quote('<div style="{$post[\'tyl_display\']}" id="tyl_{$post[\'pid\']}">{$post[\'thankyoulike_data\']}</div>')."(\r?)\n#", '', 0);
+		find_replace_templatesets("postbit_classic", "#".preg_quote('<div style="{$post[\'tyl_display\']}" id="tyl_{$post[\'pid\']}">{$post[\'thankyoulike_data\']}</div>')."(\r?)\n#", '', 0);
+		find_replace_templatesets("postbit", "#".preg_quote('{$post[\'button_tyl\']}')."#i", '', 0);
+		find_replace_templatesets("postbit_classic", "#".preg_quote('{$post[\'button_tyl\']}')."#i", '', 0);
+		find_replace_templatesets("postbit_author_user", "#".preg_quote('
+		%%TYL_NUMTHANKEDLIKED%%<br />')."#i", '', 0);
+		find_replace_templatesets("member_profile", '#(\t*)?{\$tyl_memprofile}(\r?)(\n?)#', "", 0);
+		find_replace_templatesets("member_profile", '#(\t*)?{\$tyl_profile_box}(\r?)(\n?)#', "", 0);
+		find_replace_templatesets("member_profile", '#(\t*)?{\$tyl_profile_stats}(\r?)(\n?)#', "", 0);
+		find_replace_templatesets("forumdisplay_thread", '#{\$tyl_forumdisplay_thread_var}#', "", 0);
+		find_replace_templatesets("search_results_threads_thread", '#{\$tyl_search_page_var}#', "", 0);
+	}
 
 	// Disable the tyl alert type if necessary.
 	tyl_myalerts_set_enabled(0);
