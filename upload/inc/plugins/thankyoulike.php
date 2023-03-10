@@ -230,28 +230,28 @@ function thankyoulike_admin_load()
 		admin_redirect('index.php?module=config-plugins');
 		break;
 	case 'tyl_create_index_uid_dateline';
-		$db->query("ALTER TABLE ".TABLE_PREFIX.$prefix."thankyoulike ADD KEY uid_dateline  (uid , dateline)");
+		$db->write_query("ALTER TABLE ".TABLE_PREFIX.$prefix."thankyoulike ADD KEY uid_dateline  (uid , dateline)");
 		$msg = $lang->sprintf($lang->tyl_success_index_create, 'uid_dateline', TABLE_PREFIX.$prefix.'thankyoulike');
 		$type = 'success';
 		flash_message($msg, $type);
 		admin_redirect('index.php?module=config-plugins');
 		break;
 	case 'tyl_create_index_puid_dateline';
-		$db->query("ALTER TABLE ".TABLE_PREFIX.$prefix."thankyoulike ADD KEY puid_dateline (puid, dateline)");
+		$db->write_query("ALTER TABLE ".TABLE_PREFIX.$prefix."thankyoulike ADD KEY puid_dateline (puid, dateline)");
 		$msg = $lang->sprintf($lang->tyl_success_index_create, 'puid_dateline', TABLE_PREFIX.$prefix.'thankyoulike');
 		$type = 'success';
 		flash_message($msg, $type);
 		admin_redirect('index.php?module=config-plugins');
 		break;
 	case 'tyl_create_index_puid_uid':
-		$db->query("ALTER TABLE ".TABLE_PREFIX.$prefix."thankyoulike ADD KEY puid_uid (puid, uid)");
+		$db->write_query("ALTER TABLE ".TABLE_PREFIX.$prefix."thankyoulike ADD KEY puid_uid (puid, uid)");
 		$msg = $lang->sprintf($lang->tyl_success_index_create, 'puid_uid', TABLE_PREFIX.$prefix.'thankyoulike');
 		$type = 'success';
 		flash_message($msg, $type);
 		admin_redirect('index.php?module=config-plugins');
 		break;
 	case 'tyl_create_index_puid_pid':
-		$db->query("ALTER TABLE ".TABLE_PREFIX.$prefix."thankyoulike ADD KEY puid_pid (puid, pid)");
+		$db->write_query("ALTER TABLE ".TABLE_PREFIX.$prefix."thankyoulike ADD KEY puid_pid (puid, pid)");
 		$msg = $lang->sprintf($lang->tyl_success_index_create, 'puid_pid', TABLE_PREFIX.$prefix.'thankyoulike');
 		$type = 'success';
 		flash_message($msg, $type);
@@ -614,42 +614,42 @@ function tyl_check_update_db_table_and_cols($from_version = false)
 
 	if(!$db->field_exists('tyl_pnumtyls', 'posts'))
 	{
-		$db->query("ALTER TABLE ".TABLE_PREFIX."posts ADD `tyl_pnumtyls` int(100) NOT NULL default '0'");
+		$db->write_query("ALTER TABLE ".TABLE_PREFIX."posts ADD `tyl_pnumtyls` int(100) NOT NULL default '0'");
 	}
 	if(!$db->field_exists('tyl_last_alerted_tyl_id', 'posts'))
 	{
-		$db->query("ALTER TABLE ".TABLE_PREFIX."posts ADD `tyl_last_alerted_tyl_id` int unsigned NOT NULL default '0'");
+		$db->write_query("ALTER TABLE ".TABLE_PREFIX."posts ADD `tyl_last_alerted_tyl_id` int unsigned NOT NULL default '0'");
 	}
 
 	if(!$db->field_exists('tyl_tnumtyls', 'threads'))
 	{
-		$db->query("ALTER TABLE ".TABLE_PREFIX."threads ADD `tyl_tnumtyls` int(100) NOT NULL default '0'");
+		$db->write_query("ALTER TABLE ".TABLE_PREFIX."threads ADD `tyl_tnumtyls` int(100) NOT NULL default '0'");
 		$db->write_query('UPDATE '.TABLE_PREFIX.'threads t SET tyl_tnumtyls = IFNULL((SELECT SUM(tyl_pnumtyls) FROM '.TABLE_PREFIX.'posts p WHERE p.tid = t.tid), 0)');
 	}
 
 	if(!$db->field_exists('tyl_unumtyls', 'users'))
 	{
-		$db->query("ALTER TABLE ".TABLE_PREFIX."users ADD `tyl_unumtyls` int(100) NOT NULL default '0'");
+		$db->write_query("ALTER TABLE ".TABLE_PREFIX."users ADD `tyl_unumtyls` int(100) NOT NULL default '0'");
 	}
 
 	if(!$db->field_exists('tyl_unumrcvtyls', 'users'))
 	{
-		$db->query("ALTER TABLE ".TABLE_PREFIX."users ADD `tyl_unumrcvtyls` int(100) NOT NULL default '0'");
+		$db->write_query("ALTER TABLE ".TABLE_PREFIX."users ADD `tyl_unumrcvtyls` int(100) NOT NULL default '0'");
 	}
 
 	if(!$db->field_exists('tyl_unumptyls', 'users'))
 	{
-		$db->query("ALTER TABLE ".TABLE_PREFIX."users ADD `tyl_unumptyls` int(100) NOT NULL default '0'");
+		$db->write_query("ALTER TABLE ".TABLE_PREFIX."users ADD `tyl_unumptyls` int(100) NOT NULL default '0'");
 	}
 
 	if(!$db->field_exists('tyl_lastadddeldate', 'users'))
 	{
-		$db->query("ALTER TABLE ".TABLE_PREFIX."users ADD `tyl_lastadddeldate` int unsigned NOT NULL default '0'");
+		$db->write_query("ALTER TABLE ".TABLE_PREFIX."users ADD `tyl_lastadddeldate` int unsigned NOT NULL default '0'");
 	}
 
 	if(!$db->table_exists($prefix.'thankyoulike'))
 	{
-		$db->query("CREATE TABLE ".TABLE_PREFIX.$prefix."thankyoulike (
+		$db->write_query("CREATE TABLE ".TABLE_PREFIX.$prefix."thankyoulike (
 				tlid int unsigned NOT NULL auto_increment,
 				pid int unsigned NOT NULL default '0',
 				uid int unsigned NOT NULL default '0',
@@ -668,12 +668,12 @@ function tyl_check_update_db_table_and_cols($from_version = false)
 	// Added puid field after v1.0 so check for that
 	if($db->table_exists($prefix.'thankyoulike') && !$db->field_exists('puid', $prefix.'thankyoulike'))
 	{
-		$db->query("ALTER TABLE ".TABLE_PREFIX.$prefix."thankyoulike ADD `puid` int unsigned NOT NULL default '0' AFTER `uid`");
+		$db->write_query("ALTER TABLE ".TABLE_PREFIX.$prefix."thankyoulike ADD `puid` int unsigned NOT NULL default '0' AFTER `uid`");
 	}
 
 	if(!$db->table_exists($prefix.'stats'))
 	{
-		$db->query("CREATE TABLE ".TABLE_PREFIX.$prefix."stats (
+		$db->write_query("CREATE TABLE ".TABLE_PREFIX.$prefix."stats (
 				title varchar(50) NOT NULL default '',
 				value int unsigned NOT NULL default '0',
 				UNIQUE KEY title (title),
@@ -1566,27 +1566,27 @@ function thankyoulike_uninstall()
 	{
 		if($db->field_exists('tyl_unumtyls', 'users'))
 		{
-			$db->query("ALTER TABLE ".TABLE_PREFIX."users DROP column `tyl_unumtyls`");
+			$db->write_query("ALTER TABLE ".TABLE_PREFIX."users DROP column `tyl_unumtyls`");
 		}
 		if($db->field_exists('tyl_unumrcvtyls', 'users'))
 		{
-			$db->query("ALTER TABLE ".TABLE_PREFIX."users DROP column `tyl_unumrcvtyls`");
+			$db->write_query("ALTER TABLE ".TABLE_PREFIX."users DROP column `tyl_unumrcvtyls`");
 		}
 		if($db->field_exists('tyl_unumptyls', 'users'))
 		{
-			$db->query("ALTER TABLE ".TABLE_PREFIX."users DROP column `tyl_unumptyls`");
+			$db->write_query("ALTER TABLE ".TABLE_PREFIX."users DROP column `tyl_unumptyls`");
 		}
 		if($db->field_exists('tyl_lastadddeldate', 'users'))
 		{
-			$db->query("ALTER TABLE ".TABLE_PREFIX."users DROP column `tyl_lastadddeldate`");
+			$db->write_query("ALTER TABLE ".TABLE_PREFIX."users DROP column `tyl_lastadddeldate`");
 		}
 		if($db->field_exists('tyl_pnumtyls', 'posts'))
 		{
-			$db->query("ALTER TABLE ".TABLE_PREFIX."posts DROP column `tyl_pnumtyls`");
+			$db->write_query("ALTER TABLE ".TABLE_PREFIX."posts DROP column `tyl_pnumtyls`");
 		}
 		if($db->field_exists('tyl_tnumtyls', 'threads'))
 		{
-			$db->query("ALTER TABLE ".TABLE_PREFIX."threads DROP column `tyl_tnumtyls`");
+			$db->write_query("ALTER TABLE ".TABLE_PREFIX."threads DROP column `tyl_tnumtyls`");
 		}
 		if($db->table_exists($prefix.'thankyoulike'))
 		{
@@ -3881,7 +3881,7 @@ function acp_tyl_do_recounting()
                                   unread=1
                           )" : '';
 
-				$db->query("
+				$db->write_query("
 UPDATE ".TABLE_PREFIX."posts AS dest,
        (
         SELECT p.pid,
