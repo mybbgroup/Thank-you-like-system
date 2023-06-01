@@ -2206,7 +2206,9 @@ function thankyoulike_postbit(&$post)
 	global $db, $mybb, $templates, $lang, $pids, $g33k_pcache, $theme;
 	$prefix = 'g33k_thankyoulike_';
 
-	$lang->load("thankyoulike");
+	if (empty($lang->tyl_send)) {
+		$lang->load("thankyoulike");
+	}
 
 	$unapproved_shade = '';
 
@@ -2291,7 +2293,9 @@ function thankyoulike_threads_udetails()
 	global $mybb, $db, $templates, $lang, $thread, $threadcache, $thread_cache, $tyl_forumdisplay_thread_var, $tyl_search_page_var;
 	static $tyl_threads_cached = array();
 	$prefix = 'g33k_thankyoulike_';
-	$lang->load("thankyoulike");
+	if (empty($lang->tyl_send)) {
+		$lang->load("thankyoulike");
+	}
 
 	$display_forum  = ($mybb->settings[$prefix.'display_tyl_counter_forumdisplay'] == "1" && THIS_SCRIPT == "forumdisplay.php");
 	$display_search = ($mybb->settings[$prefix.'display_tyl_counter_search_page' ] == "1" && THIS_SCRIPT == "search.php"      );
@@ -2356,7 +2360,9 @@ function thankyoulike_postbit_udetails(&$post)
 {
 	global $mybb, $lang;
 	$prefix = 'g33k_thankyoulike_';
-	$lang->load("thankyoulike");
+	if (empty($lang->tyl_send)) {
+		$lang->load("thankyoulike");
+	}
 
 	if ($mybb->settings[$prefix.'enabled'] == "1")
 	{
@@ -2651,7 +2657,9 @@ function thankyoulike_memprofile()
 	global $db, $mybb, $lang, $memprofile, $templates, $tyl_memprofile, $tyl_profile_stats, $uid, $post;
 	$prefix = 'g33k_thankyoulike_';
 
-	$lang->load("thankyoulike");
+	if (empty($lang->tyl_send)) {
+		$lang->load("thankyoulike");
+	}
 
 	if ($mybb->settings[$prefix.'enabled'] == "1")
 	{
@@ -3487,7 +3495,9 @@ function thankyoulike_friendly_wol_activity($plugin_array)
 {
 	global $mybb, $lang;
 	$prefix = 'g33k_thankyoulike_';
-	$lang->load("thankyoulike");
+	if (empty($lang->tyl_send)) {
+		$lang->load("thankyoulike");
+	}
 
 	if ($plugin_array['user_activity']['activity'] == "tyl_searching")
 	{

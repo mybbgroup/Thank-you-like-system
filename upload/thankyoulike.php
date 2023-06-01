@@ -31,7 +31,9 @@ const c_long_life_popup_duration_ms = '12000';
 require_once "./global.php";
 
 // Load global language phrases
-$lang->load("thankyoulike");
+if (empty($lang->tyl_send)) {
+	$lang->load("thankyoulike");
+}
 
 if($mybb->user['uid'] == 0)
 {
