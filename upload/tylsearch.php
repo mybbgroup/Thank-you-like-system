@@ -44,7 +44,9 @@ $prefix = "g33k_thankyoulike_";
 
 // Load global language phrases
 $lang->load("search");
-$lang->load("thankyoulike");
+if (empty($lang->tyl_send)) {
+	$lang->load("thankyoulike");
+}
 
 // Access to this file only if plugin is active and enabled
 if(!in_array('thankyoulike', $cache->read('plugins')['active']) || !$mybb->settings[$prefix.'enabled'])
