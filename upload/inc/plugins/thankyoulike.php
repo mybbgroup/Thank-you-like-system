@@ -52,6 +52,7 @@ else
 {
 	$plugins->add_hook("global_start", "thankyoulike_templatelist");
 	$plugins->add_hook("postbit","thankyoulike_postbit");
+	$plugins->add_hook("postbit_prev", "thankyoulike_postbit_prev");
 	$plugins->add_hook("postbit_prev","thankyoulike_postbit_udetails");
 	$plugins->add_hook("postbit_pm","thankyoulike_postbit_udetails");
 	$plugins->add_hook("forumdisplay_thread_end","thankyoulike_threads_udetails");
@@ -2283,6 +2284,11 @@ function thankyoulike_postbit(&$post)
 	}
 
 	return $post;
+}
+
+function thankyoulike_postbit_prev(&$post)
+{
+	$post['styleclass'] = $post['button_tyl'] = $post['tyl_display'] = $post['thankyoulike_data'] = '';
 }
 
 /**
