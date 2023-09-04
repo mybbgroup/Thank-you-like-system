@@ -2631,7 +2631,7 @@ function tyl_myalerts_formatter_load()
 
 			public function init()
 			{
-				if(!$this->lang->thankyoulike) {
+				if(empty($this->lang->thankyoulike)) {
 					$this->lang->load('thankyoulike');
 				}
 			}
