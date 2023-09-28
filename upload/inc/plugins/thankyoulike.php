@@ -68,6 +68,11 @@ else
 	$plugins->add_hook("class_moderation_split_posts","thankyoulike_split_posts");
 	$plugins->add_hook('task_promotions', 'thankyoulike_promotion_task');
 	$plugins->add_hook("myalerts_alert_manager_mark_read", "tyl_myalerts_alert_manager_mark_read");
+	// Backwards-compatible alert formatter registration hook-ins.
+	$plugins->add_hook('global_start', 'tyl_register_myalerts_formatter_back_compat');
+	$plugins->add_hook('xmlhttp', 'tyl_register_myalerts_formatter_back_compat', -2/* Prioritised one higher (more negative) than the MyAlerts hook into xmlhttp */);
+	// Current and forward-compatible alert formatter registration hook-in.
+	$plugins->add_hook('myalerts_register_client_alert_formatters', 'tyl_register_myalerts_formatter');
 }
 
 function thankyoulike_info()
@@ -1675,12 +1680,6 @@ function thankyoulike_templatelist()
 		$lang->tyl_send = $lang->sprintf($lang->tyl_send, $prelang);
 		$lang->tyl_remove = $lang->sprintf($lang->tyl_remove, $prelang);
 
-		// Register alert formatter.
-		if(tyl_have_myalerts(true, true, true) && $mybb->user['uid'])
-		{
-			tyl_myalerts_formatter_load();
-		}
-
 		// Cache all templates
 		$template_list = '';
 		if (THIS_SCRIPT == 'showthread.php')
@@ -2569,17 +2568,37 @@ WHERE  pid = {$pid}");
 }
 
 /**
- * Defines the tyl alert formatter class and registers it with the MyAlerts plugin.
- * Assumes that checks for the presence of and integration with MyAlerts
- * have already been successfully performed.
+ * Backwards-compatible MyAlerts alert formatter registration.
  */
-function tyl_myalerts_formatter_load()
+function tyl_register_myalerts_formatter_back_compat()
+{
+	if(function_exists('myalerts_info'))
+	{
+		$myalerts_info = myalerts_info();
+		if(version_compare($myalerts_info['version'], '2.0.4') <= 0)
+		{
+			tyl_register_myalerts_formatter();
+		}
+	}
+}
+
+/**
+ * When applicable, defines the tyl alert formatter class and registers it with the MyAlerts plugin.
+ */
+function tyl_register_myalerts_formatter()
 {
 	global $mybb, $lang;
 
-	if (class_exists('MybbStuff_MyAlerts_Formatter_AbstractFormatter') &&
-	    class_exists('MybbStuff_MyAlerts_AlertFormatterManager'))
-	{
+	if(tyl_have_myalerts(true, true, true)
+	   &&
+	   $mybb->user['uid']
+	   &&
+	   class_exists('MybbStuff_MyAlerts_Formatter_AbstractFormatter')
+	   &&
+	   class_exists('MybbStuff_MyAlerts_AlertFormatterManager')
+	   &&
+	   !class_exists('ThankyouAlertFormatter')
+	) {
 		class ThankyouAlertFormatter extends MybbStuff_MyAlerts_Formatter_AbstractFormatter
 		{
 			public function formatAlert(MybbStuff_MyAlerts_Entity_Alert $alert, array $outputAlert)
@@ -2647,11 +2666,11 @@ function tyl_myalerts_formatter_load()
 
 		$code = 'tyl';
 		$formatterManager = MybbStuff_MyAlerts_AlertFormatterManager::getInstance();
-		if (!$formatterManager)
+		if(!$formatterManager)
 		{
 		        $formatterManager = MybbStuff_MyAlerts_AlertFormatterManager::createInstance($mybb, $lang);
 		}
-		if ($formatterManager)
+		if($formatterManager)
 		{
 			$formatterManager->registerFormatter(new ThankyouAlertFormatter($mybb, $lang, $code));
 		}
