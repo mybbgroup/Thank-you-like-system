@@ -2650,7 +2650,7 @@ function tyl_register_myalerts_formatter()
 
 			public function init()
 			{
-				if(!$this->lang->thankyoulike) {
+				if(empty($this->lang->thankyoulike)) {
 					$this->lang->load('thankyoulike');
 				}
 			}
