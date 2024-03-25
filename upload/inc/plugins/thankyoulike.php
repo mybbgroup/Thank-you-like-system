@@ -3586,7 +3586,7 @@ function thankyoulike_promotion_formcontainer_output_row(&$args)
 	if($args['label_for'] == 'requirements')
 	{
 		$options['tylreceived'] = $lang->setting_thankyoulike_promotion_rcv;
-		$args['content'] = $form->generate_select_box('requirements[]', $options, $mybb->input['requirements'], array('id' => 'requirements', 'multiple' => true, 'size' => 5));
+		$args['content'] = $form->generate_select_box('requirements[]', $options, $mybb->get_input('requirements'), array('id' => 'requirements', 'multiple' => true, 'size' => 5));
 	}
 
 	if($args['label_for'] == 'timeregistered')
@@ -3608,7 +3608,7 @@ function thankyoulike_promotion_formcontainer_output_row(&$args)
 	if($args['label_for'] == 'requirements')
 	{
 		$options['tylgiven'] = $lang->setting_thankyoulike_promotion_gvn;
-		$args['content'] = $form->generate_select_box('requirements[]', $options, $mybb->input['requirements'], array('id' => 'requirements', 'multiple' => true, 'size' => 5));
+		$args['content'] = $form->generate_select_box('requirements[]', $options, $mybb->get_input('requirements'), array('id' => 'requirements', 'multiple' => true, 'size' => 5));
 	}
 
 	if($args['label_for'] == 'timeregistered')
