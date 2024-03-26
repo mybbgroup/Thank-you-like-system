@@ -3668,275 +3668,200 @@ function acp_tyl_do_recounting()
 
 	if($mybb->request_method == "post")
 	{
-		if(!isset($mybb->input['page']) || $mybb->get_input('page', MyBB::INPUT_INT) < 1)
-		{
-			$mybb->input['page'] = 1;
-		}
-
+		// We avoid pagination and instead run all our queries at once.
+		// This is because we received a report that on a big board,
+		// the page-by-page recounting was slow, and got slower page by page,
+		// becoming effectively never-ending, whereas even on that big board,
+		// these queries completed within seconds, such that there seems to be
+		// no compelling reason to split the task over multiple pages,
+		// and a compelling one not to.
 		if(isset($mybb->input['do_recounttyls']))
 		{
-			if($mybb->input['page'] == 1)
-			{
-				// Log admin action
-				log_admin_action($lang->tyl_admin_log_action);
+			// Temporarily auto-close the board while we run these queries,
+			// to minimise the risk of minor inconsistencies.
+			$boardclosed_org = $mybb->settings['boardclosed'];
+			if (!$boardclosed_org) {
+				$db->update_query('settings', ['value' => '1'], "name='boardclosed'");
+				$boardclosed_reason_org = $mybb->settings['boardclosed_reason'];
+				$db->update_query('settings', ['value' => $lang->tyl_recount_boardclosed_reason], "name='boardclosed_reason'");
+				rebuild_settings();
 			}
 
-			if(!$mybb->get_input('tyls', MyBB::INPUT_INT))
-			{
-				$mybb->input['tyls'] = 500;
-			}
-
-			$page = $mybb->get_input('page', MyBB::INPUT_INT);
-			$per_page = $mybb->get_input('tyls', MyBB::INPUT_INT);
-			if($per_page <= 0)
-			{
-				$per_page = 500;
-			}
-			$start = ($page-1) * $per_page;
-			$end = $start + $per_page;
-
+			// Determine the SQL conditions for forums excluded from tyling altogether.
 			$excl_forums = trim($mybb->settings[$prefix.'exclude']);
-			if($excl_forums == -1)
-			{
-				$where = "WHERE 0=1";
-			}
-			else if($excl_forums == '')
-			{
-				$where = '';
-			}
-			else
-			{
-				$where = "WHERE p.fid NOT IN (".$excl_forums.")";
-			}
+			if ($excl_forums == -1) {
+				$excl_forums_conds = '0 = 1';
+			} else if ($excl_forums == '') {
+				$excl_forums_conds = '1 = 1';
+			} else	$excl_forums_conds = "p.fid NOT IN ({$excl_forums})";
 
+			// Determine the SQL conditions for forums excluded from having tyls counted.
 			$excl_count_forums = trim($mybb->settings[$prefix.'exclude_count']);
-			if($excl_count_forums == -1)
-			{
-				$where_post_owner = ($where ? $where." AND" : "WHERE")." 0=1";
-			}
-			else if($excl_count_forums != '')
-			{
-				$where_post_owner = ($where ? $where." AND" : "WHERE")." p.fid NOT IN (".$excl_count_forums.")";
-			}
-			else
-			{
-				$where_post_owner = $where;
+			if ($excl_count_forums == -1) {
+				$excl_count_forums_conds = '0 = 1';
+			} else if ($excl_count_forums == '') {
+				$excl_count_forums_conds = '1 = 1';
+			} else	$excl_count_forums_conds = "p.fid NOT IN ({$excl_count_forums})";
+
+			// Remove orphaned tyls.
+			$db->write_query(<<<EOSQL
+DELETE FROM {$db->table_prefix}{$prefix}thankyoulike
+WHERE tlid IN (
+               SELECT          tyl.tlid
+               FROM            {$db->table_prefix}{$prefix}thankyoulike tyl
+               LEFT OUTER JOIN {$db->table_prefix}posts p
+               ON              p.pid = tyl.pid
+               LEFT OUTER JOIN {$db->table_prefix}users u
+               ON              u.uid = tyl.uid
+               WHERE           p.pid IS NULL OR u.uid IS NULL
+              )
+EOSQL
+			);
+
+			// Update the number of given and received tyls, and number of tyled posts, for each user.
+			$db->write_query(<<<EOSQL
+UPDATE {$db->table_prefix}users u
+SET    u.tyl_unumrcvtyls = IFNULL(
+                                  (
+                                   SELECT          COUNT(tyl.tlid)
+                                   FROM            {$db->table_prefix}{$prefix}thankyoulike tyl
+                                   LEFT OUTER JOIN {$db->table_prefix}posts p
+                                   ON              p.pid = tyl.pid
+                                   WHERE           {$excl_forums_conds}
+                                                   AND
+                                                   {$excl_count_forums_conds}
+                                                   AND
+                                                   tyl.puid = u.uid
+                                  ),
+                                  0
+                                 ),
+       u.tyl_unumtyls    = IFNULL(
+                                  (
+                                   SELECT          COUNT(tyl.tlid)
+                                   FROM            {$db->table_prefix}{$prefix}thankyoulike tyl
+                                   LEFT OUTER JOIN {$db->table_prefix}posts p
+                                   ON              p.pid = tyl.pid
+                                   WHERE           {$excl_forums_conds}
+                                                   AND
+                                                   {$excl_count_forums_conds}
+                                                   AND
+                                                   tyl.uid = u.uid
+                                  ),
+                                  0
+                                 ),
+       u.tyl_unumptyls   = IFNULL(
+                                  (
+                                   SELECT          COUNT(DISTINCT(tyl.pid))
+                                   FROM            {$db->table_prefix}{$prefix}thankyoulike tyl
+                                   LEFT OUTER JOIN {$db->table_prefix}posts p
+                                   ON              p.pid = tyl.pid
+                                   WHERE           {$excl_forums_conds}
+                                                   AND
+                                                   {$excl_count_forums_conds}
+                                                   AND
+                                                   tyl.puid = u.uid
+                                  ),
+                                  0
+                                 )
+EOSQL
+			);
+
+			// Update the number of tyls for each post.
+			$db->write_query(<<<EOSQL
+UPDATE {$db->table_prefix}posts p
+SET    p.tyl_pnumtyls = IFNULL(
+                               (
+                                SELECT COUNT(*)
+                                FROM   {$db->table_prefix}{$prefix}thankyoulike tyl
+                                WHERE  tyl.pid = p.pid
+                                       AND
+                                       {$excl_forums_conds}
+                               ),
+                               0
+                              )
+EOSQL
+			);
+
+			// Now update the number of tyls for each thread, using the per-post counts that we've just updated.
+			$db->write_query(<<<EOSQL
+UPDATE {$db->table_prefix}threads t
+SET    tyl_tnumtyls = IFNULL(
+                             (
+                              SELECT SUM(tyl_pnumtyls)
+                              FROM   {$db->table_prefix}posts p
+                              WHERE  p.tid = t.tid
+                             ),
+                             0
+                            )
+EOSQL
+			);
+
+			// Finally, update the total number of tyls, using the per-thread counts we updated in the previous query.
+			$db->write_query(<<<EOSQL
+UPDATE {$db->table_prefix}{$prefix}stats
+SET    value = (
+                SELECT SUM(tyl_tnumtyls)
+                FROM   {$db->table_prefix}threads
+               )
+WHERE  title = 'total';
+EOSQL
+			);
+
+			// Log admin action
+			log_admin_action($lang->tyl_admin_log_action);
+
+			// Reopen the board if we'd temporarily auto-closed it.
+			if (!$boardclosed_org) {
+				$db->update_query('settings', ['value' => $boardclosed_org], "name='boardclosed'");
+				$db->update_query('settings', ['value' => $boardclosed_reason_org], "name='boardclosed_reason'");
+				rebuild_settings();
 			}
 
-			if ($page == 1)
-			{
-				$db->write_query("UPDATE ".TABLE_PREFIX.$prefix."stats SET value=0 WHERE title='total'");
-				$db->write_query("UPDATE ".TABLE_PREFIX."posts SET tyl_pnumtyls=0");
-				$db->write_query("UPDATE ".TABLE_PREFIX."threads SET tyl_tnumtyls=0");
-				$db->write_query("UPDATE ".TABLE_PREFIX."users SET tyl_unumtyls=0, tyl_unumptyls=0, tyl_unumrcvtyls=0");
-
-				$query = $db->query("
-						SELECT tyl.tlid
-						FROM ".TABLE_PREFIX.$prefix."thankyoulike tyl
-						LEFT JOIN ".TABLE_PREFIX."posts p ON ( p.pid = tyl.pid )
-						LEFT JOIN ".TABLE_PREFIX."users u ON ( u.uid = tyl.uid )
-						WHERE p.pid IS NULL OR u.uid IS NULL
-					");
-				$tlids_remove = array();
-				while($orphan = $db->fetch_array($query))
-				{
-					$tlids_remove[] = $orphan['tlid'];
-				}
-				if($tlids_remove)
-				{
-					$tlids_remove = implode(',', $tlids_remove);
-					// Delete the tyls
-					$db->delete_query($prefix."thankyoulike", "tlid IN ($tlids_remove)");
-				}
-				// Lets also update the puid field in the db with uid values from the posts table
-				// This is done to sync up the db with the puids of post tyled, since this feature wasn't there in v1.0 so data needs to be generated.
-				$db->write_query("UPDATE ".TABLE_PREFIX.$prefix."thankyoulike tyl
-							LEFT JOIN ".TABLE_PREFIX."posts p ON ( p.pid=tyl.pid )
-							SET tyl.puid=p.uid");
-				// Update the number of tyled posts for the post owners, we do this here because this needs to be done in one swoop and will break if done in parts
-				$db->write_query("UPDATE ".TABLE_PREFIX."users u
-							JOIN (SELECT puid, COUNT(DISTINCT(t.pid)) AS pidcount
-							FROM ".TABLE_PREFIX.$prefix."thankyoulike t
-							LEFT JOIN ".TABLE_PREFIX."posts p
-							ON p.pid=t.pid
-							$where_post_owner
-							GROUP BY puid) tyl
-							ON ( u.uid=tyl.puid )
-							SET u.tyl_unumptyls=tyl.pidcount");
-			}
-
-			$query1 = $db->simple_select($prefix."thankyoulike", "COUNT(tlid) AS num_tyls");
-			$num_tyls = $db->fetch_field($query1, 'num_tyls');
-
-			$query2 = $db->query("
-					SELECT tyl.*, p.tid, p.fid
-					FROM ".TABLE_PREFIX.$prefix."thankyoulike tyl
-					LEFT JOIN ".TABLE_PREFIX."posts p ON (p.pid=tyl.pid)
-					$where
-					ORDER BY tyl.dateline ASC
-					LIMIT $start, $per_page
-				");
-			$tlids = array();
-			$post_tyls = array();
-			$thread_tyls = array();
-			$user_tyls = array();
-			$user_rcvtyls = array();
-			while($tyl = $db->fetch_array($query2))
-			{
-				// Total tyls
-				$tlids[] = $tyl['tlid'];
-				// Count the tyl for each post, thread and user
-				if($post_tyls[$tyl['pid']])
-				{
-					$post_tyls[$tyl['pid']]++;
-				}
-				else
-				{
-					$post_tyls[$tyl['pid']] = 1;
-				}
-				if($thread_tyls[$tyl['tid']])
-				{
-					$thread_tyls[$tyl['tid']]++;
-				}
-				else
-				{
-					$thread_tyls[$tyl['tid']] = 1;
-				}
-				if(!tyl_in_forums($tyl['fid'], $mybb->settings[$prefix.'exclude_count']))
-				{
-					if($user_tyls[$tyl['uid']])
-					{
-						$user_tyls[$tyl['uid']]++;
-					}
-					else
-					{
-						$user_tyls[$tyl['uid']] = 1;
-					}
-					if($user_rcvtyls[$tyl['puid']])
-					{
-						$user_rcvtyls[$tyl['puid']]++;
-					}
-					else
-					{
-						$user_rcvtyls[$tyl['puid']] = 1;
-					}
-				}
-			}
-			// Update the counts
-			if(is_array($post_tyls))
-			{
-				foreach($post_tyls as $pid => $add)
-				{
-					$db->write_query("UPDATE ".TABLE_PREFIX."posts SET tyl_pnumtyls=tyl_pnumtyls+$add WHERE pid='$pid'");
-				}
-			}
-			if(is_array($thread_tyls))
-			{
-				foreach($thread_tyls as $tid => $add)
-				{
-					$db->write_query("UPDATE ".TABLE_PREFIX."threads SET tyl_tnumtyls=tyl_tnumtyls+$add WHERE tid='$tid'");
-				}
-			}
-			if(is_array($user_tyls))
-			{
-				foreach($user_tyls as $uid => $add)
-				{
-					$db->write_query("UPDATE ".TABLE_PREFIX."users SET tyl_unumtyls=tyl_unumtyls+$add WHERE uid='$uid'");
-				}
-			}
-			if(is_array($user_rcvtyls))
-			{
-				foreach($user_rcvtyls as $puid => $add)
-				{
-					$db->write_query("UPDATE ".TABLE_PREFIX."users SET tyl_unumrcvtyls=tyl_unumrcvtyls+$add WHERE uid='$puid'");
-				}
-			}
-			if($tlids)
-			{
-				$tlids_count = count($tlids);
-				$db->write_query("UPDATE ".TABLE_PREFIX.$prefix."stats SET value=value+$tlids_count WHERE title='total'");
-			}
-			check_proceed($num_tyls, $end, ++$page, $per_page, "tyls", "do_recounttyls", $lang->tyl_success_thankyoulike_rebuilt);
+			check_proceed(0, 1, 1, 1, 'tyls', 'do_recounttyls', $lang->tyl_success_thankyoulike_rebuilt);
 		}
 		else if(isset($mybb->input['do_reinitlasttylid']))
 		{
-			if($mybb->input['page'] == 1)
-			{
-				// Log admin action
-				log_admin_action($lang->tyl_admin_log_action2);
-			}
-
-			if(!$mybb->get_input('lasttylids', MyBB::INPUT_INT))
-			{
-				$mybb->input['lasttylids'] = 500;
-			}
-
-			$next_pid = $mybb->get_input('page', MyBB::INPUT_INT);
-			$per_page = $mybb->get_input('lasttylids', MyBB::INPUT_INT);
-			if($per_page <= 0)
-			{
-				$per_page = 500;
-			}
-
-			$res = $db->simple_select('posts', 'MAX(pid) AS max_pid', 'tyl_last_alerted_tyl_id = 0');
-			$max_pid = $db->fetch_field($res, 'max_pid');
-			$db->free_result($res);
-
-			$pids = '';
-			$res = $db->simple_select('posts', 'pid', "tyl_last_alerted_tyl_id = 0 AND pid >= {$next_pid}", array(
-				'order_by' => 'pid',
-				'order_dir' => 'ASC',
-				'limit' => $per_page
-			));
-			while($pid = $db->fetch_field($res, 'pid'))
-			{
-				if($pids)
-				{
-					$pids .= ',';
-				}
-				$pids .= $pid;
-				$next_pid = $pid;
-			}
-			$next_pid++;
-
-			if($pids)
-			{
-				$alerts_sql = ($db->table_exists('alerts') && $db->table_exists('alert_types')) ? "AND
-               NOT EXISTS (
-                           SELECT *
-                           FROM   ".TABLE_PREFIX."alerts a
-                           WHERE  p.pid = a.object_id
-                                  AND
-                                  alert_type_id = (
-                                                   SELECT id
-                                                   FROM   ".TABLE_PREFIX."alert_types
-                                                   WHERE  code='tyl'
-                                                  )
-                                  AND
-                                  unread=1
-                          )" : '';
-
-				$db->write_query("
-UPDATE ".TABLE_PREFIX."posts AS dest,
+			// For this task, we don't need to auto-close the board as we do for the previous task,
+			// because there's only one query.
+			$db->write_query(<<<EOSQL
+UPDATE {$db->table_prefix}posts AS dest,
        (
         SELECT p.pid,
-               (SELECT MAX(tyl.tlid) FROM ".TABLE_PREFIX.$prefix."thankyoulike tyl WHERE p.pid = tyl.pid) AS max_tlid
-        FROM   ".TABLE_PREFIX."posts p
+               (SELECT MAX(tyl.tlid) FROM {$db->table_prefix}{$prefix}thankyoulike tyl WHERE p.pid = tyl.pid) AS max_tlid
+        FROM   {$db->table_prefix}posts p
         WHERE  tyl_last_alerted_tyl_id = 0
-               {$alerts_sql}
                AND
-               EXISTS (
-                       SELECT *
-                       FROM   ".TABLE_PREFIX.$prefix."thankyoulike tyl2
-                       WHERE  p.pid = tyl2.pid
-                      )
-               AND p.pid IN ({$pids})
+               NOT EXISTS
+               (
+                SELECT *
+                FROM   {$db->table_prefix}alerts a
+                WHERE  p.pid = a.object_id
+                       AND
+                       alert_type_id = (
+                                        SELECT id
+                                        FROM   {$db->table_prefix}alert_types
+                                        WHERE  code='tyl'
+                                       )
+                       AND
+                       unread=1
+               )
+               AND
+               EXISTS
+               (
+                SELECT *
+                FROM   {$db->table_prefix}{$prefix}thankyoulike tyl2
+                WHERE  p.pid = tyl2.pid
+               )
        ) AS src
 SET   dest.tyl_last_alerted_tyl_id = src.max_tlid
-WHERE dest.pid = src.pid");
-			}
+WHERE dest.pid = src.pid;
+EOSQL
+			);
 
-			check_proceed($max_pid, $next_pid, $next_pid, $per_page, 'per_page', 'do_reinitlasttylid', $lang->tyl_success_thankyoulike_rebuilt2);
+			// Log admin action
+			log_admin_action($lang->tyl_admin_log_action2);
+
+			check_proceed(0, 1, 1, 1, 'per_page', 'do_reinitlasttylid', $lang->tyl_success_thankyoulike_rebuilt2);
 		}
 	}
 }
@@ -3947,12 +3872,12 @@ function acp_tyl_recount_form()
 	$lang->load("config_thankyoulike");
 
 	$form_container->output_cell("<label>{$lang->tyl_recount}</label><div class=\"description\">{$lang->tyl_recount_do_desc}</div>");
-	$form_container->output_cell($form->generate_numeric_field("tyls", 500, array('style' => 'width: 150px;', 'min' => 0)));
+	$form_container->output_cell($lang->na);
 	$form_container->output_cell($form->generate_submit_button($lang->go, array("name" => "do_recounttyls")));
 	$form_container->construct_row();
 
 	$form_container->output_cell("<label>{$lang->tyl_recount2}</label><div class=\"description\">{$lang->tyl_recount_do_desc2}</div>");
-	$form_container->output_cell($form->generate_numeric_field("lasttylids", 500, array('style' => 'width: 150px;', 'min' => 0)));
+	$form_container->output_cell($lang->na);
 	$form_container->output_cell($form->generate_submit_button($lang->go, array("name" => "do_reinitlasttylid")));
 	$form_container->construct_row();
 }

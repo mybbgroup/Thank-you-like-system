@@ -171,6 +171,8 @@ $l['tyl_recount'] = "Recount thanks/likes";
 $l['tyl_recount_do_desc'] = "When this is run, the thanks/likes count for each user and post will be updated to reflect its current live value based on the data in the database.";
 $l['tyl_success_thankyoulike_rebuilt'] = "The thanks/likes have been recounted successfully.";
 
+$l['tyl_recount_boardclosed_reason'] ='The thanks/likes are being recounted.';
+
 $l['tyl_admin_log_action'] = "Thanks/likes successfully recounted.";
 
 $l['tyl_recount2'] = "(Re)initialise last alerted thank/like for each post";
