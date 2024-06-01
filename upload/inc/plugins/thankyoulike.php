@@ -2123,15 +2123,22 @@ function tyl_build_post_likers_display(&$post, $tyls, $tyled, $count) {
 		$tyl_title_collapsed = $lang->tyl_title_collapsed_ty;
 		$tyl_title = $lang->tyl_title_ty;
 	}
-	$tyled_user = get_user($post['uid']);
-	if($mybb->settings[$prefix.'unameformat'] == "1")
+	if($post['uid'])
 	{
-		$tyled_user['username'] = format_name($tyled_user['username'], $tyled_user['usergroup'], $tyled_user['displaygroup']);
-		$tyl_profilelink = build_profile_link($tyled_user['username'], $tyled_user['uid']);
+		$tyled_user = get_user($post['uid']);
+		if($mybb->settings[$prefix.'unameformat'] == "1")
+		{
+			$tyled_user['username'] = format_name($tyled_user['username'], $tyled_user['usergroup'], $tyled_user['displaygroup']);
+			$tyl_profilelink = build_profile_link($tyled_user['username'], $tyled_user['uid']);
+		}
+		else
+		{
+			$tyl_profilelink  = htmlspecialchars_uni($tyled_user['username']);
+		}
 	}
 	else
 	{
-		$tyl_profilelink  = htmlspecialchars_uni($tyled_user['username']);
+		$tyl_profilelink = $lang->guest;
 	}
 	$lang->tyl_title = $lang->sprintf($tyl_title, $count, $tyl_user, $tyl_like_or_say, $tyl_profilelink);
 	$lang->tyl_title_collapsed = $lang->sprintf($tyl_title_collapsed, $count, $tyl_user, $tyl_like_or_say, $tyl_profilelink);
