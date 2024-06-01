@@ -2386,6 +2386,8 @@ function thankyoulike_postbit_udetails(&$post)
 		// Remove stats in postbit
 		tyl_remove_stats_in_postbit($post);
 	}
+	$post['styleclass'] = $post['thankyoulike_data'] = $post['button_tyl'] = $post['tyl_display'] = '';
+
 	return $post;
 }
 
