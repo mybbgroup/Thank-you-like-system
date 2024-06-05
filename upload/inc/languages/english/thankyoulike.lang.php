@@ -30,10 +30,10 @@ $l['tyl_user'] = "user";
 $l['tyl_says'] = "says";
 $l['tyl_say'] = "say";
 
-$l['tyl_title_ty'] = "<strong>The following {1} {2} {3} Thank You to {4} for this post:</strong>";
-$l['tyl_title_l'] = "<strong>The following {1} {2} {3} {4}'s post:</strong>";
-$l['tyl_title_collapsed_ty'] = "<strong>{1} {2} {3} Thank You to {4} for this post</strong>";
-$l['tyl_title_collapsed_l'] = "<strong>{1} {2} {3} {4}'s post</strong>";
+$l['tyl_title_ty'] = "The following {1} {2} {3} Thank You to {4} for this post:";
+$l['tyl_title_l'] = "The following {1} {2} {3} {4}'s post:</strong>";
+$l['tyl_title_collapsed_ty'] = "{1} {2} {3} Thank You to {4} for this post";
+$l['tyl_title_collapsed_l'] = "{1} {2} {3} {4}'s post";
 
 $l['add_ty'] = "Add Thank You";
 $l['add_ty_button_title'] = "Add a Thank You to this Post";
