@@ -741,37 +741,37 @@ function tyl_insert_templates()
 		array(
 			'template' => "<div class=\"post_controls tyllist {\$unapproved_shade}\">
 	{\$tyl_expcol}
-	<span id=\"tyl_title_{\$post['pid']}\" style=\"{\$tyl_title_display}\">{\$lang->tyl_title}</span><span id=\"tyl_title_collapsed_{\$post['pid']}\" style=\"{\$tyl_title_display_collapsed}\">{\$lang->tyl_title_collapsed}</span><br />
+	<span id=\"tyl_title_{\$post['pid']}\" style=\"{\$tyl_title_display}\" class=\"tyl_collapsible_summary\">{\$lang->tyl_title}</span><span id=\"tyl_title_collapsed_{\$post['pid']}\" style=\"{\$tyl_title_display_collapsed}\" class=\"tyl_collapsible_summary\">{\$lang->tyl_title_collapsed}</span><br />
 	<span id=\"tyl_data_{\$post['pid']}\" style=\"{\$tyl_data_display}\">&nbsp;&nbsp;• {\$post['thankyoulike']}</span>
 </div>",
-			'version_at_last_change' => '20200',
+			'version_at_last_change' => '30406',
 		),
 		'thankyoulike_postbit_classic' =>
 		array(
 			'template' => "<div class=\"post_controls tyllist_classic {\$unapproved_shade}\">
 	{\$tyl_expcol}
-	<span id=\"tyl_title_{\$post['pid']}\" style=\"{\$tyl_title_display}\">{\$lang->tyl_title}</span><span id=\"tyl_title_collapsed_{\$post['pid']}\" style=\"{\$tyl_title_display_collapsed}\">{\$lang->tyl_title_collapsed}</span><br />
+	<span id=\"tyl_title_{\$post['pid']}\" style=\"{\$tyl_title_display}\" class=\"tyl_collapsible_summary\">{\$lang->tyl_title}</span><span id=\"tyl_title_collapsed_{\$post['pid']}\" style=\"{\$tyl_title_display_collapsed}\" class=\"tyl_collapsible_summary\">{\$lang->tyl_title_collapsed}</span><br />
 	<span id=\"tyl_data_{\$post['pid']}\" style=\"{\$tyl_data_display}\">&nbsp;&nbsp;• {\$post['thankyoulike']}</span>
 </div>",
-			'version_at_last_change' => '20200',
+			'version_at_last_change' => '30406',
 		),
 		'thankyoulike_postbit_avatars' =>
 		array(
 			'template' => "<div class=\"post_controls tyllist {\$unapproved_shade}\">
 	{\$tyl_expcol}
-	<span id=\"tyl_title_{\$post['pid']}\" style=\"{\$tyl_title_display}\">{\$lang->tyl_title}</span><span id=\"tyl_title_collapsed_{\$post['pid']}\" style=\"{\$tyl_title_display_collapsed}\">{\$lang->tyl_title_collapsed}</span><br />
+	<span id=\"tyl_title_{\$post['pid']}\" style=\"{\$tyl_title_display}\" class=\"tyl_collapsible_summary\">{\$lang->tyl_title}</span><span id=\"tyl_title_collapsed_{\$post['pid']}\" style=\"{\$tyl_title_display_collapsed}\" class=\"tyl_collapsible_summary\">{\$lang->tyl_title_collapsed}</span><br />
 	<span id=\"tyl_data_{\$post['pid']}\" style=\"{\$tyl_data_display}\">&nbsp;&nbsp; {\$post['thankyoulike']}</span>
 </div>",
-			'version_at_last_change' => '30307',
+			'version_at_last_change' => '30406',
 		),
 		'thankyoulike_postbit_classic_avatars' =>
 		array(
 			'template' => "<div class=\"post_controls tyllist_classic {\$unapproved_shade}\">
 	{\$tyl_expcol}
-	<span id=\"tyl_title_{\$post['pid']}\" style=\"{\$tyl_title_display}\">{\$lang->tyl_title}</span><span id=\"tyl_title_collapsed_{\$post['pid']}\" style=\"{\$tyl_title_display_collapsed}\">{\$lang->tyl_title_collapsed}</span><br />
+	<span id=\"tyl_title_{\$post['pid']}\" style=\"{\$tyl_title_display}\" class=\"tyl_collapsible_summary\">{\$lang->tyl_title}</span><span id=\"tyl_title_collapsed_{\$post['pid']}\" style=\"{\$tyl_title_display_collapsed}\" class=\"tyl_collapsible_summary\">{\$lang->tyl_title_collapsed}</span><br />
 	<span id=\"tyl_data_{\$post['pid']}\" style=\"{\$tyl_data_display}\">&nbsp;&nbsp; {\$post['thankyoulike']}</span>
 </div>",
-			'version_at_last_change' => '30307',
+			'version_at_last_change' => '30406',
 		),
 		'thankyoulike_tyl_counter_forumdisplay_thread' =>
 		array(
@@ -1078,6 +1078,10 @@ a.del_tyl_button span{
 	border-top: 1px dotted #ccc;
 	border-bottom: 1px dotted #ccc;
 	padding: 2px 5px;
+}
+
+.tyl_collapsible_summary{
+	font-weight: bold;
 }
 
 img[id^=tyl_i_expcol_]{
