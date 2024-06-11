@@ -1767,10 +1767,10 @@ function tyl_check_remove_self_likes_from_post_array(&$post, $skip_postcounts = 
 	global $mybb;
 	$prefix = 'g33k_thankyoulike_';
 
-	$post['tyl_unumrcvtyls_self_rem'] = $post['tyl_unumrcvtyls'];
-	$post['tyl_unumtyls_self_rem'   ] = $post['tyl_unumtyls'   ];
-	$post['tyl_unumptyls_self_rem'  ] = $post['tyl_unumptyls'  ];
-	if($mybb->settings[$prefix.'remowntylfromc'] == 1)
+	$post['tyl_unumrcvtyls_self_rem'] = isset($post['tyl_unumrcvtyls']) ? $post['tyl_unumrcvtyls'] : 0;
+	$post['tyl_unumtyls_self_rem'   ] = isset($post['tyl_unumtyls'   ]) ? $post['tyl_unumtyls'   ] : 0;
+	$post['tyl_unumptyls_self_rem'  ] = isset($post['tyl_unumptyls'  ]) ? $post['tyl_unumptyls'  ] : 0;
+	if($mybb->settings[$prefix.'remowntylfromc'] == 1 && isset($post['uid']))
 	{
 		$owntylusercount = tyl_get_own_tyl_count($post['uid']);
 		$post['tyl_unumrcvtyls_self_rem'] -= $owntylusercount;
