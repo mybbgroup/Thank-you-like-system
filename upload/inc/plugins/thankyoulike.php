@@ -74,6 +74,7 @@ else
 	// Current and forward-compatible alert formatter registration hook-in.
 	$plugins->add_hook('myalerts_register_client_alert_formatters', 'tyl_register_myalerts_formatter');
 }
+$plugins->add_hook('datahandler_user_delete_end', 'tyl_datahandler_user_delete_end');
 
 function thankyoulike_info()
 {
@@ -3672,52 +3673,29 @@ function thankyoulike_promotion_task(&$args)
 	}
 }
 
-// Start Thank You/Like Counter Functions
-function acp_tyl_do_recounting()
+function tyl_recount_tyls()
 {
-	global $db, $mybb, $lang;
+	global $db, $mybb;
 	$prefix = "g33k_thankyoulike_";
-	$lang->load("config_thankyoulike");
 
-	if($mybb->request_method == "post")
-	{
-		// We avoid pagination and instead run all our queries at once.
-		// This is because we received a report that on a big board,
-		// the page-by-page recounting was slow, and got slower page by page,
-		// becoming effectively never-ending, whereas even on that big board,
-		// these queries completed within seconds, such that there seems to be
-		// no compelling reason to split the task over multiple pages,
-		// and a compelling one not to.
-		if(isset($mybb->input['do_recounttyls']))
-		{
-			// Temporarily auto-close the board while we run these queries,
-			// to minimise the risk of minor inconsistencies.
-			$boardclosed_org = $mybb->settings['boardclosed'];
-			if (!$boardclosed_org) {
-				$db->update_query('settings', ['value' => '1'], "name='boardclosed'");
-				$boardclosed_reason_org = $mybb->settings['boardclosed_reason'];
-				$db->update_query('settings', ['value' => $lang->tyl_recount_boardclosed_reason], "name='boardclosed_reason'");
-				rebuild_settings();
-			}
+	// Determine the SQL conditions for forums excluded from tyling altogether.
+	$excl_forums = trim($mybb->settings[$prefix.'exclude']);
+	if ($excl_forums == -1) {
+		$excl_forums_conds = '0 = 1';
+	} else if ($excl_forums == '') {
+		$excl_forums_conds = '1 = 1';
+	} else	$excl_forums_conds = "p.fid NOT IN ({$excl_forums})";
 
-			// Determine the SQL conditions for forums excluded from tyling altogether.
-			$excl_forums = trim($mybb->settings[$prefix.'exclude']);
-			if ($excl_forums == -1) {
-				$excl_forums_conds = '0 = 1';
-			} else if ($excl_forums == '') {
-				$excl_forums_conds = '1 = 1';
-			} else	$excl_forums_conds = "p.fid NOT IN ({$excl_forums})";
+	// Determine the SQL conditions for forums excluded from having tyls counted.
+	$excl_count_forums = trim($mybb->settings[$prefix.'exclude_count']);
+	if ($excl_count_forums == -1) {
+		$excl_count_forums_conds = '0 = 1';
+	} else if ($excl_count_forums == '') {
+		$excl_count_forums_conds = '1 = 1';
+	} else	$excl_count_forums_conds = "p.fid NOT IN ({$excl_count_forums})";
 
-			// Determine the SQL conditions for forums excluded from having tyls counted.
-			$excl_count_forums = trim($mybb->settings[$prefix.'exclude_count']);
-			if ($excl_count_forums == -1) {
-				$excl_count_forums_conds = '0 = 1';
-			} else if ($excl_count_forums == '') {
-				$excl_count_forums_conds = '1 = 1';
-			} else	$excl_count_forums_conds = "p.fid NOT IN ({$excl_count_forums})";
-
-			// Remove orphaned tyls.
-			$db->write_query(<<<EOSQL
+	// Remove orphaned tyls.
+	$db->write_query(<<<EOSQL
 DELETE FROM {$db->table_prefix}{$prefix}thankyoulike
 WHERE tlid IN (
                SELECT          tyl.tlid
@@ -3729,10 +3707,10 @@ WHERE tlid IN (
                WHERE           p.pid IS NULL OR u.uid IS NULL
               )
 EOSQL
-			);
+	);
 
-			// Update the number of given and received tyls, and number of tyled posts, for each user.
-			$db->write_query(<<<EOSQL
+	// Update the number of given and received tyls, and number of tyled posts, for each user.
+	$db->write_query(<<<EOSQL
 UPDATE {$db->table_prefix}users u
 SET    u.tyl_unumrcvtyls = IFNULL(
                                   (
@@ -3777,10 +3755,10 @@ SET    u.tyl_unumrcvtyls = IFNULL(
                                   0
                                  )
 EOSQL
-			);
+	);
 
-			// Update the number of tyls for each post.
-			$db->write_query(<<<EOSQL
+	// Update the number of tyls for each post.
+	$db->write_query(<<<EOSQL
 UPDATE {$db->table_prefix}posts p
 SET    p.tyl_pnumtyls = IFNULL(
                                (
@@ -3793,10 +3771,10 @@ SET    p.tyl_pnumtyls = IFNULL(
                                0
                               )
 EOSQL
-			);
+	);
 
-			// Now update the number of tyls for each thread, using the per-post counts that we've just updated.
-			$db->write_query(<<<EOSQL
+	// Now update the number of tyls for each thread, using the per-post counts that we've just updated.
+	$db->write_query(<<<EOSQL
 UPDATE {$db->table_prefix}threads t
 SET    tyl_tnumtyls = IFNULL(
                              (
@@ -3807,10 +3785,10 @@ SET    tyl_tnumtyls = IFNULL(
                              0
                             )
 EOSQL
-			);
+	);
 
-			// Finally, update the total number of tyls, using the per-thread counts we updated in the previous query.
-			$db->write_query(<<<EOSQL
+	// Finally, update the total number of tyls, using the per-thread counts we updated in the previous query.
+	$db->write_query(<<<EOSQL
 UPDATE {$db->table_prefix}{$prefix}stats
 SET    value = (
                 SELECT SUM(tyl_tnumtyls)
@@ -3818,7 +3796,39 @@ SET    value = (
                )
 WHERE  title = 'total';
 EOSQL
-			);
+	);
+}
+
+// Start Thank You/Like Counter Functions
+function acp_tyl_do_recounting()
+{
+	global $db, $mybb, $lang;
+	$prefix = "g33k_thankyoulike_";
+	$lang->load("config_thankyoulike");
+
+	if($mybb->request_method == "post")
+	{
+		// We avoid pagination and instead run all our queries at once.
+		// This is because we received a report that on a big board,
+		// the page-by-page recounting was slow, and got slower page by page,
+		// becoming effectively never-ending, whereas even on that big board,
+		// these queries completed within seconds, such that there seems to be
+		// no compelling reason to split the task over multiple pages,
+		// and a compelling one not to.
+		if(isset($mybb->input['do_recounttyls']))
+		{
+			// Temporarily auto-close the board while we run these queries,
+			// to minimise the risk of minor inconsistencies.
+			$boardclosed_org = $mybb->settings['boardclosed'];
+			if (!$boardclosed_org) {
+				$db->update_query('settings', ['value' => '1'], "name='boardclosed'");
+				$boardclosed_reason_org = $mybb->settings['boardclosed_reason'];
+				$db->update_query('settings', ['value' => $lang->tyl_recount_boardclosed_reason], "name='boardclosed_reason'");
+				rebuild_settings();
+			}
+
+			// Perform the all-at-once recount.
+			tyl_recount_tyls();
 
 			// Log admin action
 			log_admin_action($lang->tyl_admin_log_action);
@@ -4055,4 +4065,21 @@ function tyl_user_users_merge_commit()
 	// Finally, update in the thankyoulike table the uids and puids matching the source user to the user ID of the dest user.
 	$db->update_query($prefix.'thankyoulike', array('uid' => $dest_uid ), "uid='$source_uid'");
 	$db->update_query($prefix.'thankyoulike', array('puid' => $dest_uid), "puid='$source_uid'");
+}
+
+function tyl_datahandler_user_delete_end($userdatahandler)
+{
+	global $db;
+	$prefix = 'g33k_thankyoulike_';
+
+	// Rather than messing around trying to run ad-hoc queries and calculations
+	// to update tyls and counts given the deleted members, simply use our new
+	// all-at-once recount set of queries, which is quick enough for the job.
+	//
+	// We don't auto-close the board here as we do when this is accessed from the
+	// ACP's Recount & Rebuild tool simply because it would be unexpected when
+	// deleting members, and the risk of inconsistency is low. In the event of
+	// inconsistency, the recount *can* then be run from the ACP where the
+	// auto-closing of the board should avoid new inconsistencies.
+	tyl_recount_tyls();
 }
