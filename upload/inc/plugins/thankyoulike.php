@@ -40,7 +40,6 @@ if(defined("IN_ADMINCP"))
 	$plugins->add_hook("admin_formcontainer_end", "tyl_limits_usergroup_permission");
 	$plugins->add_hook("admin_user_groups_edit_commit", "tyl_limits_usergroup_permission_commit");
 	$plugins->add_hook('admin_load', 'thankyoulike_admin_load');
-	$plugins->add_hook("admin_user_users_delete_commit","thankyoulike_delete_user");
 	$plugins->add_hook("admin_tools_recount_rebuild", "acp_tyl_do_recounting");
 	$plugins->add_hook("admin_tools_recount_rebuild_output_list", "acp_tyl_recount_form");
 	$plugins->add_hook("admin_config_settings_change","thankyoulike_settings_page");
@@ -2634,6 +2633,11 @@ function tyl_register_myalerts_formatter()
 				$alertContent = $alert->getExtraDetails();
 				$postLink = $this->buildShowLink($alert);
 
+				if (empty($outputAlert['from_user'])) {
+					global $lang;
+					$outputAlert['from_user'] = $lang->guest;
+				}
+
 				switch($alertContent['total_likes_count']) {
 				case 1:
 					return $this->lang->sprintf(
@@ -3422,92 +3426,6 @@ function thankyoulike_split_posts($args)
 	}
 }
 
-function thankyoulike_delete_user()
-{
-	global $db, $user;
-	$prefix = 'g33k_thankyoulike_';
-
-	// Only delete/update if the user had tyls
-	if($user['tyl_unumtyls'] != 0)
-	{
-		// Find all tyl data for this user
-		$query = $db->query("
-			SELECT tyl.*, p.tid
-			FROM ".TABLE_PREFIX.$prefix."thankyoulike tyl
-			LEFT JOIN ".TABLE_PREFIX."posts p ON (p.pid=tyl.pid)
-			WHERE tyl.uid='".$user['uid']."'
-		");
-		$tlids = array();
-		$post_tyls = array();
-		$thread_tyls = array();
-		$user_tyls = array();
-		while($tyl_user = $db->fetch_array($query))
-		{
-			$tlids[] = $tyl_user['tlid'];
-
-			// Count the tyl counts for each post to be subtracted
-			if($post_tyls[$tyl_user['pid']])
-			{
-				$post_tyls[$tyl_user['pid']]--;
-			}
-			else
-			{
-				$post_tyls[$tyl_user['pid']] = -1;
-			}
-			// Same for threads
-			if($thread_tyls[$tyl_user['tid']])
-			{
-				$thread_tyls[$tyl_user['tid']]--;
-			}
-			else
-			{
-				$thread_tyls[$tyl_user['tid']] = -1;
-			}
-			// Count tyls received by this user to be removed
-			if($user_tyls[$tyl_user['puid']])
-			{
-				$user_tyls[$tyl_user['puid']]--;
-			}
-			else
-			{
-				$user_tyls[$tyl_user['puid']] = -1;
-			}
-		}
-		// Remove tyl count from posts
-		if(is_array($post_tyls))
-		{
-			foreach($post_tyls as $pid => $subtract)
-			{
-				$db->write_query("UPDATE ".TABLE_PREFIX."posts SET tyl_pnumtyls=tyl_pnumtyls$subtract WHERE pid='$pid'");
-			}
-		}
-		// Remove tyl count from threads
-		if(is_array($thread_tyls))
-		{
-			foreach($thread_tyls as $tid => $subtract)
-			{
-				$db->write_query("UPDATE ".TABLE_PREFIX."threads SET tyl_tnumtyls=tyl_tnumtyls$subtract WHERE tid='$tid'");
-			}
-		}
-		// Remove tyl received count from users
-		if(is_array($user_tyls))
-		{
-			foreach($user_tyls as $puid => $subtract)
-			{
-				$db->write_query("UPDATE ".TABLE_PREFIX."users SET tyl_unumrcvtyls=tyl_unumrcvtyls$subtract WHERE uid='$puid'");
-			}
-		}
-		// Delete the tyls, update total
-		if($tlids)
-		{
-			$tlids_count = count($tlids);
-			$tlids = implode(',', $tlids);
-			$db->write_query("UPDATE ".TABLE_PREFIX.$prefix."stats SET value=value-$tlids_count WHERE title='total'");
-			$db->delete_query($prefix."thankyoulike", "tlid IN ($tlids)");
-		}
-	}
-}
-
 function thankyoulike_wol_activity($user_activity)
 {
 	global $user, $location;
@@ -4072,14 +3990,107 @@ function tyl_datahandler_user_delete_end($userdatahandler)
 	global $db;
 	$prefix = 'g33k_thankyoulike_';
 
-	// Rather than messing around trying to run ad-hoc queries and calculations
-	// to update tyls and counts given the deleted members, simply use our new
-	// all-at-once recount set of queries, which is quick enough for the job.
-	//
-	// We don't auto-close the board here as we do when this is accessed from the
-	// ACP's Recount & Rebuild tool simply because it would be unexpected when
-	// deleting members, and the risk of inconsistency is low. In the event of
-	// inconsistency, the recount *can* then be run from the ACP where the
-	// auto-closing of the board should avoid new inconsistencies.
-	tyl_recount_tyls();
+	$uids = $userdatahandler->delete_uids;
+
+	// Subtract the tyls given by deleted member(s) from the received tyl
+	// counts of the members whose posts were tyled.
+	$db->write_query(<<<EOSQL
+UPDATE {$db->table_prefix}users uu
+JOIN   (
+        SELECT puid,
+               COUNT(*) AS numrcvtyls
+        FROM   {$db->table_prefix}{$prefix}thankyoulike
+        WHERE  uid IN ({$uids})
+        GROUP BY puid
+       ) AS q_cntpuidtyls
+ON     uu.uid = q_cntpuidtyls.puid
+SET    uu.tyl_unumrcvtyls = uu.tyl_unumrcvtyls - q_cntpuidtyls.numrcvtyls
+EOSQL
+);
+
+	// Next, for posts that were tyled solely by the deleted member(s),
+	// determine, for each member with posts that were thus tyled, how many
+	// such posts there are, and subtract that sum from that member's
+	// count of posts which have received tyls.
+	$db->write_query(<<<EOSQL
+UPDATE {$db->table_prefix}users uu
+JOIN (
+      SELECT          p.uid,
+                      COUNT(*) AS numtyledposts
+      FROM            (
+                       SELECT pid,
+                              COUNT(*) AS pnumtyls
+                       FROM   {$db->table_prefix}{$prefix}thankyoulike
+                       WHERE  uid IN ({$uids})
+                       GROUP BY pid
+                      ) AS q_cntposttyls
+      LEFT OUTER JOIN {$db->table_prefix}posts p
+      ON              q_cntposttyls.pid = p.pid
+      WHERE           p.tyl_pnumtyls = q_cntposttyls.pnumtyls
+      GROUP BY        p.uid
+     ) AS q_unumtylp
+ON   uu.uid = q_unumtylp.uid
+SET  uu.tyl_unumptyls = uu.tyl_unumptyls - q_unumtylp.numtyledposts;
+EOSQL
+);
+
+	// Now, subtract the count of all the tyls by the deleted member(s)
+	// from the grand total in our stats table.
+	$db->write_query(<<<EOSQL
+UPDATE {$db->table_prefix}{$prefix}stats
+SET    value = value - (
+                        SELECT COUNT(*) AS numtyls
+                        FROM   {$db->table_prefix}{$prefix}thankyoulike
+                        WHERE  uid IN ({$uids})
+                       )
+WHERE  title = 'total'
+EOSQL
+);
+
+	// Now, subtract from each thread the count of tyls of its posts
+	// contributed by the deleted member(s).
+	$db->write_query(<<<EOSQL
+UPDATE {$db->table_prefix}threads t
+JOIN (
+      SELECT          t2.tid,
+                      COUNT(*) AS numtyls
+      FROM            {$db->table_prefix}{$prefix}thankyoulike tyl
+      LEFT OUTER JOIN {$db->table_prefix}posts p
+      ON              tyl.pid = p.pid
+      LEFT OUTER JOIN {$db->table_prefix}threads t2
+      ON              p.tid = t2.tid
+      WHERE           tyl.uid in ({$uids})
+      GROUP BY        t2.tid
+     ) AS q_ttyl
+ON   t.tid = q_ttyl.tid
+SET  t.tyl_tnumtyls = t.tyl_tnumtyls - q_ttyl.numtyls
+EOSQL
+);
+
+	// Prepare, if integrated with MyAlerts, to update any alerts affected
+	// by the deleted tyls of the deleted member(s).
+	$post_likes = array();
+	$query = $db->query(<<<EOSQL
+SELECT          p.pid, p.tyl_last_alerted_tyl_id, tyl.uid
+FROM            {$db->table_prefix}{$prefix}thankyoulike tyl
+LEFT OUTER JOIN {$db->table_prefix}posts p
+ON              tyl.pid = p.pid
+WHERE           tyl.uid in ({$uids})
+EOSQL
+);
+	while ($post_like = $db->fetch_array($query)) {
+		$post_likes[] = $post_like;
+	}
+
+	// Delete those tyls themselves which were given by the deleted member(s).
+	$db->delete_query("{$prefix}thankyoulike", "uid IN ({$uids})");
+
+	// Finally, update any alerts affected by the deleted tyls.
+	// We do this last because the function we call queries the
+	// database to determine the number of tyls for the post, so we
+	// need to make sure we call it after ensuring that number will
+	// be correct, by first running the above query to delete tyls.
+	foreach ($post_likes as $post_like) {
+		tyl_manage_alert_for_deleted_tyl($post_like, $post_like['uid']);
+	}
 }
