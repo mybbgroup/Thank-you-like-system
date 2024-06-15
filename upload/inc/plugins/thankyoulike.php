@@ -6,7 +6,7 @@
  * @author MyBB Group - Eldenroot - <eldenroot@gmail.com>
  * @copyright 2020 MyBB Group <http://mybb.group>
  * @link <https://github.com/mybbgroup/MyBB_Thank-you-like-plugin>
- * @version 3.4.5
+ * @version 3.4.6
  * @license GPL-3.0
  *
  */
@@ -99,10 +99,10 @@ function thankyoulike_info()
 		"website"	=> "https://community.mybb.com/thread-169382.html",
 		"author"	=> "MyBB Group with love <3",
 		"authorsite"	=> "https://community.mybb.com/thread-169382.html",
-		"version"	=> "3.4.5",
+		"version"	=> "3.4.6",
 		// Constructed by converting each digit of "version" above into two digits (zero-padded if necessary),
 		// then concatenating them, then removing any leading zero to avoid the value being interpreted as octal.
-		"version_code"  => 30405,
+		"version_code"  => 30406,
 		"codename"	=> "thankyoulikesystem",
 		"compatibility"	=> "18*"
 	);
@@ -318,32 +318,59 @@ function tyl_myalerts_integrate()
 	return $ret;
 }
 
+function tyl_get_gid()
+{
+	global $db;
+	$prefix = 'g33k_thankyoulike_';
+
+	$query = $db->simple_select('settinggroups', 'gid', "name = '{$prefix}settings'", array(
+		'order_by' => 'gid',
+		'order_dir' => 'DESC',
+		'limit' => 1
+	));
+
+	return $db->fetch_field($query, 'gid');
+}
+
 /**
- * Creates the plugin's settings. Assumes the settings do not already exist,
- * i.e., that they have already been deleted if they were preexisting.
- * @param array The existing settings values indexed by their (prefixed) setting names.
+ * Creates or updates this plugin's settings.
  */
-function tyl_create_settings($existing_setting_values = array())
+function tyl_create_or_update_settings()
 {
 	global $db, $lang;
 	$lang->load('config_thankyoulike');
 	$prefix = 'g33k_thankyoulike_';
 
-	$query = $db->query("SELECT disporder FROM ".TABLE_PREFIX."settinggroups ORDER BY `disporder` DESC LIMIT 1");
-	$disporder = $db->fetch_field($query, 'disporder')+1;
-
-	// Insert the plugin's settings group into the database.
 	$setting_group = array(
 		'name'         => $prefix.'settings',
 		'title'        => $db->escape_string($lang->tyl_title),
-		'description'  => $db->escape_string($lang->tyl_desc),
-		'disporder'    => intval($disporder),
+		'description'  => $db->escape_string($lang->tyl_desc ),
 		'isdefault'    => 0
 	);
-	$db->insert_query('settinggroups', $setting_group);
-	$gid = $db->insert_id();
+	$gid = tyl_get_gid();
+	if(empty($gid))
+	{
+		// Insert the plugin's settings group into the database.
+		$query = $db->query('SELECT MAX(disporder) as max_disporder FROM '.TABLE_PREFIX.'settinggroups');
+		$setting_group['disporder'] = intval($db->fetch_field($query, 'max_disporder')) + 1;
+		$db->insert_query('settinggroups', $setting_group);
+		$gid = $db->insert_id();
+	}
+	else
+	{
+		// Update the plugin's settings group in the database.
+		$db->update_query('settinggroups', $setting_group, "gid='{$gid}'");
+	}
 
-	// Now insert each of its settings values into the database...
+	// Get the plugin's existing settings, if any.
+	$existing_settings = array();
+	$query = $db->simple_select('settings', 'name', "gid='{$gid}'");
+	while($setting = $db->fetch_array($query))
+	{
+		$existing_settings[] = $setting['name'];
+	}
+
+	// Define the plugin's (new/updated) settings.
 	$settings = array(
 		'enabled'                         => array(
 			'title'       => $lang->tyl_enabled_title,
@@ -587,23 +614,48 @@ function tyl_create_settings($existing_setting_values = array())
 		),
 	);
 
-	$x = 1;
+	// Delete existing settings no longer present in the plugin's current version.
+	$new_settings = array_map(function($e) use ($prefix) {return $prefix.$e;}, array_keys($settings));
+	$to_delete = array_diff($existing_settings, $new_settings);
+	if($to_delete)
+	{
+		$names_esc_cs_qt = "'".implode("', '", array_map([$db, 'escape_string'], $to_delete))."'";
+		$db->delete_query('settings', "name IN ({$names_esc_cs_qt}) AND gid='{$gid}'");
+	}
+
+	// Insert into, or update in, the database each of this plugin's settings.
+	$disporder = 1;
+	$inserts = [];
 	foreach($settings as $name => $setting)
 	{
-		$value = isset($existing_setting_values[$prefix.$name]) ? $existing_setting_values[$prefix.$name] : $setting['value'];
-		$insert_settings = array(
-			'name' => $db->escape_string($prefix.$name),
-			'title' => $db->escape_string($setting['title']),
+		$fields = array(
+			'name'        => $db->escape_string($prefix.$name          ),
+			'title'       => $db->escape_string($setting['title'      ]),
 			'description' => $db->escape_string($setting['description']),
-			'optionscode' => $setting['optionscode'],
-			// ...keeping any existing values.
-			'value' => $db->escape_string($value),
-			'disporder' => $x,
-			'gid' => $gid,
-			'isdefault' => 0
+			'optionscode' => $db->escape_string($setting['optionscode']),
+			'value'       => $db->escape_string($setting['value'      ]),
+			'disporder'   => $disporder                                 ,
+			'gid'         => $gid                                       ,
+			'isdefault'   => 0                                          ,
 		);
-		$db->insert_query('settings', $insert_settings);
-		$x++;
+		if(in_array($prefix.$name, $existing_settings))
+		{
+			// Update the already-existing setting while retaining its value.
+			unset($fields['value']);
+			$db->update_query('settings', $fields, "name='{$prefix}{$name}' AND gid='{$gid}'");
+		}
+		else
+		{
+			// Queue the new setting for insertion.
+			$inserts[] = $fields;
+		}
+		$disporder++;
+	}
+
+	if($inserts)
+	{
+		// Insert the queued new settings.
+		$db->insert_query_multiple('settings', $inserts);
 	}
 
 	rebuild_settings();
@@ -732,9 +784,29 @@ function tyl_check_update_db_table_and_cols($from_version = false)
 	}
 }
 
-function tyl_insert_templates()
+/**
+ * Inserts or updates this plugin's templates, first, if necessary, creating
+ * its template group.
+ *
+ * @param string $from_version The version from which we are upgrading, or
+ *                             false if we are installing rather than upgrading.
+ */
+function tyl_insert_or_update_templates($from_version)
 {
-	global $mybb, $db;
+	global $db;
+
+	// First, create this plugin's templategroup if it does not already
+	// exist.
+	$query = $db->simple_select('templategroups', 'gid', "prefix='thankyoulike'");
+	if(!$db->fetch_field($query, 'gid'))
+	{
+		// Insert Template elements
+		$templateset = array(
+			"prefix" => "thankyoulike",
+			"title" => "Thank You/Like",
+		);
+		$db->insert_query("templategroups", $templateset);
+	}
 
 	$tyl_templates = array(
 		'thankyoulike_postbit' =>
@@ -1006,8 +1078,6 @@ function tyl_insert_templates()
 		),
 	);
 
-	// Could be zero (false) if we are installing or if upgrading a very old installation.
-	$from_version = tyl_get_installed_version();
 	foreach($tyl_templates as $template_title => $template_data)
 	{
 		// First, flag any of this plugin's templates that have been modified in the plugin since
@@ -1016,32 +1086,29 @@ function tyl_insert_templates()
 		// *if* the user has also modified them, and without false positives. The way we flag them
 		// is to zero the `version` column of the `templates` table where `sid` is not -2 for this
 		// plugin's templates.
-		if ($template_data['version_at_last_change'] > $from_version) {
+		if($template_data['version_at_last_change'] > $from_version)
+		{
 			$db->update_query('templates', array('version' => 0), "title='{$template_title}' and sid <> -2");
 		}
 
 		// Now insert/update master templates with SID -2.
-		$insert_templates = array(
+		$fields = array(
 			'title'    => $db->escape_string($template_title),
 			'template' => $db->escape_string($template_data['template']),
 			'sid'      => "-2",
 			'version'  => '1',
 			'dateline' => TIME_NOW
 		);
-		$db->insert_query('templates', $insert_templates);
+		$query = $db->simple_select('templates', 'tid', "title='{$fields['title']}' AND sid='-2'");
+		if($tid = $db->fetch_field($query, 'tid'))
+		{
+			$db->update_query('templates', $fields, "tid='$tid'");
+		}
+		else
+		{
+			$db->insert_query('templates', $fields);
+		}
 	}
-}
-
-function tyl_create_templategroup()
-{
-	global $db;
-
-	// Insert Template elements
-	$templateset = array(
-		"prefix" => "thankyoulike",
-		"title" => "Thank You/Like",
-	);
-	$db->insert_query("templategroups", $templateset);
 }
 
 /**
@@ -1165,49 +1232,11 @@ function tyl_create_stylesheet()
  * Perform the tasks in common between installing and upgrading.
  * @param boolean $from_version Set to version from which we are upgrading if upgrading; false if installing.
  */
-function tyl_install_upgrade_common($from_version = false)
-{
-	global $cache, $lang;
-	$lang->load('config_thankyoulike');
-	$info = thankyoulike_info();
-
-	// Where necessary, create the plugin's tables in the database and
-	// add to core MyBB tables those columns needed for this plugin.
-	tyl_check_update_db_table_and_cols($from_version);
-
-	// (Re)create the plugin's template group and templates.
-	tyl_create_templategroup();
-	tyl_insert_templates();
-
-	// (Re)create the thankyoulike.css stylesheet for the Master theme.
-	// Does not affect any changes made to the stylesheet for specific themes,
-	// so the admin may need to update those after viewing the stylesheet via the
-	// "View the Master theme's thankyoulike.css" link in the plugin's entry in
-	// the ACP's "Active Plugins" page.
-	tyl_create_stylesheet();
-
-	// Now that we've installed or upgraded the plugin, store its installed version into its stats table
-	// for use when checking whether to upgrade it.
-	tyl_set_installed_version($info['version_code']);
-
-	// Integrate with MyAlerts if possible.
-	tyl_myalerts_integrate();
-
-	$cache->update_usergroups();
-	$cache->update_forums();
-	$cache->update_tasks();
-}
-
 function thankyoulike_install()
 {
-	// Run preinstall cleanup.
-	tyl_preinstall_cleanup();
-
-	// Create the plugin's settings.
-	tyl_create_settings();
-
-	// Perform the tasks in common between installing and upgrading.
-	tyl_install_upgrade_common();
+	// We don't do anything here. Given that a plugin cannot be installed
+	// without being simultaneously activated, it is sufficient to call
+	// shortnm_install_or_upgrade() from codename_activate().
 }
 
 function thankyoulike_is_installed()
@@ -1242,14 +1271,18 @@ function tyl_get_installed_version()
 	$prefix = 'g33k_thankyoulike_';
 
 	$options = array(
-			"limit" => 1
+		"limit" => 1
 	);
 
-	$query = $db->simple_select($prefix."stats", "*", "title='version'", $options);
-	$version = $db->fetch_array($query);
-	if ($version)
+	$version = false;
+	if($db->table_exists("{$prefix}stats"))
 	{
-		$version = $version['value'];
+		$query = $db->simple_select($prefix."stats", "*", "title='version'", $options);
+		$version = $db->fetch_array($query);
+		if($version)
+		{
+			$version = $version['value'];
+		}
 	}
 
 	return $version;
@@ -1274,44 +1307,43 @@ function tyl_set_installed_version($version_code)
 	$db->insert_query($prefix."stats", $version_data);
 }
 
-function tyl_upgrade($from_version)
+function tyl_install_or_upgrade($from_version = null, $to_version = null)
 {
-	global $db;
+	global $db, $cache;
 	$prefix = 'g33k_thankyoulike_';
 
-	// Currently, we don't use $from_version, but potentially it will be used
-	// in the future either to delete defunct data structures removed since that
-	// old version or to update the definitions of columns that have changed
-	// since that old version.
-
-	// First, save existing values for the plugin's settings.
-	$existing_setting_values = array();
-	$result = $db->simple_select('settinggroups', 'gid', "name = '{$prefix}settings'", array('limit' => 1));
-	$group = $db->fetch_array($result);
-	if(!empty($group['gid']))
+	if(empty($to_version))
 	{
-		$query = $db->simple_select('settings', 'value, name', "gid='{$group['gid']}'");
-		while($setting = $db->fetch_array($query))
-		{
-			$existing_setting_values[$setting['name']] = $setting['value'];
-		}
+		$info = thankyoulike_info();
+		$to_version = $info['version'];
 	}
 
-	// Now, run the cleanup with the $for_upgrade parameter set true. Amongst other things,
-	// most notably deleting the plugin's existing Master (sid=-2) templates, this will
-	// delete all settings, which is why we save their values above.
-	tyl_preinstall_cleanup(/*$for_upgrade=*/true);
+	// Create or update this plugin's settings.
+	tyl_create_or_update_settings();
 
-	// Now, recreate and rebuild settings, so that any new settings and any rewordings/changes
-	// to existing settings take effect, but also ensuring that old values are kept where they exist,
-	// saving admins from having to re-enter them.
-	tyl_create_settings($existing_setting_values);
+	// Create/update this plugin's templates.
+	tyl_insert_or_update_templates($from_version);
 
-	// Delete any existing thankyoulike.css stylesheet in the Master theme (tid=1).
-	$db->delete_query("themestylesheets", "name = 'thankyoulike.css' AND tid = 1");
+	// Delete old unnecessary files
+	if(file_exists(MYBB_ROOT."/admin/modules/tools/thankyoulike_recount.php"))
+	{
+		@unlink(MYBB_ROOT."/admin/modules/tools/thankyoulike_recount.php");
+	}
+	if(file_exists(MYBB_ROOT."/inc/languages/english/admin/tools_thankyoulike_recount.lang.php"))
+	{
+		@unlink(MYBB_ROOT."/inc/languages/english/admin/tools_thankyoulike_recount.lang.php");
+	}
 
-	// Perform the tasks in common between installing and upgrading.
-	tyl_install_upgrade_common($from_version);
+	// Where necessary, create the plugin's tables in the database and
+	// add to core MyBB tables those columns needed for this plugin.
+	tyl_check_update_db_table_and_cols($from_version);
+
+	// Integrate with MyAlerts if possible.
+	tyl_myalerts_integrate();
+
+	$cache->update_usergroups();
+	$cache->update_forums();
+	$cache->update_tasks();
 }
 
 function thankyoulike_activate()
@@ -1322,29 +1354,31 @@ function thankyoulike_activate()
 	$info = thankyoulike_info();
 	$from_version = tyl_get_installed_version();
 	$to_version   = $info['version_code'];
+
+	tyl_install_or_upgrade($from_version, $to_version);
 	if($from_version != $to_version)
 	{
-		// Do upgrade.
-		tyl_upgrade($from_version);
-		$tyl_plugin_upgrade_message = $lang->sprintf($lang->tyl_successful_upgrade_msg, $lang->tyl_info_title, $info['version']);
-		update_admin_session('tyl_plugin_info_upgrade_message', $lang->sprintf($lang->tyl_successful_upgrade_msg_for_info, $info['version']));
+		tyl_set_installed_version($to_version);
+		if($from_version)
+		{
+			$tyl_plugin_upgrade_message = $lang->sprintf($lang->tyl_successful_upgrade_msg, $lang->tyl_info_title, $info['version']);
+			update_admin_session('tyl_plugin_info_upgrade_message', $lang->sprintf($lang->tyl_successful_upgrade_msg_for_info, $info['version']));
+		}
 	}
-	else
-	{
-		// (Re)create the thankyoulike.css Master stylesheet.
-		//
-		// We do this here to make it easy for admins to recreate stylesheets deleted
-		// on MyBB core upgrade[1]: it is as easy as deactivating and then reactivating
-		// the plugin.
-		//
-		// [1] See https://community.mybb.com/thread-229633.html
 
-		// First, delete any existing thankyoulike.css stylesheet in the Master theme (tid=1).
-		$db->delete_query("themestylesheets", "name = 'thankyoulike.css' AND tid = 1");
+	// (Re)create the thankyoulike.css Master stylesheet.
+	//
+	// We do this here to make it easy for admins to recreate stylesheets deleted
+	// on MyBB core upgrade[1]: it is as easy as deactivating and then reactivating
+	// the plugin.
+	//
+	// [1] See https://community.mybb.com/thread-229633.html
 
-		// Now (re)create the Master stylesheet.
-		tyl_create_stylesheet();
-	}
+	// First, delete any existing thankyoulike.css stylesheet in the Master theme (tid=1).
+	$db->delete_query("themestylesheets", "name = 'thankyoulike.css' AND tid = 1");
+
+	// Now (re)create the Master stylesheet.
+	tyl_create_stylesheet();
 
 	if($mybb->settings[$prefix.'disablecoretplchanges'] != 1)
 	{
@@ -1526,18 +1560,21 @@ function tyl_myalerts_unintegrate()
  * Remove plugin-specific settings.
  * @param boolean Set to true if rebuild_settings() should be run after removing settings.
  */
-function tyl_remove_settings($rebuild_settings = true)
+function tyl_remove_settings()
 {
 	global $db;
 	$prefix = 'g33k_thankyoulike_';
 
-	$result = $db->simple_select('settinggroups', 'gid', "name = '{$prefix}settings'", array('limit' => 1));
-	$group = $db->fetch_array($result);
-	if(!empty($group['gid']))
+	$rebuild_settings = false;
+	$query = $db->simple_select('settinggroups', 'gid', "name = '{$prefix}settings'");
+	while ($gid = $db->fetch_field($query, 'gid'))
 	{
-		$db->delete_query('settinggroups', "gid='{$group['gid']}'");
-		$db->delete_query('settings', "gid='{$group['gid']}'");
-		if ($rebuild_settings) rebuild_settings();
+		$db->delete_query('settinggroups', "gid='{$gid}'");
+		$db->delete_query('settings', "gid='{$gid}'");
+		$rebuild = true;
+	}
+	if ($rebuild) {
+		rebuild_settings();
 	}
 }
 
@@ -3853,55 +3890,6 @@ function tyl_limits_usergroup_permission_commit()
 	if (isset($mybb->input['tyl_flood_interval'])) {
 		$updated_group['tyl_flood_interval'] = $db->escape_string((int)$mybb->input['tyl_flood_interval']);
 	}
-}
-
-function tyl_preinstall_cleanup($for_upgrade = false)
-{
-	global $db, $cache;
-
-	$prefix = 'g33k_thankyoulike_';
-
-	//delete old unnecessary files
-	if(file_exists(MYBB_ROOT."/admin/modules/tools/thankyoulike_recount.php"))
-	{
-		@unlink(MYBB_ROOT."/admin/modules/tools/thankyoulike_recount.php");
-	}
-	if(file_exists(MYBB_ROOT."/inc/languages/english/admin/tools_thankyoulike_recount.lang.php"))
-	{
-		@unlink(MYBB_ROOT."/inc/languages/english/admin/tools_thankyoulike_recount.lang.php");
-	}
-
-	// Remove old templates, except, when we are upgrading, for user-modified templates.
-	$and_where = ($for_upgrade ? ' AND sid=-2' : '');
-	$db->delete_query("templates", "title LIKE 'thankyoulike%'".$and_where);
-	$db->delete_query("templategroups", "prefix in ('thankyoulike')");
-
-	// Remove old CSS rules for g33k_thankyoulike
-	require_once MYBB_ADMIN_DIR."inc/functions_themes.php";
-	$db->delete_query("themestylesheets", "name='g33k_thankyoulike.css'");
-	$query = $db->simple_select("themes", "tid");
-	while($theme = $db->fetch_array($query))
-	{
-		update_theme_stylesheet_list($theme['tid']);
-	}
-
-	// Remove old settings
-	$result = $db->simple_select('settinggroups', 'gid', "name = '{$prefix}settings'", array('limit' => 1));
-	$group = $db->fetch_array($result);
-
-	if(!empty($group['gid']))
-	{
-		$db->delete_query('settinggroups', "gid='{$group['gid']}'");
-		$db->delete_query('settings', "gid='{$group['gid']}'");
-		if(!$for_upgrade)
-		{
-			rebuild_settings();
-		}
-	}
-
-	$cache->update_usergroups();
-	$cache->update_forums();
-	$cache->update_tasks();
 }
 
 /**
