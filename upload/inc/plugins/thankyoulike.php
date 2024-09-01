@@ -99,7 +99,7 @@ function thankyoulike_info()
 		"website"	=> "https://community.mybb.com/thread-169382.html",
 		"author"	=> "MyBB Group with love <3",
 		"authorsite"	=> "https://community.mybb.com/thread-169382.html",
-		"version"	=> "3.4.6",
+		"version"	=> "3.4.6-postrelease",
 		// Constructed by converting each digit of "version" above into two digits (zero-padded if necessary),
 		// then concatenating them, then removing any leading zero to avoid the value being interpreted as octal.
 		"version_code"  => 30406,
@@ -1236,7 +1236,7 @@ function thankyoulike_install()
 {
 	// We don't do anything here. Given that a plugin cannot be installed
 	// without being simultaneously activated, it is sufficient to call
-	// shortnm_install_or_upgrade() from codename_activate().
+	// tyl_install_or_upgrade() from thankyoulike_activate().
 }
 
 function thankyoulike_is_installed()
