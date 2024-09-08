@@ -2734,7 +2734,7 @@ function tyl_register_myalerts_formatter()
 
 function thankyoulike_memprofile()
 {
-	global $db, $mybb, $lang, $memprofile, $templates, $tyl_memprofile, $tyl_profile_stats, $uid, $post;
+	global $db, $mybb, $lang, $memprofile, $templates, $tyl_memprofile, $tyl_profile_box, $tyl_profile_stats, $uid, $post;
 	$prefix = 'g33k_thankyoulike_';
 
 	if (empty($lang->tyl_send)) {
@@ -2836,7 +2836,7 @@ function thankyoulike_memprofile()
 		// Member Profile Box Start
 		if($mybb->settings[$prefix.'show_memberprofile_box'] != 0)
 		{
-			global $theme, $tyl_profile_box, $tyl_profile_box_content;
+			global $theme, $tyl_profile_box_content;
 
 			$tyl_profile_box = $tyl_profile_box_content = "";
 			if($mybb->settings[$prefix.'thankslike'] == "like")
