@@ -1406,8 +1406,8 @@ function thankyoulike_activate()
 		find_replace_templatesets("postbit_classic", "#".preg_quote('{$post[\'button_edit\']}')."#i", '{$post[\'button_tyl\']}{$post[\'button_edit\']}');
 		find_replace_templatesets("postbit_author_user", "#".preg_quote('{$lang->postbit_threads} {$post[\'threadnum\']}<br />')."#i", '{$lang->postbit_threads} {$post[\'threadnum\']}<br />
 		%%TYL_NUMTHANKEDLIKED%%<br />');
-		find_replace_templatesets("member_profile", '#{\$reputation}(\r?)\n#', "{\$tyl_memprofile}\n\t\t\t\t{\$reputation}\n");
-		find_replace_templatesets("member_profile", '#{\$modoptions}(\r?)\n#', "{\$tyl_profile_box}\n\t\t\t{\$tyl_profile_stats}\n\t\t\t{\$modoptions}\n");
+		find_replace_templatesets("member_profile", '#{\$reputation}\\r?\\n?#', "{\$tyl_memprofile}\n\t\t\t\t{\$reputation}\n");
+		find_replace_templatesets("member_profile", '#{\$modoptions}\\r?\\n?#', "{\$tyl_profile_box}\n\t\t\t{\$tyl_profile_stats}\n\t\t\t{\$modoptions}\n");
 		find_replace_templatesets("forumdisplay_thread","#".preg_quote('{$attachment_count}')."#i","{\$tyl_forumdisplay_thread_var}{\$attachment_count}");
 		find_replace_templatesets("search_results_threads_thread","#".preg_quote('{$attachment_count}')."#i","{\$tyl_search_page_var}{\$attachment_count}");
 	}
@@ -1425,31 +1425,32 @@ function thankyoulike_deactivate()
 
 	if($mybb->settings[$prefix.'disablecoretplchanges'] != 1)
 	{
-		find_replace_templatesets("showthread", "#".preg_quote('<script type="text/javascript" src="{$mybb->settings[\'bburl\']}/jscripts/thankyoulike.min.js').'(\\?ver=\\d+)?'.preg_quote('"></script>
-<script type="text/javascript">
-<!--
-	var tylEnabled = "{$mybb->settings[\'g33k_thankyoulike_enabled\']}";
-	var tylDisplayGrowl = "{$mybb->settings[\'g33k_thankyoulike_displaygrowl\']}";
-	var tylCollapsible = "{$mybb->settings[\'g33k_thankyoulike_collapsible\']}";
-	var tylCollDefault = "{$mybb->settings[\'g33k_thankyoulike_colldefault\']}";
-	var tylUser = "{$mybb->user[\'uid\']}";
-	var tylSend = "{$lang->tyl_send}";
-	var tylRemove = "{$lang->tyl_remove}";
-// -->
-</script>
-')."#i", '', 0);
-
+		find_replace_templatesets("showthread", '#'.
+			preg_quote('<script type="text/javascript" src="{$mybb->settings[\'bburl\']}/jscripts/thankyoulike.min.js').'(\\?ver=\\d+)?'.preg_quote('"></script>').'\\r?\\n?'.
+			preg_quote('<script type="text/javascript">').'\\r?\\n?'.
+			preg_quote('<!--').'\\r?\\n?'.
+			preg_quote('	var tylEnabled = "{$mybb->settings[\'g33k_thankyoulike_enabled\']}";').'\\r?\\n?'.
+			preg_quote('	var tylDisplayGrowl = "{$mybb->settings[\'g33k_thankyoulike_displaygrowl\']}";').'\\r?\\n?'.
+			preg_quote('	var tylCollapsible = "{$mybb->settings[\'g33k_thankyoulike_collapsible\']}";').'\\r?\\n?'.
+			preg_quote('	var tylCollDefault = "{$mybb->settings[\'g33k_thankyoulike_colldefault\']}";').'\\r?\\n?'.
+			preg_quote('	var tylUser = "{$mybb->user[\'uid\']}";').'\\r?\\n?'.
+			preg_quote('	var tylSend = "{$lang->tyl_send}";').'\\r?\\n?'.
+			preg_quote('	var tylRemove = "{$lang->tyl_remove}";').'\\r?\\n?'.
+			preg_quote('// -->').'\\r?\\n?'.
+			preg_quote('</script>').'\\r?\\n?'.
+			'#i',
+			'', 0
+		);
 		find_replace_templatesets("postbit", "#".preg_quote('{$post[\'styleclass\']}')."#i", '', 0);
 		find_replace_templatesets("postbit_classic", "#".preg_quote('{$post[\'styleclass\']}')."#i", '', 0);
-		find_replace_templatesets("postbit", "#".preg_quote('<div style="{$post[\'tyl_display\']}" id="tyl_{$post[\'pid\']}">{$post[\'thankyoulike_data\']}</div>')."(\r?)\n#", '', 0);
-		find_replace_templatesets("postbit_classic", "#".preg_quote('<div style="{$post[\'tyl_display\']}" id="tyl_{$post[\'pid\']}">{$post[\'thankyoulike_data\']}</div>')."(\r?)\n#", '', 0);
+		find_replace_templatesets("postbit", "#".preg_quote('<div style="{$post[\'tyl_display\']}" id="tyl_{$post[\'pid\']}">{$post[\'thankyoulike_data\']}</div>').'\\r?\\n?#', '', 0);
+		find_replace_templatesets("postbit_classic", "#".preg_quote('<div style="{$post[\'tyl_display\']}" id="tyl_{$post[\'pid\']}">{$post[\'thankyoulike_data\']}</div>').'\\r?\\n?#', '', 0);
 		find_replace_templatesets("postbit", "#".preg_quote('{$post[\'button_tyl\']}')."#i", '', 0);
 		find_replace_templatesets("postbit_classic", "#".preg_quote('{$post[\'button_tyl\']}')."#i", '', 0);
-		find_replace_templatesets("postbit_author_user", "#".preg_quote('
-		%%TYL_NUMTHANKEDLIKED%%<br />')."#i", '', 0);
-		find_replace_templatesets("member_profile", '#(\t*)?{\$tyl_memprofile}(\r?)(\n?)#', "", 0);
-		find_replace_templatesets("member_profile", '#(\t*)?{\$tyl_profile_box}(\r?)(\n?)#', "", 0);
-		find_replace_templatesets("member_profile", '#(\t*)?{\$tyl_profile_stats}(\r?)(\n?)#', "", 0);
+		find_replace_templatesets("postbit_author_user", '#\\r?\\n?'.preg_quote('		%%TYL_NUMTHANKEDLIKED%%<br />')."#i", '', 0);
+		find_replace_templatesets("member_profile", '#(\\t*)?{\$tyl_memprofile}\\r?\\n?#', "", 0);
+		find_replace_templatesets("member_profile", '#(\\t*)?{\$tyl_profile_box}\\r?\\n?#', "", 0);
+		find_replace_templatesets("member_profile", '#(\\t*)?{\$tyl_profile_stats}\\r?\\n?#', "", 0);
 		find_replace_templatesets("forumdisplay_thread", '#{\$tyl_forumdisplay_thread_var}#', "", 0);
 		find_replace_templatesets("search_results_threads_thread", '#{\$tyl_search_page_var}#', "", 0);
 	}
