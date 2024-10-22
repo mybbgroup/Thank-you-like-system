@@ -2376,8 +2376,15 @@ function thankyoulike_threads_udetails()
 			$lang->$key_1st_post_tyl_count = $lang->sprintf($lang->$key_1st_post_tyl_count, $lang->$key_tyls_sm);
 		}
 
-		$thread['tyls'] = $tyl_threads_cached[$thread['tid']];
-		eval("\$tyl_{$page_type}_var = \"" . $templates->get("thankyoulike_tyl_counter_{$page_type}") . "\";");
+		if(isset($tyl_threads_cached[$thread['tid']]))
+		{
+			$thread['tyls'] = $tyl_threads_cached[$thread['tid']];
+			eval("\$tyl_{$page_type}_var = \"" . $templates->get("thankyoulike_tyl_counter_{$page_type}") . "\";");
+		}
+		else
+		{
+			${"tyl_{$page_type}_var"} = '';
+		}
 	}
 }
 
@@ -3516,7 +3523,7 @@ function thankyoulike_settings_page()
 
 	$query = $db->simple_select("settinggroups", "gid", "name='{$prefix}settings'", array('limit' => 1));
 	$group = $db->fetch_array($query);
-	$g33k_settings_peeker = ($mybb->input["gid"] == $group["gid"]) && ($mybb->request_method != "post");
+	$g33k_settings_peeker = ($mybb->get_input("gid") == $group["gid"]) && ($mybb->request_method != "post");
 }
 
 function thankyoulike_settings_peeker()
