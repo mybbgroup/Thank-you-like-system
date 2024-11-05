@@ -68,7 +68,7 @@ if($mybb->settings[$prefix.'enabled'] != "1")
 	error($lang->sprintf($lang->tyl_error_disabled, $pre));
 }
 
-$tyl_uid = 	intval($mybb->input['uid']);
+$tyl_uid = empty($mybb->input['uid']) ? 0 : intval($mybb->input['uid']);
 
 if($mybb->input['action'] == "usertylthreads" && $tyl_uid)
 {
